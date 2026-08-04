@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EQPS - MSA (R&R)</title>
+<script src="https://unpkg.com/@phosphor-icons/web"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+  :root{--bg:#0a1628;--panel:#0f1e36;--muted:#1a2942;--card:#0d1a2e;--text:#e5e7eb;--accent:#ff7a1a;--accent2:#ffa552;--ok:#22c55e;--warn:#f59e0b;--bad:#ef4444;--shadow:0 10px 30px rgba(0,0,0,.45);--radius:16px;}
+  *{box-sizing:border-box}html,body{height:100%}
+  body{margin:0;font-family:system-ui,Inter,Arial;background:linear-gradient(120deg,#081225,#0a1a35);color:var(--text);display:grid;grid-template-columns:280px 1fr;grid-template-rows:auto 1fr;}
+  header{grid-column:1/3;display:flex;align-items:center;justify-content:space-between;padding:14px 20px;background:linear-gradient(90deg,#081225,#0a1f3d);border-bottom:1px solid #1e2f4d;position:sticky;top:0;z-index:5}
+  .header-title h1{margin:0;font-size:20px;}.header-title .subtitle{margin:4px 0 0 0;font-size:14px;color:var(--accent);}.header-title .dev-credit{margin:4px 0 0 0;font-size:11px;color:#64748b;}
+  button,.btn{background:var(--muted);color:var(--text);border:1px solid #2a3a55;border-radius:12px;padding:10px 14px;cursor:pointer;box-shadow:var(--shadow);transition:.2s;font-weight:600}
+  button:hover,.btn:hover{transform:translateY(-1px);border-color:#3d4f6f}
+  button.primary,.btn.primary{background:linear-gradient(180deg,#ff7a1a,#e85d04);border-color:transparent;color:#fff}
+  button.ghost,.btn.ghost{background:transparent;border-color:#3d4f6f}
+  aside{border-right:1px solid #1e2f4d;background:linear-gradient(180deg,#081225,#0a1a35);padding:16px;display:flex;flex-direction:column;gap:24px;justify-content:space-between;}
+  main{padding:18px;overflow:auto}.hidden{display:none!important}
+  section{background:rgba(255,255,255,.03);border:1px solid #1e2f4d;border-radius:var(--radius);padding:16px;margin-bottom:18px;box-shadow:var(--shadow)}
+  h2,h3,h4{margin:0 0 12px 0;color:var(--accent);}h4{color:var(--accent2)}
+  .grid{display:grid;grid-template-columns:repeat(12,1fr);gap:12px}
+  .field{display:flex;flex-direction:column;gap:6px}label{font-size:12px;color:#ffa552}
+  input,select,textarea{background:#0d1a2e;border:1px solid #2a3a55;color:var(--text);padding:10px 12px;border-radius:10px;font-size:14px;min-height:44px}
+  table{width:100%;border-collapse:collapse;}th,td{padding:10px 12px;border-bottom:1px solid var(--muted);text-align:left;font-size:14px;}th{background:rgba(255,122,26,.08);color:#ffa552;}
+  .dashboard-card{background:var(--card);padding:16px;border-radius:12px;text-align:center;border:1px solid var(--muted);}.dashboard-card .value{font-size:24px;font-weight:bold;color:var(--accent2);margin-bottom:8px;}.dashboard-card .label{font-size:12px;color:#ffa552;}
+  .verdict-card{padding:20px;border-radius:12px;font-size:20px;font-weight:bold;text-align:center;color:#fff;}.verdict-ok{background:linear-gradient(45deg,#22c55e,#15803d);}.verdict-warn{background:linear-gradient(45deg,#f59e0b,#a16207);}.verdict-bad{background:linear-gradient(45deg,#ef4444,#991b1b);}
+  #collection-grid td input{width:100%;text-align:center;padding:6px;}
+  .action-item-block{padding:12px;border:1px solid var(--muted);border-radius:12px;background:var(--card);position:relative;margin-top:10px;}
+  .remove-action-btn{position:absolute;top:5px;right:5px;background:none;border:none;color:#fca5a5;font-size:1.5rem;cursor:pointer;}
+  #record-counter{background:rgba(255,255,255,.02);border:1px solid #1e2f4d;border-radius:12px;padding:12px;}#record-counter p{display:flex;justify-content:space-between;}#record-counter span{color:var(--accent);font-weight:bold;}
+  #toast-container{position:fixed;top:20px;right:20px;z-index:200;display:flex;flex-direction:column;gap:10px;}
+  .toast{padding:12px 18px;border-radius:12px;color:#fff;font-weight:600;opacity:0;transform:translateX(100%);transition:.4s;}.toast.show{opacity:1;transform:translateX(0);}.toast.success{background:linear-gradient(90deg,#22c55e,#16a34a);}.toast.error{background:linear-gradient(90deg,#ef4444,#dc2626);}.toast.info{background:linear-gradient(90deg,#ff7a1a,#e85d04);}
+  @media print{body{grid-template-columns:1fr;color:#000;background:#fff;}header,aside,.hidden-print,.btn{display:none!important;}}
+</style>
+</head>
+<body>
+<div id="toast-container"></div>
+<header>
+  <div class="header-title"><h1>🛡️ EQPS</h1><p class="subtitle">MSA - Análise de Sistemas de Medição (R&R)</p><p class="dev-credit">Desenvolvido por Marcos Garçon</p></div>
+  <div style="display:flex;gap:8px;flex-wrap:wrap;">
+    <button class="btn ghost" id="btn-restore-backup">Restaurar</button>
+    <button class="btn ghost" id="btn-download-backup">Backup</button>
+    <button class="btn ghost" id="btn-archive-and-clear" style="color:var(--warn);">Arquivar</button>
+    <button class="btn primary" id="btn-export-pdf">PDF</button>
+  </div>
+</header>
+<aside>
+  <div><div id="record-counter"><h4>Registros</h4><p>Estudos R&R: <span id="msa-count">0</span></p></div></div>
+</aside>
+<main>
+  <div id="dashboard-container">
+    <section>
+      <div style="display:flex;justify-content:space-between;align-items:center;"><h2>Estudos R&R</h2><button id="btn-new-msa" class="btn primary">+ Novo Estudo</button></div>
+      <table id="msa-list-table"><thead><tr><th>Instrumento</th><th>Característica</th><th>%R&R</th><th>ndc</th><th>Status</th><th class="hidden-print">Ações</th></tr></thead><tbody></tbody></table>
+    </section>
+  </div>
+  <div id="form-container" class="hidden">
+    <form id="msa-form">
+      <input type="hidden" id="msa-id">
+      <section>
+        <h4>Informações Gerais</h4>
+        <div class="grid">
+          <div class="field" style="grid-column:span 6;"><label>Instrumento</label><input type="text" id="gage-name"></div>
+          <div class="field" style="grid-column:span 6;"><label>Característica</label><input type="text" id="characteristic"></div>
+          <div class="field" style="grid-column:span 4;"><label>Data</label><input type="date" id="study-date"></div>
+          <div class="field" style="grid-column:span 4;"><label>Analista</label><input type="text" id="analyst-name"></div>
+          <div class="field" style="grid-column:span 4;"><label>Tolerância</label><input type="number" id="tolerance" step="any"></div>
+          <div class="field" style="grid-column:span 4;"><label>Nº Avaliadores</label><input type="number" id="num-appraisers" value="3" min="2"></div>
+          <div class="field" style="grid-column:span 4;"><label>Nº Peças</label><input type="number" id="num-parts" value="10" min="2"></div>
+          <div class="field" style="grid-column:span 4;"><label>Nº Ensaios</label><input type="number" id="num-trials" value="3" min="2"></div>
+        </div>
+        <div style="margin-top:15px;display:flex;gap:10px;">
+          <button type="button" id="btn-generate-grid" class="btn primary">Gerar Tabela</button>
+          <button type="button" id="btn-calculate" class="btn ghost">Calcular</button>
+        </div>
+      </section>
+      <section id="collection-section" class="hidden"><h4>Coleta de Dados</h4><div id="collection-grid"></div></section>
+      <section id="results-section" class="hidden">
+        <h4>Resultados (ANOVA)</h4>
+        <div class="grid">
+          <div style="grid-column:span 8;"><div class="grid" style="grid-template-columns:repeat(4,1fr);">
+            <div class="dashboard-card"><div class="value" id="res-grr">0%</div><div class="label">%R&R</div></div>
+            <div class="dashboard-card"><div class="value" id="res-ev">0%</div><div class="label">%EV</div></div>
+            <div class="dashboard-card"><div class="value" id="res-av">0%</div><div class="label">%AV</div></div>
+            <div class="dashboard-card"><div class="value" id="res-pv">0%</div><div class="label">%PV</div></div>
+          </div></div>
+          <div style="grid-column:span 4;"><div class="grid" style="grid-template-columns:repeat(2,1fr);">
+            <div class="dashboard-card"><div class="value" id="res-ndc">0</div><div class="label">ndc</div></div>
+            <div class="verdict-card" id="res-verdict">Aguardando</div>
+          </div></div>
+        </div>
+      </section>
+      <section id="charts-section" class="hidden"><h4>Gráficos</h4><div class="grid">
+        <div style="grid-column:span 6;"><canvas id="chart-main"></canvas></div>
+        <div style="grid-column:span 6;"><canvas id="chart-by-part"></canvas></div>
+        <div style="grid-column:span 6;"><canvas id="chart-by-appraiser"></canvas></div>
+        <div style="grid-column:span 6;"><canvas id="chart-interaction"></canvas></div>
+      </div></section>
+      <section id="action-plan-section" class="hidden"><h4>Plano de Ação</h4><div id="action-plan-container"></div><button type="button" id="btn-add-action-plan" class="btn ghost" style="width:100%;margin-top:12px;">+ Ação</button></section>
+      <div style="margin-top:16px;display:flex;gap:10px;" class="hidden-print">
+        <button type="button" id="btn-save-msa" class="btn primary">Salvar</button>
+        <button type="button" id="btn-cancel" class="btn ghost">Voltar</button>
+      </div>
+    </form>
+  </div>
+</main>
+<template id="action-plan-form-template">
+  <div class="action-item-block"><button type="button" class="remove-action-btn hidden-print">&times;</button><div class="grid">
+    <div class="field" style="grid-column:span 12;"><label>Ação</label><textarea class="action-input" rows="2"></textarea></div>
+    <div class="field" style="grid-column:span 3;"><label>Responsável</label><input type="text" class="responsible-input"></div>
+    <div class="field" style="grid-column:span 3;"><label>Status</label><select class="status-input"><option value="aberto">Aberto</option><option value="andamento">Em Andamento</option><option value="concluido">Concluído</option><option value="cancelado">Cancelado</option></select></div>
+    <div class="field" style="grid-column:span 3;"><label>Início</label><input type="date" class="start-date-input"></div>
+    <div class="field" style="grid-column:span 3;"><label>Final</label><input type="date" class="end-date-input"></div>
+  </div></div>
+</template>
+<script>
+document.addEventListener('DOMContentLoaded',()=>{
+  let studies=[];const DB_KEY='itp_msa_v1';let charts={};
+  const dC=document.getElementById('dashboard-container'),fC=document.getElementById('form-container'),lB=document.querySelector('#msa-list-table tbody'),cS=document.getElementById('msa-count'),cG=document.getElementById('collection-grid');
+  const showToast=(m,t='info')=>{const c=document.getElementById('toast-container');const el=document.createElement('div');el.className=`toast ${t}`;el.textContent=m;c.appendChild(el);setTimeout(()=>el.classList.add('show'),10);setTimeout(()=>{el.classList.remove('show');el.addEventListener('transitionend',()=>el.remove())},4000);};
+  const save=()=>localStorage.setItem(DB_KEY,JSON.stringify(studies));
+  const load=()=>{studies=JSON.parse(localStorage.getItem(DB_KEY))||[];};
+  const showForm=()=>{dC.classList.add('hidden');fC.classList.remove('hidden');};
+  const showDash=()=>{document.getElementById('msa-form').reset();fC.classList.add('hidden');dC.classList.remove('hidden');['collection-section','results-section','charts-section','action-plan-section'].forEach(id=>document.getElementById(id).classList.add('hidden'));cG.innerHTML='';renderList();};
+  const calculateRR=(data,p,a,n,tol)=>{if(!data||data.length!==p*a*n)return null;const gm=data.reduce((s,v)=>s+v,0)/(p*a*n);let pm=Array(p).fill(0),am=Array(a).fill(0);for(let i=0;i<p;i++){for(let j=0;j<a;j++){for(let k=0;k<n;k++){const v=data[i*a*n+j*n+k];pm[i]+=v;am[j]+=v;}}pm[i]/=(a*n);}am=am.map(s=>s/(p*n));const ssT=data.reduce((s,v)=>s+Math.pow(v-gm,2),0);const ssP=a*n*pm.reduce((s,m)=>s+Math.pow(m-gm,2),0);const ssA=p*n*am.reduce((s,m)=>s+Math.pow(m-gm,2),0);let cm=[];for(let i=0;i<p;i++)for(let j=0;j<a;j++){let cs=0;for(let k=0;k<n;k++)cs+=data[i*a*n+j*n+k];cm.push(cs/n);}const ssR=cm.reduce((s,m,idx)=>{const i=Math.floor(idx/a),j=idx%a;let is=0;for(let k=0;k<n;k++)is+=Math.pow(data[i*a*n+j*n+k]-m,2);return s+is;},0);const ssI=ssT-ssP-ssA-ssR;const dfP=p-1,dfA=a-1,dfI=(p-1)*(a-1),dfR=p*a*(n-1);const msP=ssP/dfP,msA=ssA/dfA,msI=ssI/dfI,msR=ssR/dfR;const vR=msR,vI=Math.max(0,(msI-msR)/n),vA=Math.max(0,(msA-msI)/(p*n)),vP=Math.max(0,(msP-msI)/(a*n));const vGRR=vR+vA+vI,vTot=vGRR+vP;const sR=Math.sqrt(vR),sA=Math.sqrt(vA),sGRR=Math.sqrt(vGRR),sP=Math.sqrt(vP),sTot=Math.sqrt(vTot);const K=6;const ev=K*sR,av=K*sA,grr=K*sGRR,pv=K*sP,tv=K*sTot;const div=tol||tv;return{percentGRR:(grr/div)*100,percentEV:(ev/div)*100,percentAV:(av/div)*100,percentPV:(pv/div)*100,ndc:grr>0?Math.floor(1.41*(pv/grr)):0,grandMean:gm,partMeans:pm,appraiserMeans:am,Rbar:0};};
+  const renderList=()=>{lB.innerHTML='';if(!studies.length)lB.innerHTML='<tr><td colspan="6">Nenhum estudo.</td></tr>';else studies.sort((a,b)=>b.id-a.id).forEach(s=>{const grr=s.results?s.results.percentGRR.toFixed(2)+'%':'N/A';const ndc=s.results?s.results.ndc:'N/A';let st='N/A';if(s.results){if(s.results.percentGRR<10)st='Aprovado';else if(s.results.percentGRR<=30)st='Condicional';else st='Reprovado';}const r=lB.insertRow();r.innerHTML=`<td>${s.setup.gageName}</td><td>${s.setup.characteristic}</td><td>${grr}</td><td>${ndc}</td><td>${st}</td><td class="hidden-print"><button class="btn ghost btn-edit" data-id="${s.id}">Editar</button> <button class="btn ghost btn-delete" data-id="${s.id}">Excluir</button></td>`;});cS.textContent=studies.length;};
+  document.getElementById('btn-generate-grid').addEventListener('click',()=>{const p=parseInt(document.getElementById('num-parts').value),a=parseInt(document.getElementById('num-appraisers').value),n=parseInt(document.getElementById('num-trials').value);if(isNaN(p)||isNaN(a)||isNaN(n)){showToast('Inválido.','error');return;}cG.innerHTML='';for(let j=0;j<a;j++){const t=document.createElement('table');const cap=document.createElement('caption');cap.textContent=`Avaliador ${j+1}`;cap.style.color='#ffa552';cap.style.padding='8px';t.appendChild(cap);let th='<thead><tr><th>Peça</th>';for(let k=0;k<n;k++)th+=`<th>Ensaio ${k+1}</th>`;th+='</tr></thead>';t.innerHTML+=th;const tb=document.createElement('tbody');for(let i=0;i<p;i++){let rh=`<tr><td>${i+1}</td>`;for(let k=0;k<n;k++)rh+=`<td><input type="number" step="any" data-part="${i}" data-appraiser="${j}" data-trial="${k}"></td>`;rh+='</tr>';tb.innerHTML+=rh;}t.appendChild(tb);cG.appendChild(t);}document.getElementById('collection-section').classList.remove('hidden');});
+  document.getElementById('btn-calculate').addEventListener('click',()=>{const p=parseInt(document.getElementById('num-parts').value),a=parseInt(document.getElementById('num-appraisers').value),n=parseInt(document.getElementById('num-trials').value),tol=parseFloat(document.getElementById('tolerance').value)||null;const data=[];let ok=true;for(let i=0;i<p;i++)for(let j=0;j<a;j++)for(let k=0;k<n;k++){const inp=cG.querySelector(`input[data-part="${i}"][data-appraiser="${j}"][data-trial="${k}"]`);if(inp&&inp.value!=='')data.push(parseFloat(inp.value));else ok=false;}if(!ok){showToast('Preencha tudo.','error');return;}const r=calculateRR(data,p,a,n,tol);if(r){document.getElementById('res-grr').textContent=`${r.percentGRR.toFixed(2)}%`;document.getElementById('res-ev').textContent=`${r.percentEV.toFixed(2)}%`;document.getElementById('res-av').textContent=`${r.percentAV.toFixed(2)}%`;document.getElementById('res-pv').textContent=`${r.percentPV.toFixed(2)}%`;document.getElementById('res-ndc').textContent=r.ndc;const v=document.getElementById('res-verdict');v.classList.remove('verdict-ok','verdict-warn','verdict-bad');if(r.percentGRR<10){v.textContent='Aprovado';v.classList.add('verdict-ok');}else if(r.percentGRR<=30){v.textContent='Condicional';v.classList.add('verdict-warn');}else{v.textContent='Reprovado';v.classList.add('verdict-bad');}['results-section','charts-section','action-plan-section'].forEach(id=>document.getElementById(id).classList.remove('hidden'));Object.values(charts).forEach(c=>c.destroy());const lP=Array.from({length:p},(_,i)=>`P${i+1}`),lA=Array.from({length:a},(_,i)=>`A${i+1}`);charts.byPart=new Chart('chart-by-part',{type:'bar',data:{labels:lP,datasets:[{label:'Média/Peça',data:r.partMeans,backgroundColor:'rgba(255,122,26,0.6)'}]}});charts.byAppraiser=new Chart('chart-by-appraiser',{type:'bar',data:{labels:lA,datasets:[{label:'Média/Avaliador',data:r.appraiserMeans,backgroundColor:'rgba(255,165,82,0.6)'}]}});}});
+  document.getElementById('btn-save-msa').addEventListener('click',()=>{showToast('Em desenvolvimento.','info');});
+  document.getElementById('btn-new-msa').addEventListener('click',showForm);
+  document.getElementById('btn-cancel').addEventListener('click',showDash);
+  document.getElementById('btn-export-pdf').addEventListener('click',()=>{if(fC.classList.contains('hidden')){showToast('Abra um estudo.','info');return;}window.print();});
+  document.getElementById('btn-download-backup').addEventListener('click',()=>{const b=new Blob([JSON.stringify(studies,null,2)],{type:'application/json'});const l=document.createElement("a");l.href=URL.createObjectURL(b);l.download=`itp_msa_${new Date().toISOString().slice(0,10)}.json`;l.click();});
+  document.getElementById('btn-restore-backup').addEventListener('click',()=>{const i=document.createElement('input');i.type='file';i.accept='.json';i.onchange=e=>{const r=new FileReader();r.onload=ev=>{if(!confirm('Substituir?'))return;try{const d=JSON.parse(ev.target.result);if(Array.isArray(d)){studies=d;save();renderList();showToast('Restaurado!');}}catch(err){showToast('Inválido.','error');}};r.readAsText(e.target.files[0]);};i.click();});
+  document.getElementById('btn-archive-and-clear').addEventListener('click',()=>{if(confirm("Apagar?")){document.getElementById('btn-download-backup').click();localStorage.removeItem(DB_KEY);setTimeout(()=>window.location.reload(),1500);}});
+  load();renderList();
+});
+</script>
+</body>
+</html>

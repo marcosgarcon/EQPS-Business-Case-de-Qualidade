@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EQPS - Planejamento de Auditorias</title>
+<script src="https://unpkg.com/@phosphor-icons/web"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+  :root{--bg:#0a1628;--panel:#0f1e36;--muted:#1a2942;--card:#0d1a2e;--text:#e5e7eb;--accent:#ff7a1a;--accent2:#ffa552;--ok:#22c55e;--warn:#f59e0b;--bad:#ef4444;--shadow:0 10px 30px rgba(0,0,0,.45);--radius:16px;}
+  *{box-sizing:border-box}html,body{height:100%}
+  body{margin:0;font-family:system-ui,Inter,Arial;background:linear-gradient(120deg,#081225,#0a1a35);color:var(--text);display:grid;grid-template-columns:280px 1fr;grid-template-rows:auto 1fr;}
+  header{grid-column:1/3;display:flex;align-items:center;justify-content:space-between;padding:14px 20px;background:linear-gradient(90deg,#081225,#0a1f3d);border-bottom:1px solid #1e2f4d;position:sticky;top:0;z-index:5}
+  .header-title h1{margin:0;font-size:20px;}.header-title .subtitle{margin:4px 0 0 0;font-size:14px;color:var(--accent);}.header-title .dev-credit{margin:4px 0 0 0;font-size:11px;color:#64748b;}
+  button,.btn{background:var(--muted);color:var(--text);border:1px solid #2a3a55;border-radius:12px;padding:10px 14px;cursor:pointer;box-shadow:var(--shadow);transition:.2s;font-weight:600}
+  button:hover,.btn:hover{transform:translateY(-1px);border-color:#3d4f6f}
+  button.primary,.btn.primary{background:linear-gradient(180deg,#ff7a1a,#e85d04);border-color:transparent;color:#fff}
+  button.ghost,.btn.ghost{background:transparent;border-color:#3d4f6f}
+  aside{border-right:1px solid #1e2f4d;background:linear-gradient(180deg,#081225,#0a1a35);padding:16px;display:flex;flex-direction:column;gap:24px;justify-content:space-between;}
+  .menu a{display:flex;gap:10px;align-items:center;color:#cbd5e1;padding:10px 12px;border:1px solid #1e2f4d;border-radius:12px;background:rgba(255,255,255,.02);cursor:pointer;}
+  .menu a.active,.menu a:hover{border-color:#ff7a1a;background:rgba(255,122,26,.1);color:#ffe0c2}
+  main{padding:18px;overflow:auto}.hidden,.tab-content.hidden{display:none!important}
+  section{background:rgba(255,255,255,.03);border:1px solid #1e2f4d;border-radius:var(--radius);padding:20px;margin-bottom:20px;box-shadow:var(--shadow)}
+  h2,h3,h4{margin:0 0 12px 0;color:var(--accent);}h4{color:var(--accent2)}
+  .grid{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));}
+  .field{display:flex;flex-direction:column;gap:6px}label{font-size:12px;color:#ffa552}
+  input,select,textarea{background:#0d1a2e;border:1px solid #2a3a55;color:var(--text);padding:10px 12px;border-radius:10px;font-size:14px;min-height:44px}
+  table{width:100%;border-collapse:collapse;}th,td{padding:10px 12px;border-bottom:1px solid var(--muted);text-align:left;font-size:14px;}th{background:rgba(255,122,26,.08);color:#ffa552;}
+  .kpi-card{background:var(--card);border-radius:var(--radius);padding:16px;text-align:center;}.kpi-card h3{font-size:12px;color:var(--accent2);margin:0 0 8px 0;font-weight:normal;text-transform:uppercase;}.kpi-card .kpi-value{font-size:2rem;font-weight:bold;color:var(--accent);}
+  #record-counter{background:rgba(255,255,255,.02);border:1px solid #1e2f4d;border-radius:12px;padding:12px;}#record-counter p{display:flex;justify-content:space-between;}#record-counter span{color:var(--accent);font-weight:bold;}
+  .toast-container{position:fixed;top:20px;right:20px;z-index:200;display:flex;flex-direction:column;gap:10px;}
+  .toast{padding:12px 18px;border-radius:12px;color:#fff;font-weight:600;opacity:0;transform:translateX(100%);transition:.4s;}.toast.show{opacity:1;transform:translateX(0);}.toast.success{background:linear-gradient(90deg,#22c55e,#16a34a);}.toast.error{background:linear-gradient(90deg,#ef4444,#dc2626);}.toast.info{background:linear-gradient(90deg,#ff7a1a,#e85d04);}
+  .filter-controls{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:20px;align-items:flex-end;}.filter-controls .field{flex:1;min-width:150px;}
+  @media print{body{grid-template-columns:1fr;color:#000;background:#fff;}header,aside,.hidden-print,.btn{display:none!important;}}
+</style>
+</head>
+<body>
+<div id="toast-container"></div>
+<header>
+  <div class="header-title"><h1>🛡️ EQPS</h1><p class="subtitle">Planejamento de Auditorias</p><p class="dev-credit">Desenvolvido por Marcos Garçon</p></div>
+  <div style="display:flex;gap:8px;flex-wrap:wrap;">
+    <button class="btn ghost" id="btn-restore-backup">Restaurar</button>
+    <button class="btn ghost" id="btn-download-backup">Backup</button>
+    <button class="btn ghost" id="btn-clear-all-data" style="color:var(--warn);">Limpar Tudo</button>
+    <button class="btn primary" id="btn-export-pdf">PDF</button>
+  </div>
+</header>
+<aside>
+  <div><div class="menu">
+    <a class="tab-link active" onclick="openTab(event,'dashboard-container')">📊 Dashboard</a>
+    <a class="tab-link" onclick="openTab(event,'auditorias-container')">📅 Auditorias</a>
+  </div></div>
+  <div id="record-counter"><p>Auditorias: <span id="audit-count">0</span></p></div>
+</aside>
+<main>
+  <div id="dashboard-container" class="tab-content">
+    <section>
+      <h2>Dashboard</h2>
+      <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(200px,1fr));">
+        <div class="kpi-card"><h3>Total</h3><p id="kpi-total-audits" class="kpi-value">0</p></div>
+        <div class="kpi-card"><h3>Concluídas</h3><p id="kpi-completed-audits" class="kpi-value">0</p></div>
+        <div class="kpi-card"><h3>Pendentes</h3><p id="kpi-pending-audits" class="kpi-value">0</p></div>
+        <div class="kpi-card"><h3>Próxima</h3><p id="kpi-next-audit" class="kpi-value" style="font-size:1.2rem;">-</p></div>
+        <div class="kpi-card"><h3>Top Líder</h3><p id="kpi-top-leader" class="kpi-value" style="font-size:1.2rem;">-</p></div>
+        <div class="kpi-card"><h3>Tipo Comum</h3><p id="kpi-top-type" class="kpi-value" style="font-size:1.2rem;">-</p></div>
+      </div>
+    </section>
+    <section><h4>Por Status</h4><div style="min-height:300px;"><canvas id="audits-by-status-chart"></canvas></div></section>
+    <section><h4>Por Tipo</h4><div style="min-height:300px;"><canvas id="audits-by-type-chart"></canvas></div></section>
+    <section><h4>Por Mês</h4><div style="min-height:300px;"><canvas id="audits-by-month-chart"></canvas></div></section>
+  </div>
+  <div id="auditorias-container" class="tab-content hidden">
+    <section>
+      <div style="display:flex;justify-content:space-between;align-items:center;"><h2>Auditorias</h2><button id="btn-new-audit" class="btn primary">+ Nova</button></div>
+      <div class="filter-controls">
+        <div class="field"><label>Pesquisar</label><input type="text" id="filter-text"></div>
+        <div class="field"><label>Status</label><select id="filter-status"><option value="">Todos</option><option>Pendente</option><option>Concluída</option><option>Cancelada</option></select></div>
+        <div class="field"><label>Tipo</label><select id="filter-type"><option value="">Todos</option><option>Interna</option><option>Externa</option><option>Fornecedor</option></select></div>
+        <button class="btn ghost" id="clear-filters-btn" style="margin-left:auto;">Limpar</button>
+      </div>
+      <table id="audit-list-table"><thead><tr><th>Processo</th><th>Líder</th><th>Data</th><th>Status</th><th>Tipo</th><th class="hidden-print">Ações</th></tr></thead><tbody></tbody></table>
+    </section>
+  </div>
+  <div id="form-container" class="tab-content hidden">
+    <form id="audit-form">
+      <input type="hidden" id="audit-id">
+      <section>
+        <div style="display:flex;justify-content:space-between;align-items:center;"><h2 id="form-title">Nova Auditoria</h2><button type="button" id="btn-back-to-list" class="btn ghost">Voltar</button></div>
+        <div class="grid">
+          <div class="field" style="grid-column:span 2;"><label>Processo/Área</label><input type="text" id="audit-process" required></div>
+          <div class="field"><label>Líder</label><input type="text" id="audit-leader" required></div>
+          <div class="field"><label>Data</label><input type="date" id="audit-date" required></div>
+          <div class="field"><label>Tipo</label><select id="audit-type" required><option value="">Selecione</option><option>Interna</option><option>Externa</option><option>Fornecedor</option></select></div>
+          <div class="field"><label>Padrão</label><input type="text" id="audit-standard"></div>
+          <div class="field"><label>Status</label><select id="audit-status" required><option>Pendente</option><option>Concluída</option><option>Cancelada</option></select></div>
+          <div class="field" style="grid-column:span 2;"><label>Observações</label><textarea id="audit-notes" rows="3"></textarea></div>
+        </div>
+      </section>
+      <div class="hidden-print" style="display:flex;justify-content:flex-end;margin-top:20px;"><button type="submit" class="btn primary">Salvar</button></div>
+    </form>
+  </div>
+</main>
+<script>
+document.addEventListener('DOMContentLoaded',()=>{
+  const DB_KEY='itp_planejamento_v1';let records=[],c1=null,c2=null,c3=null;
+  const lB=document.querySelector('#audit-list-table tbody'),cS=document.getElementById('audit-count'),f=document.getElementById('audit-form');
+  const fT=document.getElementById('filter-text'),fS=document.getElementById('filter-status'),fY=document.getElementById('filter-type');
+  const showToast=(m,t='info')=>{const c=document.getElementById('toast-container');const el=document.createElement('div');el.className=`toast ${t}`;el.textContent=m;c.appendChild(el);setTimeout(()=>el.classList.add('show'),10);setTimeout(()=>{el.classList.remove('show');el.addEventListener('transitionend',()=>el.remove())},4000);};
+  const save=()=>localStorage.setItem(DB_KEY,JSON.stringify(records));
+  const load=()=>{records=JSON.parse(localStorage.getItem(DB_KEY))||[];};
+  window.openTab=(e,id)=>{document.querySelectorAll('.tab-content').forEach(c=>c.classList.add('hidden'));document.getElementById(id).classList.remove('hidden');document.querySelectorAll('.menu a').forEach(a=>a.classList.remove('active'));if(e?.currentTarget)e.currentTarget.classList.add('active');else{const l=document.querySelector(`.menu a[onclick*="${id}"]`);if(l)l.classList.add('active');}if(id==='dashboard-container')renderDash();if(id==='auditorias-container')renderList();};
+  const renderList=()=>{lB.innerHTML='';cS.textContent=records.length;let fil=records;const st=fT.value.toLowerCase(),ss=fS.value,sy=fY.value;if(st)fil=fil.filter(r=>r.process.toLowerCase().includes(st)||(r.leader&&r.leader.toLowerCase().includes(st)));if(ss)fil=fil.filter(r=>r.status===ss);if(sy)fil=fil.filter(r=>r.type===sy);if(!fil.length){lB.innerHTML='<tr><td colspan="6">Nenhuma.</td></tr>';return;}fil.sort((a,b)=>new Date(a.date)-new Date(b.date)).forEach(r=>{const row=lB.insertRow();row.innerHTML=`<td>${r.process}</td><td>${r.leader||'N/A'}</td><td>${new Date(r.date+'T00:00:00').toLocaleDateString()}</td><td>${r.status}</td><td>${r.type||'N/A'}</td><td class="hidden-print"><button class="btn ghost btn-edit" data-id="${r.id}">Editar</button> <button class="btn ghost btn-delete" data-id="${r.id}">Excluir</button></td>`;});};
+  const renderDash=()=>{const tot=records.length,co=records.filter(r=>r.status==='Concluída').length,pe=records.filter(r=>r.status==='Pendente').length;const today=new Date().toISOString().slice(0,10);const next=records.filter(r=>r.status==='Pendente'&&r.date>=today).sort((a,b)=>new Date(a.date)-new Date(b.date))[0];document.getElementById('kpi-total-audits').textContent=tot;document.getElementById('kpi-completed-audits').textContent=co;document.getElementById('kpi-pending-audits').textContent=pe;document.getElementById('kpi-next-audit').textContent=next?`${next.process} (${new Date(next.date+'T00:00:00').toLocaleDateString()})`:'Nenhuma';const lc=records.reduce((a,r)=>{if(r.leader)a[r.leader]=(a[r.leader]||0)+1;return a;},{});const tl=Object.keys(lc).length?Object.entries(lc).sort((a,b)=>b[1]-a[1])[0][0]:'-';document.getElementById('kpi-top-leader').textContent=tl;const tc=records.reduce((a,r)=>{if(r.type)a[r.type]=(a[r.type]||0)+1;return a;},{});const tt=Object.keys(tc).length?Object.entries(tc).sort((a,b)=>b[1]-a[1])[0][0]:'-';document.getElementById('kpi-top-type').textContent=tt;if(c1)c1.destroy();const sc=records.reduce((a,r)=>{a[r.status]=(a[r.status]||0)+1;return a;},{});c1=new Chart(document.getElementById('audits-by-status-chart').getContext('2d'),{type:'doughnut',data:{labels:Object.keys(sc),datasets:[{data:Object.values(sc),backgroundColor:['rgba(34,197,94,0.8)','rgba(255,122,26,0.8)','rgba(239,68,68,0.8)']}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#e5e7eb'}}}}});if(c2)c2.destroy();c2=new Chart(document.getElementById('audits-by-type-chart').getContext('2d'),{type:'bar',data:{labels:Object.keys(tc),datasets:[{data:Object.values(tc),backgroundColor:['rgba(255,122,26,0.8)','rgba(255,165,82,0.8)','rgba(245,158,11,0.8)']}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{ticks:{color:'#e5e7eb'}},x:{ticks:{color:'#e5e7eb'}}}}});if(c3)c3.destroy();const md=records.reduce((a,r)=>{const d=new Date(r.date+'T00:00:00');const k=`${d.getMonth()+1}/${d.getFullYear()}`;a[k]=(a[k]||0)+1;return a;},{});const sm=Object.keys(md).sort((a,b)=>{const[mA,yA]=a.split('/').map(Number),[mB,yB]=b.split('/').map(Number);return (yA-yB)*12+(mA-mB);});c3=new Chart(document.getElementById('audits-by-month-chart').getContext('2d'),{type:'line',data:{labels:sm,datasets:[{label:'Auditorias',data:sm.map(m=>md[m]),backgroundColor:'rgba(255,122,26,0.4)',borderColor:'#ff7a1a',fill:true,tension:.3}]},options:{responsive:true,maintainAspectRatio:false,scales:{y:{ticks:{color:'#e5e7eb'}},x:{ticks:{color:'#e5e7eb'}}}}});};
+  const populate=(r={})=>{f.reset();document.getElementById('audit-id').value=r.id||'';document.getElementById('audit-process').value=r.process||'';document.getElementById('audit-leader').value=r.leader||'';document.getElementById('audit-date').value=r.date||new Date().toISOString().slice(0,10);document.getElementById('audit-type').value=r.type||'';document.getElementById('audit-standard').value=r.standard||'';document.getElementById('audit-status').value=r.status||'Pendente';document.getElementById('audit-notes').value=r.notes||'';document.getElementById('form-title').textContent=r.id?'Editar':'Nova';openTab(null,'form-container');};
+  document.getElementById('btn-new-audit').addEventListener('click',()=>populate());
+  document.getElementById('btn-back-to-list').addEventListener('click',()=>openTab(null,'auditorias-container'));
+  [fT,fS,fY].forEach(e=>e.addEventListener('input',renderList));
+  document.getElementById('clear-filters-btn').addEventListener('click',()=>{fT.value='';fS.value='';fY.value='';renderList();});
+  f.addEventListener('submit',e=>{e.preventDefault();const id=document.getElementById('audit-id').value;const d={id:id?parseInt(id):Date.now(),process:document.getElementById('audit-process').value,leader:document.getElementById('audit-leader').value,date:document.getElementById('audit-date').value,type:document.getElementById('audit-type').value,standard:document.getElementById('audit-standard').value,status:document.getElementById('audit-status').value,notes:document.getElementById('audit-notes').value};const i=records.findIndex(r=>r.id==d.id);if(i>-1)records[i]=d;else records.push(d);save();showToast('Salvo!','success');openTab(null,'auditorias-container');});
+  lB.addEventListener('click',e=>{const eb=e.target.closest('.btn-edit'),db=e.target.closest('.btn-delete');if(eb){const r=records.find(x=>x.id==eb.dataset.id);if(r)populate(r);}if(db){if(confirm('Excluir?')){records=records.filter(r=>r.id!=db.dataset.id);save();renderList();showToast('Excluído.','info');}}});
+  document.getElementById('btn-export-pdf').addEventListener('click',()=>{const ct=document.querySelector('.tab-content:not(.hidden)').id;if(ct==='form-container'){showToast('Volte ao dashboard.','info');return;}window.print();});
+  document.getElementById('btn-download-backup').addEventListener('click',()=>{if(!records.length){showToast('Sem dados.','info');return;}const b=new Blob([JSON.stringify(records,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=`itp_auditorias_${new Date().toISOString().slice(0,10)}.json`;a.click();showToast('Backup!','success');});
+  document.getElementById('btn-restore-backup').addEventListener('click',()=>{const i=document.createElement('input');i.type='file';i.accept='.json';i.onchange=e=>{const r=new FileReader();r.onload=ev=>{if(!confirm('Substituir?'))return;try{const d=JSON.parse(ev.target.result);if(Array.isArray(d)){records=d;save();showToast('Restaurado!','success');openTab(null,'dashboard-container');}}catch(err){showToast('Inválido.','error');}};r.readAsText(e.target.files[0]);};i.click();});
+  document.getElementById('btn-clear-all-data').addEventListener('click',()=>{if(confirm("Apagar tudo?")){localStorage.removeItem(DB_KEY);records=[];showToast("Limpo.","info");window.location.reload();}});
+  const SEED_AUDITS=(()=>{ const t=new Date(); const add=(m)=>{const d=new Date(t); d.setMonth(d.getMonth()+m); return d.toISOString().slice(0,10);};
+    return [
+      {id:Date.now()+1, process:'Diagnóstico Gemba — Conectores & Peças Técnicas Injetadas', leader:'Marcos Garçon', date:add(0), type:'Interna', standard:'ISO 9001', status:'Concluída', notes:'Mês 1 — Mapeamento Gemba, congelamento das variáveis críticas e criação das 3 documentações primárias (ITV, PIT, RNC).'},
+      {id:Date.now()+2, process:'Estabilização — LPUs Visuais e Amostras Douradas', leader:'Marcos Garçon', date:add(2), type:'Interna', standard:'5S / Gestão Visual', status:'Pendente', notes:'Mês 2-3 — Implantação das LPUs visuais, amostras douradas/limite e treinamento por apadrinhamento.'},
+      {id:Date.now()+3, process:'Auditoria Camaleão / LPA (Layered Process Audit)', leader:'Líderes de Turno', date:add(4), type:'Interna', standard:'LPA', status:'Pendente', notes:'Mês 4-5 — Execução de auditorias diárias em camadas e gestão de RNCs com metodologia 5 Porquês.'},
+      {id:Date.now()+4, process:'Auditoria de Fornecedores — Homologação de Insumos', leader:'Engenharia & Qualidade', date:add(4), type:'Fornecedor', standard:'PPAP simplificado', status:'Pendente', notes:'Homologação técnica de resina, corantes/aditivos e insumos junto aos fornecedores.'},
+      {id:Date.now()+5, process:'Auditoria de Maturidade — MVP do SGQ', leader:'Marcos Garçon', date:add(6), type:'Interna', standard:'ISO 9001', status:'Pendente', notes:'Mês 6 — Verificação da maturidade mínima: refugo sob controle, rotina de CEP ativa e cultura de qualidade consolidada.'}
+    ];
+  })();
+  load();
+  if(records.length===0){records=SEED_AUDITS;save();}
+  openTab(null,'dashboard-container');
+});
+</script>
+</body>
+</html>

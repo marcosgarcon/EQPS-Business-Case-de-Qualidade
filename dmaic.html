@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EQPS - Gerenciador DMAIC</title>
+<style>
+  :root{
+    --bg:#0a1628;--panel:#0f1e36;--muted:#1a2942;--card:#0d1a2e;--text:#e5e7eb;
+    --accent:#ff7a1a;--accent2:#ffa552;--ok:#22c55e;--warn:#f59e0b;--bad:#ef4444;
+    --shadow:0 10px 30px rgba(0,0,0,.45);--radius:16px;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Inter,Arial;background:linear-gradient(120deg,#081225,#0a1a35);color:var(--text);display:grid;grid-template-columns:280px 1fr;grid-template-rows:auto 1fr;}
+  header{grid-column:1/3;display:flex;align-items:center;justify-content:space-between;padding:14px 20px;background:linear-gradient(90deg,#081225,#0a1f3d);border-bottom:1px solid #1e2f4d;position:sticky;top:0;z-index:5}
+  .header-title h1{margin:0;font-size:20px;color:var(--text);}
+  .header-title .subtitle{margin:4px 0 0 0;font-size:14px;color:var(--accent);}
+  .header-title .dev-credit{margin:4px 0 0 0;font-size:11px;color:#64748b;}
+  header .actions{display:flex;flex-wrap:wrap;gap:8px}
+  button, .btn{background:var(--muted);color:var(--text);border:1px solid #2a3a55;border-radius:12px;padding:10px 14px;cursor:pointer;box-shadow:var(--shadow);transition:.2s;font-weight:600;display:inline-flex;align-items:center;justify-content:center;gap:8px;}
+  button:hover, .btn:hover{transform:translateY(-1px);border-color:#3d4f6f}
+  button.primary{background:linear-gradient(180deg,#ff7a1a,#e85d04);border-color:transparent;color:#fff}
+  button.ghost{background:transparent;border-color:#3d4f6f}
+  aside{border-right:1px solid #1e2f4d;background:linear-gradient(180deg,#081225,#0a1a35);padding:16px;display:flex;flex-direction:column;gap:24px;}
+  .menu{display:flex;flex-direction:column;gap:8px}
+  .menu a{display:flex;gap:10px;align-items:center;text-decoration:none;color:#cbd5e1;padding:10px 12px;border:1px solid #1e2f4d;border-radius:12px;background:rgba(255,255,255,.02);cursor:pointer;}
+  .menu a.active, .menu a:hover{border-color:#ff7a1a;background:rgba(255,122,26,.1);color:#ffe0c2}
+  main{padding:18px;overflow:auto}
+  .hidden, .tab-content.hidden{display:none !important}
+  section{background:rgba(255,255,255,.03);border:1px solid #1e2f4d;border-radius:var(--radius);padding:20px;margin-bottom:20px;box-shadow:var(--shadow)}
+  h2, h3, h4{margin:0 0 12px 0;color:var(--accent);} h4{color:var(--accent2)}
+  .grid{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));}
+  .field{display:flex;flex-direction:column;gap:6px}
+  label{font-size:12px;color:#ffa552}
+  input, select, textarea{background:#0d1a2e;border:1px solid #2a3a55;color:var(--text);padding:10px 12px;border-radius:10px;outline:none;font-family:inherit;font-size:14px;min-height:44px}
+  textarea{min-height:80px;resize:vertical;}
+  input:focus, select:focus, textarea:focus{border-color:var(--accent)}
+  table{width:100%;border-collapse:collapse;} th, td{padding:10px 12px;border-bottom:1px solid var(--muted);text-align:left;font-size:13px;} th{background:rgba(255,122,26,.08);color:#ffa552;font-size:12px;}
+  .phase-tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;}
+  .phase-tab{padding:10px 16px;background:var(--muted);border:1px solid #2a3a55;border-radius:10px;cursor:pointer;font-weight:600;color:#cbd5e1;}
+  .phase-tab.active{background:linear-gradient(180deg,#ff7a1a,#e85d04);color:#fff;border-color:transparent;}
+  .progress-bar{width:100%;height:24px;background:var(--muted);border-radius:12px;overflow:hidden;margin:8px 0;}
+  .progress-bar > div{height:100%;background:linear-gradient(90deg,#ff7a1a,#ffa552);color:#fff;font-weight:bold;display:flex;align-items:center;justify-content:center;font-size:12px;transition:width .3s;}
+  .modal{position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:100;display:none;justify-content:center;align-items:center;padding:16px;}
+  .modal.active{display:flex;}
+  .modal-content{background:var(--bg);padding:24px;border-radius:16px;width:90%;max-width:800px;border:1px solid var(--muted);max-height:90vh;overflow-y:auto;}
+  .toast-container{position:fixed;top:20px;right:20px;z-index:200;display:flex;flex-direction:column;gap:10px;}
+  .toast{padding:12px 18px;border-radius:12px;color:white;font-weight:600;font-size:14px;box-shadow:var(--shadow);opacity:0;transform:translateX(100%);transition:all 0.4s;}
+  .toast.show{opacity:1;transform:translateX(0);}
+  .toast.success{background:linear-gradient(90deg,#22c55e,#16a34a);}
+  .toast.error{background:linear-gradient(90deg,#ef4444,#dc2626);}
+  .toast.info{background:linear-gradient(90deg,#ff7a1a,#e85d04);}
+  .task-item{display:grid;grid-template-columns:30px 1fr 150px 130px 100px;gap:10px;padding:10px;background:rgba(255,255,255,.02);border:1px solid #1e2f4d;border-radius:10px;margin-bottom:6px;align-items:center;}
+  .task-item input[type=checkbox]{width:20px;height:20px;}
+  .status-badge{padding:4px 10px;border-radius:8px;font-size:11px;font-weight:bold;text-align:center;}
+  .status-aberto{background:rgba(245,158,11,.2);color:#fbbf24;}
+  .status-andamento{background:rgba(255,122,26,.2);color:#ffa552;}
+  .status-concluido{background:rgba(34,197,94,.2);color:#22c55e;}
+  @media print{body{grid-template-columns:1fr;color:#000;background:#fff;}header,aside,.btn{display:none!important;}main{padding:0;}section{border:1px solid #ccc;background:#fff;}h2,h3,h4,label{color:black;}}
+</style>
+</head>
+<body>
+<div id="toast-container"></div>
+<header>
+  <div class="header-title">
+    <h1>🛡️ EQPS</h1>
+    <p class="subtitle">Gerenciador DMAIC</p>
+    <p class="dev-credit">Desenvolvido por Marcos Garçon</p>
+  </div>
+  <div class="actions">
+    <button class="btn ghost" id="btn-restore-backup">Restaurar Backup</button>
+    <button class="btn ghost" id="btn-download-backup">Baixar Backup (.json)</button>
+    <button class="btn ghost" id="btn-archive-and-clear" style="color:var(--warn);">Arquivar e Limpar</button>
+    <button class="btn primary" id="btn-export-pdf">Exportar PDF</button>
+  </div>
+</header>
+<aside>
+  <div class="menu">
+    <a href="#" class="tab-link active" onclick="openTab(event,'projects')">📁 Projetos</a>
+    <a href="#" class="tab-link" onclick="openTab(event,'detail')">🎯 Projeto Atual</a>
+    <a href="#" class="tab-link" onclick="openTab(event,'help')">❓ Ajuda</a>
+  </div>
+</aside>
+<main id="main-content"></main>
+<div id="modal" class="modal"></div>
+
+<script>
+document.addEventListener('DOMContentLoaded',()=>{
+  let state={projects:[],currentId:null};
+  const DB_KEY='itp_dmaic_v1';
+  const PHASES=['Define','Measure','Analyze','Improve','Control'];
+  const main=document.getElementById('main-content');
+  const modal=document.getElementById('modal');
+
+  const showToast=(msg,type='info')=>{const c=document.getElementById('toast-container');const t=document.createElement('div');t.className=`toast ${type}`;t.textContent=msg;c.appendChild(t);setTimeout(()=>t.classList.add('show'),10);setTimeout(()=>{t.classList.remove('show');t.addEventListener('transitionend',()=>t.remove())},4000);};
+  const save=()=>localStorage.setItem(DB_KEY,JSON.stringify(state));
+  const load=()=>{const l=JSON.parse(localStorage.getItem(DB_KEY));if(l)state=l;};
+
+  window.openTab=(evt,id)=>{evt.preventDefault();document.querySelectorAll('.tab-content').forEach(t=>t.classList.add('hidden'));document.getElementById(id).classList.remove('hidden');document.querySelectorAll('.menu a').forEach(l=>l.classList.remove('active'));evt.currentTarget.classList.add('active');if(id==='projects')renderProjects();if(id==='detail')renderDetail();};
+
+  const newProject=()=>{const id=Date.now();state.projects.push({id,name:'Novo Projeto DMAIC',problem:'',leader:'',team:'',startDate:new Date().toISOString().slice(0,10),status:'Aberto',currentPhase:'Define',phases:{Define:{description:'',tasks:[]},Measure:{description:'',tasks:[]},Analyze:{description:'',tasks:[]},Improve:{description:'',tasks:[]},Control:{description:'',tasks:[]}}});state.currentId=id;save();showToast('Projeto criado!','success');renderProjects();};
+  const deleteProject=(id)=>{if(confirm('Excluir projeto?')){state.projects=state.projects.filter(p=>p.id!==id);if(state.currentId===id)state.currentId=null;save();renderProjects();}};
+  window.openProject=(id)=>{state.currentId=id;save();document.querySelectorAll('.menu a')[1].click();};
+  window.deleteProject=deleteProject;
+
+  const calcProgress=(p)=>{let total=0,done=0;PHASES.forEach(ph=>{p.phases[ph].tasks.forEach(t=>{total++;if(t.done)done++;});});return total>0?Math.round((done/total)*100):0;};
+
+  const renderProjects=()=>{const v=document.getElementById('projects');v.innerHTML=`<section><div style="display:flex;justify-content:space-between;align-items:center;"><h2>Projetos DMAIC</h2><button class="btn primary" id="btn-new-project">+ Novo Projeto</button></div><div style="overflow:auto;margin-top:16px;"><table><thead><tr><th>Nome</th><th>Problema</th><th>Líder</th><th>Fase</th><th>Status</th><th>Progresso</th><th>Ações</th></tr></thead><tbody>${state.projects.map(p=>`<tr><td><b>${p.name}</b></td><td>${(p.problem||'').substring(0,50)}${p.problem?.length>50?'...':''}</td><td>${p.leader||'-'}</td><td>${p.currentPhase}</td><td><span class="status-badge status-${p.status.toLowerCase()==='aberto'?'aberto':p.status.toLowerCase()==='concluído'?'concluido':'andamento'}">${p.status}</span></td><td><div class="progress-bar"><div style="width:${calcProgress(p)}%">${calcProgress(p)}%</div></div></td><td><button class="btn ghost" onclick="openProject(${p.id})">Abrir</button> <button class="btn ghost" onclick="deleteProject(${p.id})" style="color:var(--bad)">×</button></td></tr>`).join('')}</tbody></table></div></section>`;document.getElementById('btn-new-project').addEventListener('click',newProject);};
+
+  const renderDetail=()=>{const v=document.getElementById('detail');const p=state.projects.find(x=>x.id===state.currentId);if(!p){v.innerHTML='<section><p>Nenhum projeto selecionado. Volte em "Projetos".</p></section>';return;}v.innerHTML=`<section><h2>${p.name}</h2>
+    <div class="grid" style="grid-template-columns:repeat(4,1fr);">
+      <div class="field"><label>Nome</label><input id="p_name" value="${p.name}"></div>
+      <div class="field"><label>Líder</label><input id="p_leader" value="${p.leader||''}"></div>
+      <div class="field"><label>Equipe</label><input id="p_team" value="${p.team||''}"></div>
+      <div class="field"><label>Data Início</label><input id="p_startDate" type="date" value="${p.startDate||''}"></div>
+      <div class="field"><label>Status</label><select id="p_status"><option ${p.status==='Aberto'?'selected':''}>Aberto</option><option ${p.status==='Em Andamento'?'selected':''}>Em Andamento</option><option ${p.status==='Concluído'?'selected':''}>Concluído</option></select></div>
+      <div class="field"><label>Fase Atual</label><select id="p_phase">${PHASES.map(ph=>`<option ${p.currentPhase===ph?'selected':''}>${ph}</option>`).join('')}</select></div>
+    </div>
+    <div class="field" style="margin-top:12px;"><label>Descrição do Problema</label><textarea id="p_problem">${p.problem||''}</textarea></div>
+  </section>
+  <section>
+    <div class="phase-tabs">${PHASES.map(ph=>`<div class="phase-tab ${p.currentPhase===ph?'active':''}" data-phase="${ph}">${ph}</div>`).join('')}</div>
+    <div id="phase-content"></div>
+  </section>`;
+    ['name','leader','team','startDate','status','problem'].forEach(k=>{const el=document.getElementById(`p_${k}`);el.addEventListener('change',()=>{p[k]=el.value;save();});});
+    document.getElementById('p_phase').addEventListener('change',e=>{p.currentPhase=e.target.value;save();renderDetail();});
+    document.querySelectorAll('.phase-tab').forEach(t=>t.addEventListener('click',()=>{p.currentPhase=t.dataset.phase;save();renderDetail();}));
+    renderPhase(p);
+  };
+
+  const renderPhase=(p)=>{const ph=p.currentPhase;const data=p.phases[ph];const c=document.getElementById('phase-content');c.innerHTML=`<h3>Fase: ${ph}</h3>
+    <div class="field"><label>Descrição/Objetivos da Fase</label><textarea id="phase_desc">${data.description||''}</textarea></div>
+    <div style="margin-top:16px;display:flex;justify-content:space-between;align-items:center;"><h4>Tarefas</h4><button class="btn primary" id="btn-add-task">+ Tarefa</button></div>
+    <div id="tasks-list" style="margin-top:10px;">${data.tasks.map((t,i)=>`<div class="task-item"><input type="checkbox" ${t.done?'checked':''} data-idx="${i}" class="task-check"><input value="${t.title||''}" data-idx="${i}" class="task-title" placeholder="Descrição"><input value="${t.responsible||''}" data-idx="${i}" class="task-resp" placeholder="Responsável"><input type="date" value="${t.due||''}" data-idx="${i}" class="task-due"><button class="btn ghost" data-idx="${i}" data-act="del" style="color:var(--bad)">×</button></div>`).join('')||'<p style="color:#64748b">Nenhuma tarefa.</p>'}</div>`;
+    document.getElementById('phase_desc').addEventListener('change',e=>{data.description=e.target.value;save();});
+    document.getElementById('btn-add-task').addEventListener('click',()=>{data.tasks.push({title:'',responsible:'',due:'',done:false});save();renderPhase(p);});
+    c.querySelectorAll('.task-check').forEach(el=>el.addEventListener('change',e=>{data.tasks[+e.target.dataset.idx].done=e.target.checked;save();}));
+    c.querySelectorAll('.task-title').forEach(el=>el.addEventListener('change',e=>{data.tasks[+e.target.dataset.idx].title=e.target.value;save();}));
+    c.querySelectorAll('.task-resp').forEach(el=>el.addEventListener('change',e=>{data.tasks[+e.target.dataset.idx].responsible=e.target.value;save();}));
+    c.querySelectorAll('.task-due').forEach(el=>el.addEventListener('change',e=>{data.tasks[+e.target.dataset.idx].due=e.target.value;save();}));
+    c.querySelectorAll('[data-act=del]').forEach(el=>el.addEventListener('click',e=>{if(confirm('Excluir tarefa?')){data.tasks.splice(+e.target.dataset.idx,1);save();renderPhase(p);}}));
+  };
+
+  const createViewsHTML=()=>`
+    <div id="projects" class="tab-content"></div>
+    <div id="detail" class="tab-content hidden"></div>
+    <div id="help" class="tab-content hidden">
+      <section><h2>Guia DMAIC</h2>
+        <h4>O que é DMAIC?</h4>
+        <p>Metodologia Six Sigma para melhoria de processos em 5 fases:</p>
+        <ul>
+          <li><b>Define:</b> Definir o problema, escopo e objetivos</li>
+          <li><b>Measure:</b> Medir o desempenho atual do processo</li>
+          <li><b>Analyze:</b> Analisar dados e identificar causas raiz</li>
+          <li><b>Improve:</b> Implementar soluções e melhorias</li>
+          <li><b>Control:</b> Controlar e sustentar os ganhos</li>
+        </ul>
+      </section>
+    </div>`;
+
+  document.getElementById('btn-download-backup').addEventListener('click',()=>{const b=new Blob([JSON.stringify(state,null,2)],{type:'application/json'});const l=document.createElement("a");l.href=URL.createObjectURL(b);l.download=`itp_dmaic_${new Date().toISOString().slice(0,10)}.json`;l.click();showToast("Backup baixado!","success");});
+  document.getElementById('btn-restore-backup').addEventListener('click',()=>{const i=document.createElement('input');i.type='file';i.accept='.json';i.onchange=e=>{const r=new FileReader();r.onload=ev=>{if(!confirm('Substituir?'))return;try{state=JSON.parse(ev.target.result);save();location.reload();}catch(err){showToast('Inválido.','error');}};r.readAsText(e.target.files[0]);};i.click();});
+  document.getElementById('btn-archive-and-clear').addEventListener('click',()=>{if(confirm("Apagar?")){document.getElementById('btn-download-backup').click();localStorage.removeItem(DB_KEY);setTimeout(()=>location.reload(),1500);}});
+  document.getElementById('btn-export-pdf').addEventListener('click',()=>window.print());
+
+  load();main.innerHTML=createViewsHTML();renderProjects();
+});
+</script>
+</body>
+</html>

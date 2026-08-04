@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>EQPS — Diagrama de Ishikawa</title>
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.0.3/src/css/phosphor.css" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<style>
+  :root{
+    --bg-dark:#0a1628; --bg-darker:#060f20;
+    --panel:#0f2444; --card:#152a4a; --card-hover:#1a3258;
+    --border:#1e3a5f; --border-light:#2a4a7a;
+    --text:#fff; --text-muted:#a8c0e0; --label:#7eb3f0; --small:#6a8cb0;
+    --accent:#ff7a1a; --accent-hover:#e85d04;
+    --blue:#3b82f6; --ok:#10b981; --warn:#f59e0b; --bad:#ef4444;
+    --m1:#ef4444; --m2:#3b82f6; --m3:#10b981; --m4:#f59e0b; --m5:#8b5cf6; --m6:#ec4899;
+    --shadow:0 4px 12px rgba(0,0,0,.3); --radius:12px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Segoe UI',sans-serif; background:linear-gradient(135deg,var(--bg-darker),var(--bg-dark)); color:#fff; padding:20px; min-height:100vh;}
+  .container{max-width:1500px;margin:auto;display:grid;gap:20px;}
+  .header{background:linear-gradient(135deg,var(--accent),var(--accent-hover)); padding:20px 24px; border-radius:var(--radius); display:flex; justify-content:space-between; align-items:center; box-shadow:var(--shadow); flex-wrap:wrap; gap:16px;}
+  .header-title{display:flex;align-items:center;gap:14px;}
+  .header-title i{font-size:36px;color:#fff;}
+  .header-title h1{font-size:22px;font-weight:700;}
+  .header-title .subtitle{font-size:13px;color:rgba(255,255,255,.9);}
+  .header-actions{display:flex;gap:8px;flex-wrap:wrap;}
+  .header-actions button{background:rgba(255,255,255,.15); border:1px solid rgba(255,255,255,.2); color:#fff; padding:8px 14px; border-radius:8px; cursor:pointer; font-size:13px; display:inline-flex; align-items:center; gap:6px; transition:.2s; font-weight:500;}
+  .header-actions button:hover{background:rgba(255,255,255,.25);}
+
+  .tabs{display:flex;gap:8px;flex-wrap:wrap; background:var(--panel); padding:8px; border-radius:var(--radius); border:1px solid var(--border);}
+  .tab{padding:12px 18px; background:transparent; border:none; border-radius:8px; cursor:pointer; transition:.2s; font-weight:600; color:var(--text-muted); font-size:13px; display:inline-flex; align-items:center; gap:6px;}
+  .tab:hover{background:var(--card); color:#fff;}
+  .tab.active{background:linear-gradient(135deg,var(--accent),var(--accent-hover)); color:#fff; box-shadow:0 2px 8px rgba(255,122,26,.3);}
+
+  .tab-content{display:none;}
+  .tab-content.active{display:block;padding:24px;background:var(--panel);border-radius:var(--radius);border:1px solid var(--border);}
+
+  .config-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin-bottom:20px;}
+  .form-group{display:flex;flex-direction:column;}
+  .form-group label{font-size:12px;margin-bottom:6px;color:var(--label);font-weight:600;text-transform:uppercase;letter-spacing:.5px;}
+  input,select,textarea{padding:10px 12px;border:1px solid var(--border-light);border-radius:8px;background:var(--card);color:#fff;font-size:14px;outline:none;transition:.2s;font-family:inherit;}
+  input:focus,select:focus,textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(255,122,26,.15);}
+  input::placeholder,textarea::placeholder{color:var(--small);}
+
+  .actions-bar{display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap;}
+  .btn{padding:10px 16px;border:1px solid var(--border-light);background:var(--card);color:#fff;border-radius:8px;cursor:pointer;font-size:13px;font-weight:600;display:inline-flex;align-items:center;gap:6px;transition:.2s;}
+  .btn:hover{background:var(--card-hover);border-color:var(--accent);}
+  .btn-primary{background:linear-gradient(135deg,var(--accent),var(--accent-hover));color:#fff;border-color:transparent;}
+  .btn-primary:hover{filter:brightness(1.1);}
+  .btn-danger{color:var(--bad);}
+  .btn-danger:hover{background:rgba(239,68,68,.1);border-color:var(--bad);}
+
+  .info-box{background:rgba(59,130,246,.1);border-left:3px solid var(--blue);padding:12px 16px;border-radius:8px;margin-bottom:16px;font-size:13px;color:var(--text-muted);}
+
+  /* Causas */
+  .categories-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;}
+  .category-card{background:var(--card);border-radius:10px;border:1px solid var(--border);overflow:hidden;border-top:4px solid var(--accent);}
+  .category-card[data-cat="m1"]{border-top-color:var(--m1);}
+  .category-card[data-cat="m2"]{border-top-color:var(--m2);}
+  .category-card[data-cat="m3"]{border-top-color:var(--m3);}
+  .category-card[data-cat="m4"]{border-top-color:var(--m4);}
+  .category-card[data-cat="m5"]{border-top-color:var(--m5);}
+  .category-card[data-cat="m6"]{border-top-color:var(--m6);}
+  .category-header{padding:12px 16px;display:flex;justify-content:space-between;align-items:center;background:var(--panel);}
+  .category-name{font-weight:700;font-size:14px;display:flex;align-items:center;gap:8px;}
+  .category-count{background:var(--accent);color:#fff;padding:2px 10px;border-radius:12px;font-size:12px;font-weight:700;}
+  .category-body{padding:12px;}
+  .cause-item{display:flex;gap:6px;margin-bottom:8px;align-items:center;}
+  .cause-item input{flex:1;font-size:13px;padding:8px 10px;}
+  .cause-item button{padding:8px 10px;background:transparent;border:1px solid var(--border-light);color:var(--bad);border-radius:6px;cursor:pointer;}
+  .cause-item button:hover{background:rgba(239,68,68,.1);}
+  .add-cause-btn{width:100%;padding:8px;background:transparent;border:1px dashed var(--border-light);color:var(--label);border-radius:6px;cursor:pointer;font-size:13px;margin-top:4px;}
+  .add-cause-btn:hover{background:var(--card-hover);border-color:var(--accent);color:var(--accent);}
+
+  /* Diagrama */
+  .diagram-wrapper{background:var(--card);border-radius:var(--radius);border:1px solid var(--border);padding:20px;overflow:auto;}
+  #ishikawa-svg{width:100%;min-width:1100px;height:600px;display:block;}
+  .problem-display{text-align:center;margin-bottom:16px;padding:14px;background:var(--card);border-radius:8px;border:1px solid var(--accent);}
+  .problem-display strong{color:var(--accent);font-size:16px;}
+
+  .empty-state{text-align:center;padding:60px 20px;color:var(--text-muted);}
+  .empty-state i{font-size:64px;color:var(--border-light);margin-bottom:16px;}
+
+  /* Modal */
+  .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);display:none;align-items:center;justify-content:center;z-index:999;}
+  .modal-overlay.active{display:flex;}
+  .modal{background:var(--panel);border-radius:var(--radius);padding:24px;max-width:500px;width:90%;max-height:80vh;overflow:auto;border:1px solid var(--border);}
+  .modal h2{color:var(--accent);margin-bottom:16px;font-size:18px;}
+  .saved-item{display:flex;justify-content:space-between;align-items:center;padding:12px;background:var(--card);border-radius:8px;margin-bottom:8px;border:1px solid var(--border);}
+  .saved-item .actions{display:flex;gap:6px;}
+  .saved-item button{padding:6px 10px;border:none;border-radius:6px;cursor:pointer;font-size:12px;color:#fff;}
+  .btn-load{background:var(--ok);} .btn-rename{background:var(--blue);} .btn-export{background:var(--accent);} .btn-delete{background:var(--bad);}
+
+  .toast{position:fixed;bottom:20px;right:20px;background:var(--card);color:#fff;padding:12px 20px;border-radius:8px;border-left:4px solid var(--accent);box-shadow:var(--shadow);z-index:1000;opacity:0;transform:translateY(20px);transition:.3s;}
+  .toast.show{opacity:1;transform:translateY(0);}
+  .toast.ok{border-left-color:var(--ok);} .toast.bad{border-left-color:var(--bad);}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <div class="header-title">
+      <i class="ph ph-fish"></i>
+      <div>
+        <h1>EQPS</h1>
+        <p class="subtitle">Diagrama de Ishikawa (Espinha de Peixe / 6M)</p>
+      </div>
+    </div>
+    <div class="header-actions">
+      <button id="new-btn"><i class="ph ph-file-plus"></i> Novo</button>
+      <button id="save-btn"><i class="ph ph-floppy-disk"></i> Salvar</button>
+      <button id="load-btn"><i class="ph ph-folder"></i> Carregar</button>
+      <button id="import-btn"><i class="ph ph-upload-simple"></i> Importar</button>
+      <input type="file" id="import-input" style="display:none" accept=".json" />
+      <button id="export-pdf-btn"><i class="ph ph-file-pdf"></i> Exportar PDF</button>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" data-tab="config"><i class="ph ph-gear"></i> Problema</button>
+    <button class="tab" data-tab="causes"><i class="ph ph-list-bullets"></i> Causas (6M)</button>
+    <button class="tab" data-tab="diagram"><i class="ph ph-fish"></i> Diagrama</button>
+  </div>
+
+  <div id="report-content">
+    <div class="tab-content active" data-content="config">
+      <div class="config-grid">
+        <div class="form-group"><label>Responsável</label><input id="resp" placeholder="Nome do facilitador" value="Marcos Garçon — Analista de Qualidade Pleno" /></div>
+        <div class="form-group"><label>Data</label><input id="date" type="date" /></div>
+        <div class="form-group"><label>Setor / Área</label><input id="area" placeholder="Ex: Linha 02" value="Linha de Injeção de Peças Técnicas (Moldagem)" /></div>
+      </div>
+      <div class="form-group" style="margin-bottom:16px;">
+        <label>Problema (Efeito) *</label>
+        <textarea id="problem" rows="3" placeholder="Descreva claramente o problema/efeito a ser analisado">Variação dimensional e porosidade em peças injetadas após a desmoldagem (reclamações de clientes nas últimas 3 semanas)</textarea>
+      </div>
+      <div class="form-group" style="margin-bottom:16px;">
+        <label>Observações</label>
+        <textarea id="notes" rows="3" placeholder="Contexto adicional, dados, evidências...">Desafio 1 — Business Case EQPS. Reclamações de variação dimensional pós-molde + aumento de 9% no refugo interno de peças injetadas (porosidade/rebarba) nas últimas 3 semanas.</textarea>
+      </div>
+      <div class="info-box"><strong>💡 Método 6M:</strong> Analise causas potenciais em <strong>Mão de Obra, Máquina, Material, Método, Medição e Meio Ambiente</strong>. Vá para a aba <strong>Causas</strong> para preencher.</div>
+    </div>
+
+    <div class="tab-content" data-content="causes">
+      <div class="actions-bar">
+        <button class="btn" id="expand-all-btn"><i class="ph ph-arrows-out"></i> Expandir Tudo</button>
+        <button class="btn btn-danger" id="clear-causes-btn"><i class="ph ph-eraser"></i> Limpar Causas</button>
+        <button class="btn btn-primary" id="generate-diagram-btn"><i class="ph ph-fish"></i> Gerar Diagrama</button>
+      </div>
+      <div class="info-box"><strong>📝 Como usar:</strong> Adicione causas em cada categoria 6M. Clique em <strong>Gerar Diagrama</strong> para visualizar.</div>
+      <div class="categories-grid" id="categories-grid"></div>
+    </div>
+
+    <div class="tab-content" data-content="diagram">
+      <div id="diagram-empty" class="empty-state">
+        <i class="ph ph-fish"></i>
+        <p>Preencha as causas e clique em "Gerar Diagrama".</p>
+      </div>
+      <div id="diagram-area" style="display:none;">
+        <div class="problem-display" id="problem-display"></div>
+        <div class="diagram-wrapper">
+          <svg id="ishikawa-svg" viewBox="0 0 1200 600" xmlns="http://www.w3.org/2000/svg"></svg>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="load-modal">
+  <div class="modal">
+    <h2><i class="ph ph-folder-open"></i> Análises Salvas</h2>
+    <div id="saved-list"></div>
+    <button class="btn" style="margin-top:12px;" onclick="document.getElementById('load-modal').classList.remove('active')">Fechar</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const CATEGORIES=[
+  {id:'m1',name:'Mão de Obra',icon:'users',color:'#ef4444'},
+  {id:'m2',name:'Máquina',icon:'gear',color:'#3b82f6'},
+  {id:'m3',name:'Material',icon:'package',color:'#10b981'},
+  {id:'m4',name:'Método',icon:'list-checks',color:'#f59e0b'},
+  {id:'m5',name:'Medição',icon:'ruler',color:'#8b5cf6'},
+  {id:'m6',name:'Meio Ambiente',icon:'tree',color:'#ec4899'}
+];
+
+class IshikawaTool{
+  constructor(){
+    this.storageKey='itp-ishikawa-v1';
+    this.causes={
+      m1:['Operador sem ficha de setup padronizada para conferir temp/tempo/pressão antes do lote','Falta de treinamento formal na troca de turno'],
+      m2:['Injetora sem calibração periódica de temperatura/pressão dos canhões','Molde sem controle de vida útil (perda de precisão dimensional ao longo do uso)'],
+      m3:['Variação de lote/umidade da resina plástica recebida','Vida útil do molde vencida ou próxima do limite de manutenção','Material com aditivo sensível a variação de temperatura de injeção'],
+      m4:['Ausência de Instrução de Trabalho Visual (POP) com parâmetros críticos','Inexistência de teste dimensional (gabarito passa/não-passa) por amostragem antes de liberar o lote'],
+      m5:['Falta de pirômetro infravermelho calibrado para aferição de temperatura do molde','Ausência de paquímetro/gabarito calibrado para controle dimensional em processo'],
+      m6:['Poeira e umidade no ambiente de injeção afetando o acabamento da peça','Variação de temperatura ambiente entre turnos']
+    };
+    this.init();
+  }
+  init(){
+    document.getElementById('date').valueAsDate=new Date();
+    this.renderCategories();
+    this.bindEvents();
+    CATEGORIES.forEach(c=>this.renderCausesOf(c.id));
+    setTimeout(()=>this.generateDiagram(),50);
+  }
+  bindEvents(){
+    document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',e=>this.switchTab(e.currentTarget.dataset.tab)));
+    document.getElementById('new-btn').addEventListener('click',()=>this.newAnalysis());
+    document.getElementById('save-btn').addEventListener('click',()=>this.save());
+    document.getElementById('load-btn').addEventListener('click',()=>this.showLoadModal());
+    document.getElementById('import-btn').addEventListener('click',()=>document.getElementById('import-input').click());
+    document.getElementById('import-input').addEventListener('change',e=>this.handleImport(e));
+    document.getElementById('export-pdf-btn').addEventListener('click',()=>this.exportPDF());
+    document.getElementById('clear-causes-btn').addEventListener('click',()=>this.clearCauses());
+    document.getElementById('generate-diagram-btn').addEventListener('click',()=>this.generateDiagram());
+    document.getElementById('expand-all-btn').addEventListener('click',()=>this.expandAll());
+  }
+  switchTab(tab){
+    document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active',t.dataset.tab===tab));
+    document.querySelectorAll('.tab-content').forEach(c=>c.classList.toggle('active',c.dataset.content===tab));
+  }
+  renderCategories(){
+    const grid=document.getElementById('categories-grid');
+    grid.innerHTML=CATEGORIES.map(cat=>`
+      <div class="category-card" data-cat="${cat.id}">
+        <div class="category-header">
+          <div class="category-name"><i class="ph ph-${cat.icon}"></i> ${cat.name}</div>
+          <span class="category-count" id="count-${cat.id}">0</span>
+        </div>
+        <div class="category-body" id="body-${cat.id}">
+          <button class="add-cause-btn" data-cat="${cat.id}"><i class="ph ph-plus"></i> Adicionar Causa</button>
+        </div>
+      </div>
+    `).join('');
+    document.querySelectorAll('.add-cause-btn').forEach(b=>{
+      b.addEventListener('click',e=>this.addCause(e.currentTarget.dataset.cat));
+    });
+  }
+  addCause(catId,value=''){
+    this.causes[catId].push(value);
+    this.renderCausesOf(catId);
+  }
+  removeCause(catId,idx){
+    this.causes[catId].splice(idx,1);
+    this.renderCausesOf(catId);
+  }
+  renderCausesOf(catId){
+    const body=document.getElementById('body-'+catId);
+    body.innerHTML='';
+    this.causes[catId].forEach((c,i)=>{
+      const div=document.createElement('div');
+      div.className='cause-item';
+      div.innerHTML=`<input type="text" value="${c.replace(/"/g,'&quot;')}" placeholder="Descreva a causa" data-cat="${catId}" data-idx="${i}" />
+        <button data-cat="${catId}" data-idx="${i}" title="Remover"><i class="ph ph-trash"></i></button>`;
+      body.appendChild(div);
+      div.querySelector('input').addEventListener('input',e=>{
+        this.causes[catId][i]=e.target.value;
+      });
+      div.querySelector('button').addEventListener('click',()=>this.removeCause(catId,i));
+    });
+    const btn=document.createElement('button');
+    btn.className='add-cause-btn';
+    btn.innerHTML='<i class="ph ph-plus"></i> Adicionar Causa';
+    btn.addEventListener('click',()=>this.addCause(catId));
+    body.appendChild(btn);
+    document.getElementById('count-'+catId).textContent=this.causes[catId].length;
+  }
+  expandAll(){
+    CATEGORIES.forEach(c=>{
+      if(this.causes[c.id].length===0){
+        this.addCause(c.id);this.addCause(c.id);this.addCause(c.id);
+      }
+    });
+    this.toast('3 campos abertos em cada categoria vazia.','ok');
+  }
+  clearCauses(){
+    if(!confirm('Limpar todas as causas?')) return;
+    CATEGORIES.forEach(c=>{this.causes[c.id]=[];this.renderCausesOf(c.id);});
+    this.toast('Causas limpas.','ok');
+  }
+  generateDiagram(){
+    const problem=document.getElementById('problem').value.trim();
+    if(!problem){ this.toast('Informe o problema na aba "Problema".','bad'); this.switchTab('config'); return; }
+    document.getElementById('diagram-empty').style.display='none';
+    document.getElementById('diagram-area').style.display='block';
+    document.getElementById('problem-display').innerHTML=`<strong>Problema:</strong> ${problem}`;
+    this.drawSVG(problem);
+    this.switchTab('diagram');
+    this.toast('Diagrama gerado!','ok');
+  }
+  drawSVG(problem){
+    const svg=document.getElementById('ishikawa-svg');
+    const W=1200, H=600, cy=H/2;
+    svg.setAttribute('viewBox',`0 0 ${W} ${H}`);
+    let html='';
+    // Espinha principal
+    html+=`<line x1="50" y1="${cy}" x2="${W-180}" y2="${cy}" stroke="#ff7a1a" stroke-width="4"/>`;
+    // Seta
+    html+=`<polygon points="${W-180},${cy-10} ${W-180},${cy+10} ${W-160},${cy}" fill="#ff7a1a"/>`;
+    // Caixa do problema
+    html+=`<rect x="${W-160}" y="${cy-40}" width="150" height="80" fill="#ff7a1a" stroke="#e85d04" stroke-width="2" rx="8"/>`;
+    const wrappedProblem=this.wrapText(problem,18);
+    wrappedProblem.forEach((line,i)=>{
+      html+=`<text x="${W-85}" y="${cy-15+i*18}" fill="#fff" font-size="12" font-weight="700" text-anchor="middle">${this.escapeXML(line)}</text>`;
+    });
+    // Espinhas 6M - 3 acima, 3 abaixo
+    const top=[CATEGORIES[0],CATEGORIES[1],CATEGORIES[2]];
+    const bottom=[CATEGORIES[3],CATEGORIES[4],CATEGORIES[5]];
+    const spacing=(W-260)/3;
+    top.forEach((cat,i)=>{
+      const x=80+i*spacing+spacing/2;
+      html+=this.drawBranch(x,cy,x+80,80,cat,'up');
+    });
+    bottom.forEach((cat,i)=>{
+      const x=80+i*spacing+spacing/2;
+      html+=this.drawBranch(x,cy,x+80,H-80,cat,'down');
+    });
+    svg.innerHTML=html;
+  }
+  drawBranch(x1,y1,x2,y2,cat,dir){
+    let h=`<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${cat.color}" stroke-width="3"/>`;
+    // Label da categoria
+    const labelY=dir==='up'?y2-15:y2+25;
+    h+=`<rect x="${x2-50}" y="${labelY-15}" width="100" height="22" fill="${cat.color}" rx="4"/>`;
+    h+=`<text x="${x2}" y="${labelY}" fill="#fff" font-size="12" font-weight="700" text-anchor="middle">${cat.name}</text>`;
+    // Causas
+    const causes=this.causes[cat.id].filter(c=>c.trim());
+    const dx=Math.abs(x2-x1)/(causes.length+1);
+    const dy=Math.abs(y2-y1)/(causes.length+1);
+    causes.forEach((c,i)=>{
+      const px=x1+dx*(i+1);
+      const py=dir==='up'?y1-dy*(i+1):y1+dy*(i+1);
+      const ex=px+40;
+      const ey=py;
+      h+=`<line x1="${px}" y1="${py}" x2="${ex}" y2="${ey}" stroke="${cat.color}" stroke-width="1.5"/>`;
+      const txt=c.length>25?c.substring(0,25)+'…':c;
+      h+=`<text x="${ex+5}" y="${ey+4}" fill="#fff" font-size="11">${this.escapeXML(txt)}</text>`;
+    });
+    return h;
+  }
+  wrapText(text,maxLen){
+    const words=text.split(' ');
+    const lines=[]; let cur='';
+    words.forEach(w=>{
+      if((cur+w).length>maxLen){ if(cur) lines.push(cur.trim()); cur=w+' '; }
+      else cur+=w+' ';
+    });
+    if(cur) lines.push(cur.trim());
+    return lines.slice(0,3);
+  }
+  escapeXML(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+
+  newAnalysis(){
+    if(!confirm('Iniciar nova análise? Dados não salvos serão perdidos.')) return;
+    ['resp','area','problem','notes'].forEach(id=>document.getElementById(id).value='');
+    document.getElementById('date').valueAsDate=new Date();
+    this.causes={m1:[],m2:[],m3:[],m4:[],m5:[],m6:[]};
+    CATEGORIES.forEach(c=>this.renderCausesOf(c.id));
+    document.getElementById('diagram-empty').style.display='block';
+    document.getElementById('diagram-area').style.display='none';
+    this.switchTab('config');
+    this.toast('Nova análise iniciada.','ok');
+  }
+  getState(){
+    return {
+      resp:document.getElementById('resp').value,
+      date:document.getElementById('date').value,
+      area:document.getElementById('area').value,
+      problem:document.getElementById('problem').value,
+      notes:document.getElementById('notes').value,
+      causes:this.causes
+    };
+  }
+  applyState(s){
+    document.getElementById('resp').value=s.resp||'';
+    document.getElementById('date').value=s.date||'';
+    document.getElementById('area').value=s.area||'';
+    document.getElementById('problem').value=s.problem||'';
+    document.getElementById('notes').value=s.notes||'';
+    this.causes=s.causes||{m1:[],m2:[],m3:[],m4:[],m5:[],m6:[]};
+    CATEGORIES.forEach(c=>this.renderCausesOf(c.id));
+  }
+  getSaved(){try{return JSON.parse(localStorage.getItem(this.storageKey))||{};}catch{return{};}}
+  save(){
+    const name=prompt('Nome da análise:');
+    if(!name) return;
+    const saved=this.getSaved();
+    saved[name]={state:this.getState(),date:new Date().toISOString()};
+    localStorage.setItem(this.storageKey,JSON.stringify(saved));
+    this.toast(`"${name}" salva.`,'ok');
+  }
+  loadAnalysis(name){
+    const saved=this.getSaved();
+    if(saved[name]){
+      this.applyState(saved[name].state);
+      document.getElementById('load-modal').classList.remove('active');
+      this.toast(`"${name}" carregada.`,'ok');
+    }
+  }
+  deleteAnalysis(name){
+    if(!confirm(`Excluir "${name}"?`)) return;
+    const saved=this.getSaved(); delete saved[name];
+    localStorage.setItem(this.storageKey,JSON.stringify(saved));
+    this.showLoadModal();
+    this.toast('Excluída.','ok');
+  }
+  renameAnalysis(name){
+    const newName=prompt('Novo nome:',name);
+    if(!newName||newName===name) return;
+    const saved=this.getSaved();
+    saved[newName]=saved[name]; delete saved[name];
+    localStorage.setItem(this.storageKey,JSON.stringify(saved));
+    this.showLoadModal();
+  }
+  exportAnalysisFile(name){
+    const saved=this.getSaved();
+    if(!saved[name]) return;
+    const blob=new Blob([JSON.stringify(saved[name],null,2)],{type:'application/json'});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a'); a.href=url; a.download=`${name}.json`; a.click();
+    URL.revokeObjectURL(url);
+  }
+  handleImport(e){
+    const file=e.target.files[0]; if(!file) return;
+    const reader=new FileReader();
+    reader.onload=ev=>{
+      try{
+        const obj=JSON.parse(ev.target.result);
+        if(obj.state) this.applyState(obj.state); else this.applyState(obj);
+        this.toast('Análise importada.','ok');
+      }catch{this.toast('Arquivo inválido.','bad');}
+    };
+    reader.readAsText(file); e.target.value='';
+  }
+  showLoadModal(){
+    const saved=this.getSaved();
+    const list=document.getElementById('saved-list');
+    const names=Object.keys(saved);
+    if(names.length===0){
+      list.innerHTML='<p style="color:#a8c0e0;text-align:center;padding:20px;">Nenhuma análise salva.</p>';
+    }else{
+      list.innerHTML=names.map(n=>`<div class="saved-item"><span><strong>${n}</strong><br><small style="color:#6a8cb0;">${new Date(saved[n].date).toLocaleString('pt-BR')}</small></span>
+        <div class="actions">
+          <button class="btn-load" onclick="app.loadAnalysis('${n}')"><i class="ph ph-folder-open"></i></button>
+          <button class="btn-rename" onclick="app.renameAnalysis('${n}')"><i class="ph ph-pencil"></i></button>
+          <button class="btn-export" onclick="app.exportAnalysisFile('${n}')"><i class="ph ph-download"></i></button>
+          <button class="btn-delete" onclick="app.deleteAnalysis('${n}')"><i class="ph ph-trash"></i></button>
+        </div></div>`).join('');
+    }
+    document.getElementById('load-modal').classList.add('active');
+  }
+  async exportPDF(){
+    this.toast('Gerando PDF...','ok');
+    const {jsPDF}=window.jspdf;
+    const pdf=new jsPDF('p','mm','a4');
+    const canvas=await html2canvas(document.getElementById('report-content'),{scale:1.5,backgroundColor:'#0a1628'});
+    const img=canvas.toDataURL('image/png');
+    const w=210, h=canvas.height*w/canvas.width;
+    pdf.addImage(img,'PNG',0,0,w,h);
+    pdf.save(`Ishikawa_${Date.now()}.pdf`);
+    this.toast('PDF gerado!','ok');
+  }
+  toast(msg,type='ok'){
+    const t=document.getElementById('toast');
+    t.textContent=msg; t.className='toast '+type+' show';
+    setTimeout(()=>t.classList.remove('show'),3000);
+  }
+}
+const app=new IshikawaTool();
+</script>
+</body>
+</html>

@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EQPS - Análise de Lacunas</title>
+<script src="https://unpkg.com/@phosphor-icons/web"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+  :root{--bg:#0a1628;--panel:#0f1e36;--muted:#1a2942;--card:#0d1a2e;--text:#e5e7eb;--accent:#ff7a1a;--accent2:#ffa552;--ok:#22c55e;--warn:#f59e0b;--bad:#ef4444;--shadow:0 10px 30px rgba(0,0,0,.45);--radius:16px;}
+  *{box-sizing:border-box}
+  body{margin:0;padding:20px;background:linear-gradient(135deg,var(--bg) 0%,var(--panel) 100%);color:var(--text);font-family:system-ui,Inter,Arial;min-height:100vh;}
+  .container{max-width:1200px;margin:0 auto;}
+  .header{text-align:center;margin-bottom:40px;padding:30px;background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);border:1px solid #2a3a55;}
+  .header h1{margin:0 0 10px 0;font-size:2.5rem;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+  .header p{margin:0;color:#94a3b8;}
+  .tabs{display:flex;background:var(--muted);border-radius:var(--radius);padding:8px;margin-bottom:30px;border:1px solid #2a3a55;flex-wrap:wrap;}
+  .tab{flex:1;padding:12px 20px;background:transparent;border:none;color:var(--text);cursor:pointer;border-radius:12px;transition:.3s;font-weight:600;display:flex;align-items:center;justify-content:center;gap:8px;min-width:120px;}
+  .tab.active{background:var(--accent);color:#0a1628;box-shadow:0 4px 12px rgba(255,122,26,.3);}
+  .tab:hover:not(.active){background:rgba(255,122,26,.1);}
+  .tab-content{display:none;background:var(--card);border-radius:var(--radius);padding:30px;box-shadow:var(--shadow);border:1px solid #2a3a55;}
+  .tab-content.active{display:block;}
+  .form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px;margin-bottom:30px;}
+  .form-group{margin-bottom:20px;}
+  .form-label{display:block;margin-bottom:8px;font-weight:600;color:var(--accent);}
+  .form-input,.form-select,.form-textarea{width:100%;padding:12px 16px;background:var(--muted);border:1px solid #2a3a55;border-radius:8px;color:var(--text);font-size:14px;}
+  .form-input:focus,.form-select:focus,.form-textarea:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(255,122,26,.1);}
+  .form-textarea{resize:vertical;min-height:100px;}
+  .btn{padding:12px 24px;background:var(--accent);color:#0a1628;border:none;border-radius:8px;cursor:pointer;font-weight:600;display:inline-flex;align-items:center;gap:8px;transition:.3s;}
+  .btn:hover{background:#e85d04;transform:translateY(-2px);}
+  .btn-secondary{background:var(--muted);color:var(--text);}
+  .btn-secondary:hover{background:#3d4f6f;}
+  .btn-success{background:var(--ok);color:#fff;}
+  .btn-warning{background:var(--warn);color:#0a1628;}
+  .gap-item{background:var(--muted);border-radius:12px;padding:20px;margin-bottom:16px;border:1px solid #2a3a55;}
+  .gap-item:hover{border-color:var(--accent);}
+  .gap-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;}
+  .gap-title{font-weight:600;color:var(--accent);margin:0;}
+  .gap-priority{padding:4px 12px;border-radius:20px;font-size:12px;font-weight:600;}
+  .priority-high{background:var(--bad);color:#fff;}.priority-medium{background:var(--warn);color:#0a1628;}.priority-low{background:var(--ok);color:#fff;}
+  .gap-details{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:16px;}
+  .detail-item{background:var(--card);padding:12px;border-radius:8px;border:1px solid #2a3a55;}
+  .detail-label{font-size:12px;color:#94a3b8;margin-bottom:4px;text-transform:uppercase;}
+  .detail-value{font-weight:600;}
+  .actions{display:flex;gap:12px;margin-top:30px;flex-wrap:wrap;}
+  .chart-container{background:var(--muted);border-radius:12px;padding:20px;margin-bottom:20px;border:1px solid #2a3a55;}
+  .chart-title{font-size:1.2rem;font-weight:600;color:var(--accent);margin-bottom:20px;text-align:center;}
+  .summary-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:20px;margin-bottom:30px;}
+  .summary-card{background:var(--muted);border-radius:12px;padding:20px;text-align:center;border:1px solid #2a3a55;}
+  .summary-value{font-size:2rem;font-weight:700;color:var(--accent);margin-bottom:8px;}
+  .summary-label{color:#94a3b8;font-size:14px;}
+  .notification{padding:16px;border-radius:8px;margin-bottom:20px;border-left:4px solid;display:none;}
+  .notification.success{background:rgba(34,197,94,.1);border-color:var(--ok);color:var(--ok);}
+  .notification.error{background:rgba(239,68,68,.1);border-color:var(--bad);color:var(--bad);}
+  .notification.info{background:rgba(255,122,26,.1);border-color:var(--accent);color:var(--accent);}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <h1>🛡️ EQPS</h1>
+    <p>Análise de Lacunas (Gap Analysis) — Desenvolvido por Marcos Garçon</p>
+  </div>
+  <div id="notification" class="notification"></div>
+  <div class="tabs">
+    <button class="tab active" data-tab="setup">⚙️ Configuração</button>
+    <button class="tab" data-tab="analysis">📊 Análise</button>
+    <button class="tab" data-tab="gaps">⚠️ Lacunas</button>
+    <button class="tab" data-tab="action-plan">✓ Plano de Ação</button>
+    <button class="tab" data-tab="report">📄 Relatório</button>
+  </div>
+  <div class="tab-content active" id="setup">
+    <h2 style="color:var(--accent);">Configuração da Análise</h2>
+    <div class="form-grid">
+      <div class="form-group"><label class="form-label">Título</label><input type="text" class="form-input" id="analysis-title"></div>
+      <div class="form-group"><label class="form-label">Escopo</label><select class="form-select" id="analysis-scope"><option value="">Selecione</option><option value="processo">Processo</option><option value="departamento">Departamento</option><option value="organizacao">Organização</option><option value="produto">Produto</option><option value="sistema">Sistema</option></select></div>
+      <div class="form-group"><label class="form-label">Objetivo</label><input type="text" class="form-input" id="analysis-objective"></div>
+      <div class="form-group"><label class="form-label">Responsável</label><input type="text" class="form-input" id="analysis-responsible"></div>
+      <div class="form-group"><label class="form-label">Data</label><input type="date" class="form-input" id="analysis-date"></div>
+      <div class="form-group"><label class="form-label">Prazo</label><input type="date" class="form-input" id="analysis-deadline"></div>
+    </div>
+    <div class="form-group"><label class="form-label">Descrição</label><textarea class="form-textarea" id="analysis-description"></textarea></div>
+    <div class="actions">
+      <button class="btn" onclick="gapAnalysis.saveConfiguration()">💾 Salvar</button>
+      <button class="btn btn-secondary" onclick="gapAnalysis.loadConfiguration()">📁 Carregar</button>
+    </div>
+  </div>
+  <div class="tab-content" id="analysis">
+    <h2 style="color:var(--accent);">Análise de Estados</h2>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:30px;margin-bottom:30px;">
+      <div>
+        <h3 style="color:var(--accent2);">Estado Atual</h3>
+        <div class="form-group"><label class="form-label">Performance (%)</label><input type="number" class="form-input" id="current-performance" min="0" max="100"></div>
+        <div class="form-group"><label class="form-label">Descrição</label><textarea class="form-textarea" id="current-description"></textarea></div>
+        <div class="form-group"><label class="form-label">Métricas</label><textarea class="form-textarea" id="current-metrics"></textarea></div>
+      </div>
+      <div>
+        <h3 style="color:var(--ok);">Estado Desejado</h3>
+        <div class="form-group"><label class="form-label">Performance (%)</label><input type="number" class="form-input" id="desired-performance" min="0" max="100"></div>
+        <div class="form-group"><label class="form-label">Descrição</label><textarea class="form-textarea" id="desired-description"></textarea></div>
+        <div class="form-group"><label class="form-label">Métricas</label><textarea class="form-textarea" id="desired-metrics"></textarea></div>
+      </div>
+    </div>
+    <div class="chart-container">
+      <div class="chart-title">Comparação</div>
+      <canvas id="comparisonChart" height="200"></canvas>
+    </div>
+    <div class="actions">
+      <button class="btn" onclick="gapAnalysis.calculateGap()">📐 Calcular Lacuna</button>
+      <button class="btn btn-secondary" onclick="gapAnalysis.updateChart()">📊 Atualizar</button>
+    </div>
+  </div>
+  <div class="tab-content" id="gaps">
+    <h2 style="color:var(--accent);">Lacunas Identificadas</h2>
+    <div class="summary-grid">
+      <div class="summary-card"><div class="summary-value" id="total-gaps">0</div><div class="summary-label">Total</div></div>
+      <div class="summary-card"><div class="summary-value" id="high-priority-gaps">0</div><div class="summary-label">Alta Prioridade</div></div>
+      <div class="summary-card"><div class="summary-value" id="gap-percentage">0%</div><div class="summary-label">Lacuna Total</div></div>
+      <div class="summary-card"><div class="summary-value" id="estimated-effort">0h</div><div class="summary-label">Esforço</div></div>
+    </div>
+    <button class="btn" onclick="gapAnalysis.addGap()">+ Adicionar Lacuna</button>
+    <div id="gaps-list" style="margin-top:20px;"></div>
+  </div>
+  <div class="tab-content" id="action-plan">
+    <h2 style="color:var(--accent);">Plano de Ação</h2>
+    <div style="margin-bottom:20px;display:flex;gap:10px;flex-wrap:wrap;">
+      <button class="btn" onclick="gapAnalysis.generateActionPlan()">✨ Gerar Automático</button>
+      <button class="btn btn-secondary" onclick="gapAnalysis.addAction()">+ Adicionar Ação</button>
+    </div>
+    <div id="action-plan-list"></div>
+  </div>
+  <div class="tab-content" id="report">
+    <h2 style="color:var(--accent);">Relatório</h2>
+    <div class="actions" style="margin-bottom:30px;">
+      <button class="btn" onclick="gapAnalysis.generateReport()">📄 Gerar</button>
+      <button class="btn btn-secondary" onclick="window.print()">🖨️ Imprimir</button>
+    </div>
+    <div id="report-content" style="background:var(--muted);padding:30px;border-radius:12px;border:1px solid #2a3a55;"></div>
+  </div>
+</div>
+<script>
+class GapAnalysisSystem{
+  constructor(){this.data={configuration:{},analysis:{},gaps:[],actionPlan:[]};this.charts={};this.init();}
+  init(){this.setupTabs();this.setupAutoSave();this.loadData();const t=new Date().toISOString().split('T')[0];document.getElementById('analysis-date').value=t;const n=new Date();n.setMonth(n.getMonth()+1);document.getElementById('analysis-deadline').value=n.toISOString().split('T')[0];}
+  setupTabs(){document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',()=>{document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));document.querySelectorAll('.tab-content').forEach(x=>x.classList.remove('active'));t.classList.add('active');document.getElementById(t.dataset.tab).classList.add('active');}));}
+  setupAutoSave(){document.querySelectorAll('input,select,textarea').forEach(i=>i.addEventListener('change',()=>{clearTimeout(this.t);this.t=setTimeout(()=>this.saveData(),2000);}));}
+  saveConfiguration(){this.data.configuration={title:document.getElementById('analysis-title').value,scope:document.getElementById('analysis-scope').value,objective:document.getElementById('analysis-objective').value,responsible:document.getElementById('analysis-responsible').value,date:document.getElementById('analysis-date').value,deadline:document.getElementById('analysis-deadline').value,description:document.getElementById('analysis-description').value};this.saveData();this.notify('Configuração salva!','success');}
+  loadConfiguration(){const c=this.data.configuration;if(!Object.keys(c).length)return this.notify('Nenhuma config salva','info');document.getElementById('analysis-title').value=c.title||'';document.getElementById('analysis-scope').value=c.scope||'';document.getElementById('analysis-objective').value=c.objective||'';document.getElementById('analysis-responsible').value=c.responsible||'';document.getElementById('analysis-date').value=c.date||'';document.getElementById('analysis-deadline').value=c.deadline||'';document.getElementById('analysis-description').value=c.description||'';this.notify('Carregada!','success');}
+  calculateGap(){const cp=parseFloat(document.getElementById('current-performance').value)||0,dp=parseFloat(document.getElementById('desired-performance').value)||0;if(!cp||!dp)return this.notify('Preencha as performances','error');this.data.analysis={currentPerformance:cp,desiredPerformance:dp,currentDescription:document.getElementById('current-description').value,desiredDescription:document.getElementById('desired-description').value,currentMetrics:document.getElementById('current-metrics').value,desiredMetrics:document.getElementById('desired-metrics').value,gapPercentage:Math.max(0,dp-cp)};this.updateChart();this.updateSummary();this.saveData();this.notify('Calculado!','success');}
+  updateChart(){const ctx=document.getElementById('comparisonChart').getContext('2d');if(this.charts.c)this.charts.c.destroy();const cp=this.data.analysis.currentPerformance||0,dp=this.data.analysis.desiredPerformance||0;this.charts.c=new Chart(ctx,{type:'bar',data:{labels:['Atual','Desejado','Lacuna'],datasets:[{label:'Performance (%)',data:[cp,dp,Math.max(0,dp-cp)],backgroundColor:['rgba(167,139,250,0.8)','rgba(34,197,94,0.8)','rgba(255,122,26,0.8)']}]},options:{responsive:true,plugins:{legend:{labels:{color:'#e5e7eb'}}},scales:{y:{beginAtZero:true,max:100,ticks:{color:'#e5e7eb'},grid:{color:'#2a3a55'}},x:{ticks:{color:'#e5e7eb'},grid:{color:'#2a3a55'}}}}});}
+  addGap(){this.data.gaps.push({id:Date.now(),title:'Nova Lacuna',description:'',priority:'medium',effort:8,responsible:'',deadline:''});this.renderGaps();this.updateSummary();this.saveData();}
+  renderGaps(){const c=document.getElementById('gaps-list');c.innerHTML='';this.data.gaps.forEach(g=>{const el=document.createElement('div');el.className='gap-item';el.innerHTML=`<div class="gap-header"><h3 class="gap-title">${g.title}</h3><span class="gap-priority priority-${g.priority}">${g.priority==='high'?'Alta':g.priority==='medium'?'Média':'Baixa'}</span></div><div class="gap-details"><div class="detail-item"><div class="detail-label">Esforço</div><div class="detail-value">${g.effort}h</div></div><div class="detail-item"><div class="detail-label">Responsável</div><div class="detail-value">${g.responsible||'-'}</div></div><div class="detail-item"><div class="detail-label">Prazo</div><div class="detail-value">${g.deadline||'-'}</div></div></div><button class="btn btn-secondary" onclick="gapAnalysis.editGap(${g.id})">✏️ Editar</button> <button class="btn btn-warning" onclick="gapAnalysis.deleteGap(${g.id})">🗑️ Excluir</button>`;c.appendChild(el);});}
+  editGap(id){const g=this.data.gaps.find(x=>x.id===id);if(!g)return;const t=prompt('Título:',g.title);if(t!==null)g.title=t;const p=prompt('Prioridade (high/medium/low):',g.priority);if(p&&['high','medium','low'].includes(p))g.priority=p;const e=prompt('Esforço (h):',g.effort);if(e&&!isNaN(e))g.effort=parseInt(e);const r=prompt('Responsável:',g.responsible);if(r!==null)g.responsible=r;const d=prompt('Prazo:',g.deadline);if(d!==null)g.deadline=d;this.renderGaps();this.updateSummary();this.saveData();}
+  deleteGap(id){if(confirm('Excluir?')){this.data.gaps=this.data.gaps.filter(x=>x.id!==id);this.renderGaps();this.updateSummary();this.saveData();}}
+  updateSummary(){document.getElementById('total-gaps').textContent=this.data.gaps.length;document.getElementById('high-priority-gaps').textContent=this.data.gaps.filter(g=>g.priority==='high').length;document.getElementById('gap-percentage').textContent=(this.data.analysis.gapPercentage||0).toFixed(1)+'%';document.getElementById('estimated-effort').textContent=this.data.gaps.reduce((s,g)=>s+(g.effort||0),0)+'h';}
+  generateActionPlan(){this.data.actionPlan=this.data.gaps.map(g=>({id:Date.now()+Math.random(),action:`Implementar: ${g.title}`,responsible:g.responsible||'A definir',startDate:new Date().toISOString().split('T')[0],endDate:g.deadline||'',status:'planned',priority:g.priority}));this.renderActions();this.saveData();this.notify('Plano gerado!','success');}
+  addAction(){this.data.actionPlan.push({id:Date.now(),action:'Nova ação',responsible:'',startDate:new Date().toISOString().split('T')[0],endDate:'',status:'planned',priority:'medium'});this.renderActions();this.saveData();}
+  renderActions(){const c=document.getElementById('action-plan-list');c.innerHTML='';this.data.actionPlan.forEach(a=>{const el=document.createElement('div');el.className='gap-item';el.innerHTML=`<div class="gap-header"><h3 class="gap-title">${a.action}</h3><span class="gap-priority priority-${a.priority}">${a.priority}</span></div><div class="gap-details"><div class="detail-item"><div class="detail-label">Resp.</div><div class="detail-value">${a.responsible||'-'}</div></div><div class="detail-item"><div class="detail-label">Início</div><div class="detail-value">${a.startDate||'-'}</div></div><div class="detail-item"><div class="detail-label">Fim</div><div class="detail-value">${a.endDate||'-'}</div></div></div><button class="btn btn-warning" onclick="gapAnalysis.deleteAction(${a.id})">🗑️ Excluir</button>`;c.appendChild(el);});}
+  deleteAction(id){if(confirm('Excluir?')){this.data.actionPlan=this.data.actionPlan.filter(a=>a.id!==id);this.renderActions();this.saveData();}}
+  generateReport(){const c=document.getElementById('report-content'),cfg=this.data.configuration,an=this.data.analysis;c.innerHTML=`<h3 style="color:var(--accent);">Relatório de Análise de Lacunas</h3><p><b>Título:</b> ${cfg.title||'-'}</p><p><b>Objetivo:</b> ${cfg.objective||'-'}</p><p><b>Responsável:</b> ${cfg.responsible||'-'}</p><h4 style="color:var(--accent2);margin-top:20px;">Performance</h4><p>Atual: ${an.currentPerformance||0}% | Desejada: ${an.desiredPerformance||0}% | Lacuna: ${an.gapPercentage||0}%</p><h4 style="color:var(--accent2);margin-top:20px;">Lacunas</h4><p>Total: ${this.data.gaps.length} | Alta prioridade: ${this.data.gaps.filter(g=>g.priority==='high').length}</p><h4 style="color:var(--accent2);margin-top:20px;">Ações</h4><p>Total: ${this.data.actionPlan.length}</p>`;this.notify('Relatório gerado!','success');}
+  saveData(){try{localStorage.setItem('itp_gap_v1',JSON.stringify(this.data));}catch(e){}}
+  loadData(){try{const s=localStorage.getItem('itp_gap_v1');if(s){this.data=JSON.parse(s);this.loadConfiguration();this.renderGaps();this.renderActions();this.updateSummary();}}catch(e){}}
+  notify(m,t='info'){const n=document.getElementById('notification');n.textContent=m;n.className=`notification ${t}`;n.style.display='block';setTimeout(()=>n.style.display='none',4000);}
+}
+const gapAnalysis=new GapAnalysisSystem();
+</script>
+</body>
+</html>

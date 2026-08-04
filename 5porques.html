@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>EQPS — 5 Porquês</title>
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.0.3/src/css/phosphor.css" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<style>
+  :root{
+    --bg-dark:#0a1628;--bg-darker:#060f20;
+    --panel:#0f2444;--card:#152a4a;--card-hover:#1a3258;
+    --border:#1e3a5f;--border-light:#2a4a7a;
+    --text:#fff;--text-muted:#a8c0e0;--label:#7eb3f0;--small:#6a8cb0;
+    --accent:#ff7a1a;--accent-hover:#e85d04;
+    --blue:#3b82f6;--ok:#10b981;--warn:#f59e0b;--bad:#ef4444;
+    --shadow:0 4px 12px rgba(0,0,0,.3);--radius:12px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Segoe UI',sans-serif;background:linear-gradient(135deg,var(--bg-darker),var(--bg-dark));color:#fff;padding:20px;min-height:100vh;}
+  .container{max-width:1200px;margin:auto;display:grid;gap:20px;}
+  .header{background:linear-gradient(135deg,var(--accent),var(--accent-hover));padding:20px 24px;border-radius:var(--radius);display:flex;justify-content:space-between;align-items:center;box-shadow:var(--shadow);flex-wrap:wrap;gap:16px;}
+  .header-title{display:flex;align-items:center;gap:14px;}
+  .header-title i{font-size:36px;color:#fff;}
+  .header-title h1{font-size:22px;font-weight:700;}
+  .header-title .subtitle{font-size:13px;color:rgba(255,255,255,.9);}
+  .header-actions{display:flex;gap:8px;flex-wrap:wrap;}
+  .header-actions button{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.2);color:#fff;padding:8px 14px;border-radius:8px;cursor:pointer;font-size:13px;display:inline-flex;align-items:center;gap:6px;transition:.2s;font-weight:500;}
+  .header-actions button:hover{background:rgba(255,255,255,.25);}
+
+  .tabs{display:flex;gap:8px;flex-wrap:wrap;background:var(--panel);padding:8px;border-radius:var(--radius);border:1px solid var(--border);}
+  .tab{padding:12px 18px;background:transparent;border:none;border-radius:8px;cursor:pointer;transition:.2s;font-weight:600;color:var(--text-muted);font-size:13px;display:inline-flex;align-items:center;gap:6px;}
+  .tab:hover{background:var(--card);color:#fff;}
+  .tab.active{background:linear-gradient(135deg,var(--accent),var(--accent-hover));color:#fff;box-shadow:0 2px 8px rgba(255,122,26,.3);}
+
+  .tab-content{display:none;}
+  .tab-content.active{display:block;padding:24px;background:var(--panel);border-radius:var(--radius);border:1px solid var(--border);}
+
+  .config-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin-bottom:20px;}
+  .form-group{display:flex;flex-direction:column;}
+  .form-group label{font-size:12px;margin-bottom:6px;color:var(--label);font-weight:600;text-transform:uppercase;letter-spacing:.5px;}
+  input,select,textarea{padding:10px 12px;border:1px solid var(--border-light);border-radius:8px;background:var(--card);color:#fff;font-size:14px;outline:none;transition:.2s;font-family:inherit;}
+  input:focus,select:focus,textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(255,122,26,.15);}
+  input::placeholder,textarea::placeholder{color:var(--small);}
+
+  .actions-bar{display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap;}
+  .btn{padding:10px 16px;border:1px solid var(--border-light);background:var(--card);color:#fff;border-radius:8px;cursor:pointer;font-size:13px;font-weight:600;display:inline-flex;align-items:center;gap:6px;transition:.2s;}
+  .btn:hover{background:var(--card-hover);border-color:var(--accent);}
+  .btn-primary{background:linear-gradient(135deg,var(--accent),var(--accent-hover));color:#fff;border-color:transparent;}
+  .btn-primary:hover{filter:brightness(1.1);}
+  .btn-danger{color:var(--bad);}
+  .btn-danger:hover{background:rgba(239,68,68,.1);border-color:var(--bad);}
+
+  .info-box{background:rgba(59,130,246,.1);border-left:3px solid var(--blue);padding:12px 16px;border-radius:8px;margin-bottom:16px;font-size:13px;color:var(--text-muted);}
+
+  .problem-card{background:var(--card);border:2px solid var(--accent);border-radius:var(--radius);padding:16px;margin-bottom:20px;}
+  .problem-card h3{color:var(--accent);font-size:14px;text-transform:uppercase;margin-bottom:8px;}
+  .problem-card p{font-size:15px;line-height:1.5;}
+
+  .why-chain{display:flex;flex-direction:column;gap:12px;}
+  .why-item{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:16px;display:flex;gap:14px;align-items:flex-start;border-left:4px solid var(--accent);}
+  .why-number{background:linear-gradient(135deg,var(--accent),var(--accent-hover));color:#fff;width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:16px;flex-shrink:0;}
+  .why-body{flex:1;display:flex;flex-direction:column;gap:8px;}
+  .why-label{font-size:12px;color:var(--label);font-weight:600;text-transform:uppercase;}
+  .why-input{width:100%;min-height:60px;resize:vertical;}
+  .why-actions{display:flex;gap:8px;align-items:center;justify-content:space-between;margin-top:4px;}
+  .why-actions .checkbox-group{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--text-muted);}
+  .why-remove{background:transparent;border:1px solid var(--border-light);color:var(--bad);padding:6px 10px;border-radius:6px;cursor:pointer;font-size:12px;}
+  .why-remove:hover{background:rgba(239,68,68,.1);}
+
+  .root-cause-box{background:linear-gradient(135deg,rgba(16,185,129,.15),rgba(16,185,129,.05));border:2px solid var(--ok);border-radius:var(--radius);padding:20px;margin-top:16px;}
+  .root-cause-box h3{color:var(--ok);margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+  .root-cause-box p{font-size:15px;line-height:1.5;}
+
+  .action-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;margin-top:16px;}
+
+  /* Modal */
+  .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);display:none;align-items:center;justify-content:center;z-index:999;}
+  .modal-overlay.active{display:flex;}
+  .modal{background:var(--panel);border-radius:var(--radius);padding:24px;max-width:500px;width:90%;max-height:80vh;overflow:auto;border:1px solid var(--border);}
+  .modal h2{color:var(--accent);margin-bottom:16px;font-size:18px;}
+  .saved-item{display:flex;justify-content:space-between;align-items:center;padding:12px;background:var(--card);border-radius:8px;margin-bottom:8px;border:1px solid var(--border);}
+  .saved-item .actions{display:flex;gap:6px;}
+  .saved-item button{padding:6px 10px;border:none;border-radius:6px;cursor:pointer;font-size:12px;color:#fff;}
+  .btn-load{background:var(--ok);}.btn-rename{background:var(--blue);}.btn-export{background:var(--accent);}.btn-delete{background:var(--bad);}
+
+  .toast{position:fixed;bottom:20px;right:20px;background:var(--card);color:#fff;padding:12px 20px;border-radius:8px;border-left:4px solid var(--accent);box-shadow:var(--shadow);z-index:1000;opacity:0;transform:translateY(20px);transition:.3s;}
+  .toast.show{opacity:1;transform:translateY(0);}
+  .toast.ok{border-left-color:var(--ok);}.toast.bad{border-left-color:var(--bad);}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <div class="header-title">
+      <i class="ph ph-question"></i>
+      <div>
+        <h1>EQPS</h1>
+        <p class="subtitle">Análise dos 5 Porquês</p>
+      </div>
+    </div>
+    <div class="header-actions">
+      <button id="new-btn"><i class="ph ph-file-plus"></i> Novo</button>
+      <button id="save-btn"><i class="ph ph-floppy-disk"></i> Salvar</button>
+      <button id="load-btn"><i class="ph ph-folder"></i> Carregar</button>
+      <button id="import-btn"><i class="ph ph-upload-simple"></i> Importar</button>
+      <input type="file" id="import-input" style="display:none" accept=".json" />
+      <button id="export-pdf-btn"><i class="ph ph-file-pdf"></i> Exportar PDF</button>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" data-tab="config"><i class="ph ph-gear"></i> Identificação</button>
+    <button class="tab" data-tab="analysis"><i class="ph ph-question"></i> 5 Porquês</button>
+    <button class="tab" data-tab="action"><i class="ph ph-clipboard-text"></i> Plano de Ação</button>
+  </div>
+
+  <div id="report-content">
+    <div class="tab-content active" data-content="config">
+      <div class="config-grid">
+        <div class="form-group"><label>Responsável</label><input id="resp" placeholder="Nome do facilitador" value="Marcos Garçon — Analista de Qualidade Pleno" /></div>
+        <div class="form-group"><label>Data</label><input id="date" type="date" /></div>
+        <div class="form-group"><label>Setor</label><input id="area" placeholder="Ex: Produção" value="Impressão de Peças Injetadas" /></div>
+        <div class="form-group"><label>OS / NC</label><input id="os" placeholder="Identificação" /></div>
+      </div>
+      <div class="form-group" style="margin-bottom:16px;">
+        <label>Problema (Efeito) *</label>
+        <textarea id="problem" rows="3" placeholder="Descreva o problema observado (o quê, quando, onde)">Aumento de 9% nos refugos internos de peças injetadas por problemas visuais (rebarba e porosidade) nas últimas 3 semanas</textarea>
+      </div>
+      <div class="form-group" style="margin-bottom:16px;">
+        <label>Equipe envolvida</label>
+        <textarea id="team" rows="2" placeholder="Liste os participantes da análise"></textarea>
+      </div>
+      <div class="info-box"><strong>💡 Técnica dos 5 Porquês:</strong> Pergunte "Por quê?" sucessivamente até identificar a causa-raiz. Vá para a aba <strong>5 Porquês</strong>.</div>
+    </div>
+
+    <div class="tab-content" data-content="analysis">
+      <div class="problem-card" id="problem-display">
+        <h3>Problema</h3>
+        <p id="problem-text">Preencha o problema na aba "Identificação".</p>
+      </div>
+      <div class="actions-bar">
+        <button class="btn" id="add-why-btn"><i class="ph ph-plus"></i> Adicionar Porquê</button>
+        <button class="btn btn-danger" id="clear-whys-btn"><i class="ph ph-eraser"></i> Limpar</button>
+        <button class="btn btn-primary" id="confirm-root-btn"><i class="ph ph-check-circle"></i> Confirmar Causa-Raiz</button>
+      </div>
+      <div class="why-chain" id="why-chain"></div>
+      <div class="root-cause-box" id="root-cause-box" style="display:none;">
+        <h3><i class="ph ph-target"></i> Causa-Raiz Identificada</h3>
+        <p id="root-cause-text"></p>
+      </div>
+    </div>
+
+    <div class="tab-content" data-content="action">
+      <div class="info-box"><strong>📋 Plano de Ação 5W2H:</strong> Defina ações corretivas e preventivas baseadas na causa-raiz.</div>
+      <div class="action-grid">
+        <div class="form-group"><label>O quê (What)</label><textarea id="what" rows="2" placeholder="Ação a ser executada"></textarea></div>
+        <div class="form-group"><label>Por quê (Why)</label><textarea id="why-action" rows="2" placeholder="Justificativa"></textarea></div>
+        <div class="form-group"><label>Onde (Where)</label><input id="where" placeholder="Local" /></div>
+        <div class="form-group"><label>Quando (When)</label><input id="when" type="date" /></div>
+        <div class="form-group"><label>Quem (Who)</label><input id="who" placeholder="Responsável" /></div>
+        <div class="form-group"><label>Como (How)</label><textarea id="how" rows="2" placeholder="Método de execução"></textarea></div>
+        <div class="form-group"><label>Quanto (How Much)</label><input id="howmuch" placeholder="Custo estimado" /></div>
+        <div class="form-group"><label>Status</label>
+          <select id="status">
+            <option value="pendente">Pendente</option>
+            <option value="andamento">Em Andamento</option>
+            <option value="concluido">Concluído</option>
+            <option value="cancelado">Cancelado</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group" style="margin-top:16px;">
+        <label>Verificação de Eficácia</label>
+        <textarea id="verification" rows="3" placeholder="Como será verificada a eficácia da ação?"></textarea>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="load-modal">
+  <div class="modal">
+    <h2><i class="ph ph-folder-open"></i> Análises Salvas</h2>
+    <div id="saved-list"></div>
+    <button class="btn" style="margin-top:12px;" onclick="document.getElementById('load-modal').classList.remove('active')">Fechar</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+class FiveWhysTool{
+  constructor(){
+    this.storageKey='itp-5whys-v1';
+    this.whys=[
+      'O material fundido não preenche a cavidade de forma uniforme, causando porosidade e falhas visuais na peça.',
+      'A temperatura e a pressão de injeção estão fora da faixa ideal para o material utilizado.',
+      'Os parâmetros de setup da injetora não são registrados nem conferidos antes do início do lote.',
+      'Não existe uma ficha de setup padronizada nem indicador de vida útil do molde.',
+      'O processo foi implantado sem procedimento formal de controle e monitoramento dos parâmetros de injeção (falta de SGQ estruturado).'
+    ];
+    this.rootCauseIdx=4;
+    this.init();
+  }
+  init(){
+    document.getElementById('date').valueAsDate=new Date();
+    this.renderWhys();
+    this.bindEvents();
+    setTimeout(()=>this.confirmRoot(),50);
+  }
+  bindEvents(){
+    document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',e=>this.switchTab(e.currentTarget.dataset.tab)));
+    document.getElementById('new-btn').addEventListener('click',()=>this.newAnalysis());
+    document.getElementById('save-btn').addEventListener('click',()=>this.save());
+    document.getElementById('load-btn').addEventListener('click',()=>this.showLoadModal());
+    document.getElementById('import-btn').addEventListener('click',()=>document.getElementById('import-input').click());
+    document.getElementById('import-input').addEventListener('change',e=>this.handleImport(e));
+    document.getElementById('export-pdf-btn').addEventListener('click',()=>this.exportPDF());
+    document.getElementById('add-why-btn').addEventListener('click',()=>this.addWhy());
+    document.getElementById('clear-whys-btn').addEventListener('click',()=>this.clearWhys());
+    document.getElementById('confirm-root-btn').addEventListener('click',()=>this.confirmRoot());
+    document.getElementById('problem').addEventListener('input',e=>{
+      document.getElementById('problem-text').textContent=e.target.value||'Preencha o problema na aba "Identificação".';
+    });
+  }
+  switchTab(tab){
+    document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active',t.dataset.tab===tab));
+    document.querySelectorAll('.tab-content').forEach(c=>c.classList.toggle('active',c.dataset.content===tab));
+    if(tab==='analysis'){
+      document.getElementById('problem-text').textContent=document.getElementById('problem').value||'Preencha o problema na aba "Identificação".';
+    }
+  }
+  renderWhys(){
+    const chain=document.getElementById('why-chain');
+    chain.innerHTML='';
+    this.whys.forEach((w,i)=>{
+      const div=document.createElement('div');
+      div.className='why-item';
+      const isRoot=this.rootCauseIdx===i;
+      if(isRoot) div.style.borderLeftColor='var(--ok)';
+      div.innerHTML=`
+        <div class="why-number">${i+1}</div>
+        <div class="why-body">
+          <div class="why-label">${i===0?'Por que isso aconteceu?':'Por que isso (resposta anterior) aconteceu?'}</div>
+          <textarea class="why-input" data-idx="${i}" placeholder="Descreva o porquê">${w.replace(/</g,'&lt;')}</textarea>
+          <div class="why-actions">
+            <label class="checkbox-group">
+              <input type="checkbox" data-root="${i}" ${isRoot?'checked':''} /> Marcar como causa-raiz
+            </label>
+            ${this.whys.length>1?`<button class="why-remove" data-rm="${i}"><i class="ph ph-trash"></i> Remover</button>`:''}
+          </div>
+        </div>`;
+      chain.appendChild(div);
+    });
+    chain.querySelectorAll('textarea[data-idx]').forEach(t=>t.addEventListener('input',e=>{
+      this.whys[parseInt(e.target.dataset.idx)]=e.target.value;
+    }));
+    chain.querySelectorAll('input[data-root]').forEach(c=>c.addEventListener('change',e=>{
+      this.rootCauseIdx=e.target.checked?parseInt(e.target.dataset.root):null;
+      this.renderWhys();
+    }));
+    chain.querySelectorAll('button[data-rm]').forEach(b=>b.addEventListener('click',e=>{
+      const idx=parseInt(e.currentTarget.dataset.rm);
+      this.whys.splice(idx,1);
+      if(this.rootCauseIdx===idx) this.rootCauseIdx=null;
+      else if(this.rootCauseIdx>idx) this.rootCauseIdx--;
+      this.renderWhys();
+    }));
+  }
+  addWhy(){
+    if(this.whys.length>=10){ this.toast('Máximo de 10 porquês.','bad'); return; }
+    this.whys.push('');
+    this.renderWhys();
+  }
+  clearWhys(){
+    if(!confirm('Limpar todos os porquês?')) return;
+    this.whys=['','','','',''];
+    this.rootCauseIdx=null;
+    document.getElementById('root-cause-box').style.display='none';
+    this.renderWhys();
+    this.toast('Limpos.','ok');
+  }
+  confirmRoot(){
+    if(this.rootCauseIdx===null){ this.toast('Marque um porquê como causa-raiz.','bad'); return; }
+    const text=this.whys[this.rootCauseIdx];
+    if(!text.trim()){ this.toast('Causa-raiz vazia.','bad'); return; }
+    document.getElementById('root-cause-text').textContent=text;
+    document.getElementById('root-cause-box').style.display='block';
+    document.getElementById('why-action').value='Eliminar causa-raiz: '+text;
+    this.toast('Causa-raiz confirmada!','ok');
+  }
+  newAnalysis(){
+    if(!confirm('Iniciar nova análise?')) return;
+    ['resp','area','os','problem','team','what','why-action','where','who','how','howmuch','verification'].forEach(id=>document.getElementById(id).value='');
+    document.getElementById('date').valueAsDate=new Date();
+    document.getElementById('when').value='';
+    document.getElementById('status').value='pendente';
+    this.whys=['','','','',''];
+    this.rootCauseIdx=null;
+    document.getElementById('root-cause-box').style.display='none';
+    this.renderWhys();
+    this.switchTab('config');
+    this.toast('Nova análise iniciada.','ok');
+  }
+  getState(){
+    return {
+      resp:document.getElementById('resp').value,
+      date:document.getElementById('date').value,
+      area:document.getElementById('area').value,
+      os:document.getElementById('os').value,
+      problem:document.getElementById('problem').value,
+      team:document.getElementById('team').value,
+      whys:this.whys,
+      rootCauseIdx:this.rootCauseIdx,
+      action:{
+        what:document.getElementById('what').value,
+        why:document.getElementById('why-action').value,
+        where:document.getElementById('where').value,
+        when:document.getElementById('when').value,
+        who:document.getElementById('who').value,
+        how:document.getElementById('how').value,
+        howmuch:document.getElementById('howmuch').value,
+        status:document.getElementById('status').value,
+        verification:document.getElementById('verification').value
+      }
+    };
+  }
+  applyState(s){
+    document.getElementById('resp').value=s.resp||'';
+    document.getElementById('date').value=s.date||'';
+    document.getElementById('area').value=s.area||'';
+    document.getElementById('os').value=s.os||'';
+    document.getElementById('problem').value=s.problem||'';
+    document.getElementById('team').value=s.team||'';
+    this.whys=s.whys||['','','','',''];
+    this.rootCauseIdx=s.rootCauseIdx;
+    if(s.action){
+      document.getElementById('what').value=s.action.what||'';
+      document.getElementById('why-action').value=s.action.why||'';
+      document.getElementById('where').value=s.action.where||'';
+      document.getElementById('when').value=s.action.when||'';
+      document.getElementById('who').value=s.action.who||'';
+      document.getElementById('how').value=s.action.how||'';
+      document.getElementById('howmuch').value=s.action.howmuch||'';
+      document.getElementById('status').value=s.action.status||'pendente';
+      document.getElementById('verification').value=s.action.verification||'';
+    }
+    this.renderWhys();
+    if(this.rootCauseIdx!==null && this.whys[this.rootCauseIdx]){
+      document.getElementById('root-cause-text').textContent=this.whys[this.rootCauseIdx];
+      document.getElementById('root-cause-box').style.display='block';
+    }
+  }
+  getSaved(){try{return JSON.parse(localStorage.getItem(this.storageKey))||{};}catch{return{};}}
+  save(){
+    const name=prompt('Nome da análise:');
+    if(!name) return;
+    const saved=this.getSaved();
+    saved[name]={state:this.getState(),date:new Date().toISOString()};
+    localStorage.setItem(this.storageKey,JSON.stringify(saved));
+    this.toast(`"${name}" salva.`,'ok');
+  }
+  loadAnalysis(name){
+    const saved=this.getSaved();
+    if(saved[name]){
+      this.applyState(saved[name].state);
+      document.getElementById('load-modal').classList.remove('active');
+      this.toast(`"${name}" carregada.`,'ok');
+    }
+  }
+  deleteAnalysis(name){
+    if(!confirm(`Excluir "${name}"?`)) return;
+    const saved=this.getSaved(); delete saved[name];
+    localStorage.setItem(this.storageKey,JSON.stringify(saved));
+    this.showLoadModal();
+  }
+  renameAnalysis(name){
+    const newName=prompt('Novo nome:',name);
+    if(!newName||newName===name) return;
+    const saved=this.getSaved();
+    saved[newName]=saved[name]; delete saved[name];
+    localStorage.setItem(this.storageKey,JSON.stringify(saved));
+    this.showLoadModal();
+  }
+  exportAnalysisFile(name){
+    const saved=this.getSaved();
+    if(!saved[name]) return;
+    const blob=new Blob([JSON.stringify(saved[name],null,2)],{type:'application/json'});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a'); a.href=url; a.download=`${name}.json`; a.click();
+    URL.revokeObjectURL(url);
+  }
+  handleImport(e){
+    const file=e.target.files[0]; if(!file) return;
+    const reader=new FileReader();
+    reader.onload=ev=>{
+      try{
+        const obj=JSON.parse(ev.target.result);
+        if(obj.state) this.applyState(obj.state); else this.applyState(obj);
+        this.toast('Importada.','ok');
+      }catch{this.toast('Arquivo inválido.','bad');}
+    };
+    reader.readAsText(file); e.target.value='';
+  }
+  showLoadModal(){
+    const saved=this.getSaved();
+    const list=document.getElementById('saved-list');
+    const names=Object.keys(saved);
+    if(names.length===0){
+      list.innerHTML='<p style="color:#a8c0e0;text-align:center;padding:20px;">Nenhuma análise salva.</p>';
+    }else{
+      list.innerHTML=names.map(n=>`<div class="saved-item"><span><strong>${n}</strong><br><small style="color:#6a8cb0;">${new Date(saved[n].date).toLocaleString('pt-BR')}</small></span>
+        <div class="actions">
+          <button class="btn-load" onclick="app.loadAnalysis('${n}')"><i class="ph ph-folder-open"></i></button>
+          <button class="btn-rename" onclick="app.renameAnalysis('${n}')"><i class="ph ph-pencil"></i></button>
+          <button class="btn-export" onclick="app.exportAnalysisFile('${n}')"><i class="ph ph-download"></i></button>
+          <button class="btn-delete" onclick="app.deleteAnalysis('${n}')"><i class="ph ph-trash"></i></button>
+        </div></div>`).join('');
+    }
+    document.getElementById('load-modal').classList.add('active');
+  }
+  async exportPDF(){
+    this.toast('Gerando PDF...','ok');
+    const {jsPDF}=window.jspdf;
+    const pdf=new jsPDF('p','mm','a4');
+    const canvas=await html2canvas(document.getElementById('report-content'),{scale:1.5,backgroundColor:'#0a1628'});
+    const img=canvas.toDataURL('image/png');
+    const w=210, h=canvas.height*w/canvas.width;
+    pdf.addImage(img,'PNG',0,0,w,h);
+    pdf.save(`5Porques_${Date.now()}.pdf`);
+    this.toast('PDF gerado!','ok');
+  }
+  toast(msg,type='ok'){
+    const t=document.getElementById('toast');
+    t.textContent=msg; t.className='toast '+type+' show';
+    setTimeout(()=>t.classList.remove('show'),3000);
+  }
+}
+const app=new FiveWhysTool();
+</script>
+</body>
+</html>
