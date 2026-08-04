@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EQPS - Relatórios A3</title>
+<script src="https://unpkg.com/@phosphor-icons/web"></script>
+<style>
+:root{--bg:#0a1628;--panel:#0f1e36;--muted:#1a2942;--card:#0d1a2e;--text:#e5e7eb;--accent:#ff7a1a;--accent2:#ffa552;--ok:#22c55e;--warn:#f59e0b;--bad:#ef4444;--shadow:0 10px 30px rgba(0,0,0,.45);--radius:16px;}
+*{box-sizing:border-box}html,body{height:100%}
+body{margin:0;font-family:system-ui,Inter,Arial;background:linear-gradient(120deg,#081225,#0a1a35);color:var(--text);display:grid;grid-template-columns:280px 1fr;grid-template-rows:auto 1fr;}
+header{grid-column:1/3;display:flex;align-items:center;justify-content:space-between;padding:14px 20px;background:linear-gradient(90deg,#081225,#0a1f3d);border-bottom:1px solid #1e2f4d;position:sticky;top:0;z-index:5}
+.header-title h1{margin:0;font-size:20px;}.header-title .subtitle{margin:4px 0 0 0;font-size:14px;color:var(--accent);}.header-title .dev-credit{margin:4px 0 0 0;font-size:11px;color:#64748b;}
+button,.btn{background:var(--muted);color:var(--text);border:1px solid #2a3a55;border-radius:12px;padding:10px 14px;cursor:pointer;box-shadow:var(--shadow);transition:.2s;font-weight:600}
+button:hover,.btn:hover{transform:translateY(-1px);border-color:#3d4f6f}
+button.primary,.btn.primary{background:linear-gradient(180deg,#ff7a1a,#e85d04);border-color:transparent;color:#fff}
+button.ghost,.btn.ghost{background:transparent;border-color:#3d4f6f}
+aside{border-right:1px solid #1e2f4d;background:linear-gradient(180deg,#081225,#0a1a35);padding:16px;display:flex;flex-direction:column;gap:24px;justify-content:space-between;}
+.menu a{display:flex;gap:10px;align-items:center;color:#cbd5e1;padding:10px 12px;border:1px solid #1e2f4d;border-radius:12px;background:rgba(255,255,255,.02);cursor:pointer;}
+.menu a.active,.menu a:hover{border-color:#ff7a1a;background:rgba(255,122,26,.1);color:#ffe0c2}
+main{padding:18px;overflow:auto}.hidden,.tab-content.hidden{display:none!important}
+section{background:rgba(255,255,255,.03);border:1px solid #1e2f4d;border-radius:var(--radius);padding:16px;margin-bottom:18px;box-shadow:var(--shadow)}
+h2,h3,h4{margin:0 0 12px 0;color:var(--accent);}h4{color:var(--accent2)}
+.grid{display:grid;grid-template-columns:repeat(12,1fr);gap:16px}
+.field{display:flex;flex-direction:column;gap:6px}label{font-size:12px;color:#ffa552}
+input,select,textarea{background:#0d1a2e;border:1px solid #2a3a55;color:var(--text);padding:10px 12px;border-radius:10px;font-size:14px;min-height:44px}
+textarea{min-height:120px;resize:vertical;}
+table{width:100%;border-collapse:collapse;}th,td{padding:10px 12px;border-bottom:1px solid var(--muted);text-align:left;font-size:14px;}th{background:rgba(255,122,26,.08);color:#ffa552;}
+.a3-section{background:var(--card);border-radius:12px;padding:12px;border:1px solid var(--muted);display:flex;flex-direction:column;gap:10px;}
+.action-item-block{padding:12px;border:1px solid var(--muted);border-radius:12px;background:var(--card);position:relative;margin-top:10px;}
+.remove-action-btn{position:absolute;top:5px;right:5px;background:none;border:none;color:#fca5a5;font-size:1.5rem;cursor:pointer;}
+.attachments-section{margin-top:15px;padding-top:15px;border-top:1px dashed var(--muted);}
+.attachment-drop-zone{padding:10px;font-size:12px;margin-top:5px;border:2px dashed var(--muted);text-align:center;cursor:pointer;border-radius:8px;}
+.attachment-preview-grid{display:flex;flex-wrap:wrap;gap:10px;margin-top:10px;}
+.attachment-item{width:80px;height:80px;position:relative;}.attachment-item img,.attachment-item .file-icon{width:100%;height:100%;object-fit:cover;border-radius:8px;}
+.attachment-item .file-icon{background:var(--muted);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;font-size:11px;padding:5px;}
+.attachment-item .remove-attachment{position:absolute;top:-5px;right:-5px;background:var(--bad);color:#fff;border:none;border-radius:50%;width:20px;height:20px;cursor:pointer;}
+#record-counter{background:rgba(255,255,255,.02);border:1px solid #1e2f4d;border-radius:12px;padding:12px;}#record-counter p{display:flex;justify-content:space-between;}#record-counter span{color:var(--accent);font-weight:bold;}
+.toast-container{position:fixed;top:20px;right:20px;z-index:200;display:flex;flex-direction:column;gap:10px;}
+.toast{padding:12px 18px;border-radius:12px;color:#fff;font-weight:600;opacity:0;transform:translateX(100%);transition:.4s;}.toast.show{opacity:1;transform:translateX(0);}.toast.success{background:linear-gradient(90deg,#22c55e,#16a34a);}.toast.error{background:linear-gradient(90deg,#ef4444,#dc2626);}.toast.info{background:linear-gradient(90deg,#ff7a1a,#e85d04);}
+@media print{body{grid-template-columns:1fr;color:#000;background:#fff;}header,aside,.hidden-print,.btn{display:none!important;}.a3-grid{grid-template-columns:1fr!important}}
+</style>
+</head>
+<body>
+<div id="toast-container" class="toast-container"></div>
+<header>
+  <div class="header-title"><h1>🛡️ EQPS</h1><p class="subtitle">Gerenciador de Relatórios A3</p><p class="dev-credit">Desenvolvido por Marcos Garçon</p></div>
+  <div style="display:flex;gap:8px;flex-wrap:wrap;">
+    <button class="btn ghost" id="btn-restore-backup">Restaurar</button>
+    <button class="btn ghost" id="btn-download-backup">Backup</button>
+    <button class="btn ghost" id="btn-archive-and-clear" style="color:var(--warn);">Arquivar</button>
+    <button class="btn primary" id="btn-export-pdf">PDF</button>
+  </div>
+</header>
+<aside>
+  <div><div class="menu">
+    <a class="tab-link active" onclick="openTab(event,'dashboard-container')">📊 Dashboard</a>
+    <a class="tab-link" onclick="openTab(event,'help-container')">❓ Ajuda</a>
+  </div></div>
+  <div id="record-counter"><h4>Registros</h4><p>A3s: <span id="a3-count">0</span></p></div>
+</aside>
+<main>
+  <div id="dashboard-container" class="tab-content">
+    <section>
+      <div style="display:flex;justify-content:space-between;align-items:center;"><h2>Relatórios A3</h2><button id="btn-new-a3" class="btn primary">+ Novo A3</button></div>
+      <table id="a3-list-table"><thead><tr><th>Título</th><th>Responsável</th><th>Data</th><th>Status</th><th class="hidden-print">Ações</th></tr></thead><tbody></tbody></table>
+    </section>
+  </div>
+  <div id="form-container" class="tab-content hidden">
+    <form id="a3-form">
+      <input type="hidden" id="a3-id">
+      <section>
+        <div class="grid" style="grid-template-columns:repeat(12,1fr);">
+          <div class="field" style="grid-column:span 6;"><label>Título</label><input type="text" id="a3-title" required></div>
+          <div class="field" style="grid-column:span 3;"><label>Responsável</label><input type="text" id="a3-lead"></div>
+          <div class="field" style="grid-column:span 3;"><label>Data</label><input type="date" id="a3-date"></div>
+        </div>
+      </section>
+      <div class="grid a3-grid" style="grid-template-columns:1fr 1fr;gap:16px;">
+        <div id="a3-left-column" style="display:flex;flex-direction:column;gap:16px;"></div>
+        <div id="a3-right-column" style="display:flex;flex-direction:column;gap:16px;"></div>
+      </div>
+      <div style="margin-top:16px;display:flex;gap:10px;" class="hidden-print">
+        <button type="button" id="btn-save-a3" class="btn primary">Salvar</button>
+        <button type="button" id="btn-cancel" class="btn ghost">Voltar</button>
+      </div>
+    </form>
+  </div>
+  <div id="help-container" class="tab-content hidden"><section><h2>Guia A3</h2><p>Relatório estruturado em 7 seções: Background, Condição Atual, Meta, Análise de Causa, Contramedidas, Verificação e Plano de Ação.</p></section></div>
+</main>
+<template id="a3-section-template"><div class="a3-section"><h4></h4><textarea rows="6"></textarea><div class="attachments-section"></div></div></template>
+<template id="attachment-ui-template"><div class="field"><input type="file" class="attachments-input hidden" multiple><div class="attachment-drop-zone">Arraste ou clique</div><div class="attachment-preview-grid"></div></div></template>
+<template id="action-plan-form-template">
+  <div class="action-item-block"><button type="button" class="remove-action-btn hidden-print">&times;</button><div class="grid" style="grid-template-columns:repeat(12,1fr);gap:12px;">
+    <div class="field" style="grid-column:span 12;"><label>Ação</label><textarea class="action-input" rows="2"></textarea></div>
+    <div class="field" style="grid-column:span 3;"><label>Responsável</label><input type="text" class="responsible-input"></div>
+    <div class="field" style="grid-column:span 3;"><label>Status</label><select class="status-input"><option value="aberto">Aberto</option><option value="andamento">Em Andamento</option><option value="concluido">Concluído</option><option value="cancelado">Cancelado</option></select></div>
+    <div class="field" style="grid-column:span 3;"><label>Início</label><input type="date" class="start-date-input"></div>
+    <div class="field" style="grid-column:span 3;"><label>Final</label><input type="date" class="end-date-input"></div>
+  </div></div>
+</template>
+<script>
+document.addEventListener('DOMContentLoaded',()=>{
+  let reports=[];const DB_KEY='itp_a3_v1';
+  const SECTIONS=[{id:'background',title:'1. Background'},{id:'current',title:'2. Condição Atual'},{id:'goal',title:'3. Meta'},{id:'analysis',title:'4. Análise de Causa'},{id:'countermeasures',title:'5. Contramedidas'},{id:'check',title:'6. Verificação'},{id:'followup',title:'7. Plano de Ação'}];
+  const main=document.querySelector('main'),dC=document.getElementById('dashboard-container'),fC=document.getElementById('form-container'),lB=document.querySelector('#a3-list-table tbody'),cS=document.getElementById('a3-count');
+  const tpl={section:document.getElementById('a3-section-template'),attachment:document.getElementById('attachment-ui-template'),actionPlan:document.getElementById('action-plan-form-template')};
+  const showToast=(m,t='info')=>{const c=document.getElementById('toast-container');const el=document.createElement('div');el.className=`toast ${t}`;el.textContent=m;c.appendChild(el);setTimeout(()=>el.classList.add('show'),10);setTimeout(()=>{el.classList.remove('show');el.addEventListener('transitionend',()=>el.remove())},4000);};
+  const save=()=>localStorage.setItem(DB_KEY,JSON.stringify(reports));
+  const load=()=>{reports=JSON.parse(localStorage.getItem(DB_KEY))||[];};
+  window.openTab=(e,id)=>{document.querySelectorAll('.tab-content').forEach(c=>c.classList.add('hidden'));document.getElementById(id).classList.remove('hidden');document.querySelectorAll('.menu a').forEach(a=>a.classList.remove('active'));e.currentTarget.classList.add('active');if(id!=='form-container')fC.classList.add('hidden');};
+  const showForm=()=>{document.querySelectorAll('.tab-content').forEach(c=>c.classList.add('hidden'));fC.classList.remove('hidden');document.querySelectorAll('.menu a').forEach(a=>a.classList.remove('active'));};
+  const showDash=()=>{document.querySelectorAll('.tab-content').forEach(c=>c.classList.add('hidden'));dC.classList.remove('hidden');const l=document.querySelector('.menu a[onclick*="dashboard-container"]');if(l){document.querySelectorAll('.menu a').forEach(a=>a.classList.remove('active'));l.classList.add('active');}renderList();};
+  const renderList=()=>{lB.innerHTML='';if(!reports.length)lB.innerHTML='<tr><td colspan="5">Nenhum.</td></tr>';else reports.sort((a,b)=>b.id-a.id).forEach(r=>{const row=lB.insertRow();row.innerHTML=`<td>${r.title||'N/A'}</td><td>${r.lead||'N/A'}</td><td>${r.date?new Date(r.date+'T00:00:00').toLocaleDateString():'N/A'}</td><td>${r.status||'N/A'}</td><td class="hidden-print"><button class="btn ghost btn-edit" data-id="${r.id}">Editar</button> <button class="btn ghost btn-delete" data-id="${r.id}">Excluir</button></td>`;});cS.textContent=reports.length;};
+  const createLayout=(d={})=>{const L=document.getElementById('a3-left-column'),R=document.getElementById('a3-right-column');L.innerHTML='';R.innerHTML='';SECTIONS.forEach((si,i)=>{const sd=d.sections?(d.sections[si.id]||{}):{};if(si.id==='followup'){const se=document.createElement('div');se.className='a3-section';se.dataset.id=si.id;se.innerHTML=`<h4>${si.title}</h4><div class="action-plan-container"></div><button type="button" class="btn ghost btn-add-action-plan" style="width:100%">+ Ação</button>`;renderAPs(se.querySelector('.action-plan-container'),d.actionPlans);R.appendChild(se);}else{const cl=tpl.section.content.cloneNode(true),se=cl.querySelector('.a3-section');se.dataset.id=si.id;se.querySelector('h4').textContent=si.title;se.querySelector('textarea').value=sd.text||'';const ac=se.querySelector('.attachments-section');ac.appendChild(tpl.attachment.content.cloneNode(true));if(sd.attachments)sd.attachments.forEach(a=>addAtt(ac.querySelector('.attachment-preview-grid'),a));if(i<4)L.appendChild(cl);else R.appendChild(cl);}});};
+  const addAtt=(g,d)=>{const i=document.createElement('div');i.className='attachment-item';i.dataset.fileName=d.name;i.dataset.fileData=d.data;i.dataset.fileType=d.type;i.innerHTML=`${d.type.startsWith('image/')?`<img src="${d.data}" title="${d.name}">`:`<div class="file-icon" title="${d.name}">📄${d.name}</div>`}<button type="button" class="remove-attachment hidden-print">&times;</button>`;g.appendChild(i);};
+  const handleFiles=(fs,c)=>{const g=c.querySelector('.attachment-preview-grid');for(const fi of fs){if(fi.size>5*1024*1024){showToast(`>5MB`,'error');continue;}const r=new FileReader();r.onload=e=>addAtt(g,{name:fi.name,type:fi.type,data:e.target.result});r.readAsDataURL(fi);}};
+  const getAtts=(c)=>{const a=[];c.querySelectorAll('.attachment-item').forEach(i=>a.push({name:i.dataset.fileName,type:i.dataset.fileType,data:i.dataset.fileData}));return a;};
+  const renderAPs=(c,p=[])=>{c.innerHTML='';if(!p)return;p.forEach(pl=>{const cl=tpl.actionPlan.content.cloneNode(true),b=cl.querySelector('.action-item-block');b.querySelector('.action-input').value=pl.action||'';b.querySelector('.responsible-input').value=pl.responsible||'';b.querySelector('.status-input').value=pl.status||'aberto';b.querySelector('.start-date-input').value=pl.startDate||'';b.querySelector('.end-date-input').value=pl.endDate||'';c.appendChild(cl);});};
+  const gather=()=>{const d={id:document.getElementById('a3-id').value?parseInt(document.getElementById('a3-id').value):Date.now(),title:document.getElementById('a3-title').value,lead:document.getElementById('a3-lead').value,date:document.getElementById('a3-date').value,status:'Em Andamento',sections:{},actionPlans:[]};document.querySelectorAll('.a3-section').forEach(se=>{const id=se.dataset.id;if(id!=='followup')d.sections[id]={text:se.querySelector('textarea').value,attachments:getAtts(se.querySelector('.attachments-section'))};else se.querySelectorAll('.action-item-block').forEach(b=>d.actionPlans.push({action:b.querySelector('.action-input').value,responsible:b.querySelector('.responsible-input').value,status:b.querySelector('.status-input').value,startDate:b.querySelector('.start-date-input').value,endDate:b.querySelector('.end-date-input').value}));});return d;};
+  document.getElementById('btn-new-a3').addEventListener('click',()=>{document.getElementById('a3-form').reset();document.getElementById('a3-id').value='';document.getElementById('a3-date').value=new Date().toISOString().slice(0,10);createLayout();showForm();});
+  document.getElementById('btn-save-a3').addEventListener('click',()=>{const d=gather();const i=reports.findIndex(r=>r.id==d.id);if(i>-1)reports[i]=d;else reports.push(d);save();showToast('Salvo!','success');showDash();});
+  main.addEventListener('click',e=>{const t=e.target;if(t.classList.contains('btn-edit')){const r=reports.find(x=>x.id==t.dataset.id);if(r){document.getElementById('a3-form').reset();document.getElementById('a3-id').value=r.id;document.getElementById('a3-title').value=r.title||'';document.getElementById('a3-lead').value=r.lead||'';document.getElementById('a3-date').value=r.date||'';createLayout(r);showForm();}}if(t.classList.contains('btn-delete')){if(confirm('Excluir?')){reports=reports.filter(r=>r.id!=t.dataset.id);save();renderList();}}if(t.classList.contains('btn-add-action-plan'))t.previousElementSibling.appendChild(tpl.actionPlan.content.cloneNode(true));if(t.classList.contains('remove-action-btn'))t.closest('.action-item-block').remove();if(t.classList.contains('attachment-drop-zone'))t.previousElementSibling.click();if(t.classList.contains('remove-attachment'))t.closest('.attachment-item').remove();});
+  main.addEventListener('change',e=>{if(e.target.classList.contains('attachments-input'))handleFiles(e.target.files,e.target.closest('.field, .attachments-section'));});
+  document.getElementById('btn-cancel').addEventListener('click',showDash);
+  document.getElementById('btn-export-pdf').addEventListener('click',()=>{if(fC.classList.contains('hidden')){showToast('Abra um A3.','info');return;}window.print();});
+  document.getElementById('btn-download-backup').addEventListener('click',()=>{const b=new Blob([JSON.stringify(reports,null,2)],{type:'application/json'});const l=document.createElement("a");l.href=URL.createObjectURL(b);l.download=`itp_a3_${new Date().toISOString().slice(0,10)}.json`;l.click();showToast("Backup!","success");});
+  document.getElementById('btn-restore-backup').addEventListener('click',()=>{const i=document.createElement('input');i.type='file';i.accept='.json';i.onchange=e=>{const r=new FileReader();r.onload=ev=>{if(!confirm('Substituir?'))return;try{const d=JSON.parse(ev.target.result);if(Array.isArray(d)){reports=d;save();renderList();showToast('Restaurado!');}}catch(err){showToast('Inválido.','error');}};r.readAsText(e.target.files[0]);};i.click();});
+  document.getElementById('btn-archive-and-clear').addEventListener('click',()=>{if(confirm("Apagar?")){document.getElementById('btn-download-backup').click();localStorage.removeItem(DB_KEY);setTimeout(()=>window.location.reload(),2000);}});
+  const SEED_A3=[{
+    id:Date.now(), title:'Business Case EQPS — Plano Estratégico de Qualidade', lead:'Marcos Garçon', date:new Date().toISOString().slice(0,10), status:'Em Andamento',
+    sections:{
+      background:{text:'Analista de Qualidade Sênior recém-designado em operação fabril com duas células: peças técnicas injetadas (conectores, insertos, clips e canaletas) para os mercados automotivo, eletrodomésticos e construção civil. Empresa cresceu rápido demais e ainda não tem processo de qualidade formalizado.',attachments:[]},
+      current:{text:'Últimas 3 semanas: reclamações de clientes por variação dimensional em conectores injetados + aumento de 9% no refugo interno por rebarba/porosidade. Zero fluxos formalizados, POPs falhos, inspeção "no olho", sem controle de documentos.',attachments:[]},
+      goal:{text:'Conter as perdas imediatas em 48h-15 dias e, em até 6 meses, ter um Sistema de Gestão da Qualidade (SGQ) mínimo viável implementado, com refugo sob controle e cultura de qualidade ativa.',attachments:[]},
+      analysis:{text:'Causas-raiz (Ishikawa/5 Porquês): ausência de padronização de temperatura/pressão/tempo de ciclo na injetora; resina sem homologação de fornecedor; molde com manutenção preventiva sem periodicidade; falta de instrumentação de medição (pirômetro, paquímetro/gabarito); SGQ nunca estruturado.',attachments:[]},
+      countermeasures:{text:'Contenção (48h): bloqueio de lotes suspeitos. Corretiva (7-15 dias): calibração de pirômetros/lâmpadas UV, limpeza padrão. Preventiva (30-60 dias): Ficha de Parâmetros Padrão, Pokayokes, homologação de fornecedores. Documentos base: ITV/POP, PIT e RNC.',attachments:[]},
+      check:{text:'Indicadores: First Time Yield (FTY), Taxa de Refugo Interno, CPk, DPPM de Clientes, Custo da Não-Qualidade (COQ) e MTBF do sistema UV. Meta: reduzir refugo de 15% para 2% em 6 meses.',attachments:[]}
+    },
+    actionPlans:[
+      {action:'Mês 1 — Diagnóstico Gemba e criação dos 3 documentos primários (ITV, PIT, RNC)', responsible:'Marcos Garçon', status:'concluido', startDate:new Date().toISOString().slice(0,10), endDate:''},
+      {action:'Mês 2-3 — Implantar LPUs visuais, amostras douradas e treinamento por apadrinhamento', responsible:'Qualidade & Operação', status:'andamento', startDate:'', endDate:''},
+      {action:'Mês 4-5 — Auditorias Camaleão/LPA diárias e gestão de RNCs com 5 Porquês', responsible:'Líderes de Turno', status:'aberto', startDate:'', endDate:''},
+      {action:'Mês 6 — Consolidar MVP do SGQ: refugo sob controle, CEP ativo, cultura de qualidade', responsible:'Marcos Garçon', status:'aberto', startDate:'', endDate:''}
+    ]
+  }];
+  load();
+  if(reports.length===0){reports=SEED_A3;save();}
+  showDash();
+});
+</script>
+</body>
+</html>

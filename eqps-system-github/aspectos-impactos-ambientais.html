@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EQPS - Aspectos e Impactos Ambientais (ISO 14001)</title>
+<script src="https://unpkg.com/@phosphor-icons/web"></script>
+<style>
+  :root{--bg:#0a1628;--muted:#1a2942;--card:#0d1a2e;--text:#e5e7eb;--accent:#ff7a1a;--accent2:#ffa552;--ok:#22c55e;--warn:#f59e0b;--bad:#ef4444;--eco:#16a34a;--shadow:0 10px 30px rgba(0,0,0,.45);--radius:16px;--status-iniciar:#6c757d;--status-iniciado:#0d6efd;--status-pausado:#fd7e14;--status-finalizado:#22c55e;--status-atraso:#ef4444;}
+  *{box-sizing:border-box}html,body{height:100%}
+  body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Inter,Arial;background:linear-gradient(120deg,#081225,#0a1a35);color:var(--text);display:grid;grid-template-columns:280px 1fr;grid-template-rows:auto 1fr;}
+  header{grid-column:1/3;display:flex;align-items:center;justify-content:space-between;padding:14px 20px;background:linear-gradient(90deg,#081225,#0a1f3d);border-bottom:1px solid #1e2f4d;position:sticky;top:0;z-index:5}
+  .header-title h1{margin:0;font-size:20px;}.header-title .subtitle{margin:4px 0 0 0;font-size:14px;color:var(--eco);}.header-title .dev-credit{margin:4px 0 0 0;font-size:11px;color:#64748b;}
+  header .actions{display:flex;flex-wrap:wrap;gap:8px}
+  button,.btn{background:var(--muted);color:var(--text);border:1px solid #2a3a55;border-radius:12px;padding:10px 14px;cursor:pointer;box-shadow:var(--shadow);transition:.2s;font-weight:600;font-family:inherit;font-size:13px;}
+  button:hover,.btn:hover{transform:translateY(-1px);border-color:#3d4f6f}
+  button.primary,.btn.primary{background:linear-gradient(180deg,var(--eco),#0f766e);border-color:transparent;color:#fff}
+  button.ghost,.btn.ghost{background:transparent;border-color:#3d4f6f}
+  aside{border-right:1px solid #1e2f4d;background:linear-gradient(180deg,#081225,#0a1a35);padding:16px;display:flex;flex-direction:column;gap:24px;}
+  .menu{display:flex;flex-direction:column;gap:8px}
+  .menu .tab-link{display:flex;gap:10px;align-items:center;color:#cbd5e1;padding:10px 12px;border:1px solid #1e2f4d;border-radius:12px;background:rgba(255,255,255,.02);cursor:pointer;}
+  .menu .tab-link.active,.menu .tab-link:hover{border-color:var(--eco);background:rgba(22,163,74,.12);color:#bbf7d0}
+  main{padding:18px;overflow:auto}.tab-content{display:none}.tab-content.active{display:block}
+  section{background:rgba(255,255,255,.03);border:1px solid #1e2f4d;border-radius:var(--radius);padding:16px;margin-bottom:18px;box-shadow:var(--shadow)}
+  h2,h4{margin:0 0 12px 0;color:var(--accent);}h4{color:var(--accent2)}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px}
+  .field{display:flex;flex-direction:column;gap:6px}
+  .field.span-2{grid-column:span 2}
+  label{font-size:12px;color:#ffa552}
+  input,select,textarea{background:#0d1a2e;border:1px solid #2a3a55;color:var(--text);padding:10px 12px;border-radius:10px;font-size:14px;font-family:inherit;outline:none;}
+  textarea{min-height:56px}
+  table{width:100%;border-collapse:collapse;}th,td{padding:8px 10px;border:1px solid var(--muted);text-align:left;font-size:12.5px;vertical-align:top;}th{background:rgba(255,122,26,.1);color:#ffa552;position:sticky;top:0;}
+  .kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px}
+  .kpi-card{background:var(--card);border-radius:var(--radius);padding:16px;text-align:center;border:1px solid #1e2f4d;}
+  .kpi-card .kpi-value{font-size:2.2rem;font-weight:bold;color:var(--accent);}
+  .kpi-card .kpi-label{font-size:.82rem;color:#94a3b8;margin-top:4px;}
+  .badge{display:inline-block;padding:3px 10px;border-radius:999px;font-size:11px;font-weight:700;}
+  .badge.sig{background:rgba(239,68,68,.15);color:#fca5a5;border:1px solid rgba(239,68,68,.4);}
+  .badge.nsig{background:rgba(34,197,94,.15);color:#86efac;border:1px solid rgba(34,197,94,.4);}
+  .badge.legal{background:rgba(245,158,11,.15);color:#fed7aa;border:1px solid rgba(245,158,11,.4);}
+  .status-select{font-weight:bold;text-align:center;}
+  .status-iniciar{background:var(--status-iniciar);color:#fff;}
+  .status-iniciado{background:var(--status-iniciado);color:#fff;}
+  .status-pausado{background:var(--status-pausado);color:#fff;}
+  .status-finalizado{background:var(--status-finalizado);color:#fff;}
+  .status-atraso{background:var(--status-atraso);color:#fff;}
+  .row-actions{display:flex;gap:6px}
+  .row-actions button{padding:4px 8px;font-size:11px;}
+  .help-content h3{color:var(--accent2);margin-top:24px;margin-bottom:10px;border-bottom:1px solid var(--muted);padding-bottom:5px;font-size:16px;}
+  .help-content p,.help-content li{line-height:1.65;}
+  .help-content code{background:var(--muted);padding:2px 6px;border-radius:4px;color:var(--accent);}
+  #toast-container{position:fixed;top:20px;right:20px;z-index:200;display:flex;flex-direction:column;gap:10px;}
+  .toast{padding:12px 18px;border-radius:12px;color:#fff;font-weight:600;font-size:14px;box-shadow:var(--shadow);opacity:0;transform:translateX(100%);transition:all 0.4s;}
+  .toast.show{opacity:1;transform:translateX(0);}
+  .toast.success{background:linear-gradient(90deg,#22c55e,#16a34a);}.toast.error{background:linear-gradient(90deg,#ef4444,#dc2626);}.toast.info{background:linear-gradient(90deg,#ff7a1a,#e85d04);}
+  @media print{body{display:block;grid-template-columns:1fr;}header,aside,.btn,.row-actions,#Ajuda{display:none !important;}main{padding:0;}section{border:1px solid #ccc;background:#fff;color:#000;}label,h2,h4{color:#000 !important;}th{background:#eee !important;color:#000 !important;}}
+  @media (max-width:900px){body{grid-template-columns:1fr;grid-template-rows:auto auto 1fr}aside{flex-direction:row;overflow-x:auto}}
+</style>
+</head>
+<body>
+<div id="toast-container"></div>
+<header>
+  <div class="header-title"><h1>🌱 EQPS</h1><p class="subtitle">Aspectos e Impactos Ambientais — ISO 14001</p><p class="dev-credit">Desenvolvido por Marcos Garçon</p></div>
+  <div class="actions">
+    <button class="btn ghost" id="btn-restore-backup">Restaurar Backup</button>
+    <button class="btn ghost" id="btn-download-backup">Baixar Backup (.json)</button>
+    <button class="btn ghost" id="btn-archive-and-clear" style="color:var(--warn);">Arquivar e Limpar</button>
+    <button class="btn primary" id="btn-export-pdf">Exportar PDF</button>
+  </div>
+</header>
+<aside>
+  <div class="menu">
+    <a class="tab-link active" onclick="openTab(event,'Levantamento')">🌍 Levantamento AIA</a>
+    <a class="tab-link" onclick="openTab(event,'Objetivos')">🎯 Objetivos e Metas</a>
+    <a class="tab-link" onclick="openTab(event,'Legal')">⚖️ Requisitos Legais</a>
+    <a class="tab-link" onclick="openTab(event,'Ajuda')">❓ Ajuda</a>
+  </div>
+</aside>
+<main>
+  <div id="Levantamento" class="tab-content active">
+    <section>
+      <h4>Matriz de Aspectos e Impactos Ambientais (AIA) — Cláusula 6.1.2</h4>
+      <div class="kpi-grid" style="margin-bottom:16px">
+        <div class="kpi-card"><div class="kpi-value" id="kpi-total">0</div><div class="kpi-label">Aspectos levantados</div></div>
+        <div class="kpi-card"><div class="kpi-value" id="kpi-sig">0</div><div class="kpi-label">Significativos</div></div>
+        <div class="kpi-card"><div class="kpi-value" id="kpi-legal">0</div><div class="kpi-label">Com requisito legal</div></div>
+        <div class="kpi-card"><div class="kpi-value" id="kpi-atraso">0</div><div class="kpi-label">Ações em atraso</div></div>
+      </div>
+      <form id="aia-form" autocomplete="off">
+        <input type="hidden" id="aia-id">
+        <div class="grid">
+          <div class="field"><label>Processo/Atividade</label><input type="text" id="aia-processo" required placeholder="Ex.: Injeção de peças técnicas"></div>
+          <div class="field"><label>Condição</label><select id="aia-condicao"><option value="Normal">Normal</option><option value="Anormal">Anormal</option><option value="Emergencial">Emergencial</option></select></div>
+          <div class="field span-2"><label>Aspecto Ambiental</label><textarea id="aia-aspecto" required placeholder="Ex.: Geração de resíduo plástico (rebarba/refile)"></textarea></div>
+          <div class="field span-2"><label>Impacto Ambiental</label><textarea id="aia-impacto" required placeholder="Ex.: Contaminação do solo / geração de resíduo sólido industrial"></textarea></div>
+          <div class="field"><label>Severidade (1-5)</label><input type="number" id="aia-severidade" min="1" max="5" value="3" required></div>
+          <div class="field"><label>Probabilidade (1-5)</label><input type="number" id="aia-probabilidade" min="1" max="5" value="3" required></div>
+          <div class="field"><label>Requisito legal aplicável?</label><select id="aia-legal-flag"><option value="Não">Não</option><option value="Sim">Sim</option></select></div>
+          <div class="field"><label>Norma/Requisito</label><input type="text" id="aia-legal-norma" placeholder="Ex.: Lei 12.305/2010 (PNRS)"></div>
+          <div class="field span-2"><label>Controle Atual</label><textarea id="aia-controle" placeholder="O que já é feito hoje para mitigar"></textarea></div>
+          <div class="field span-2"><label>Ação de Melhoria</label><textarea id="aia-acao" placeholder="O que precisa ser implantado"></textarea></div>
+          <div class="field"><label>Responsável</label><input type="text" id="aia-responsavel"></div>
+          <div class="field"><label>Prazo</label><input type="date" id="aia-prazo"></div>
+          <div class="field"><label>Status</label><select id="aia-status"><option value="iniciar">A Iniciar</option><option value="iniciado">Iniciado</option><option value="pausado">Pausado</option><option value="finalizado">Finalizado</option><option value="atraso">Em Atraso</option></select></div>
+        </div>
+        <div style="margin-top:16px;display:flex;gap:10px;">
+          <button type="submit" class="btn primary">Salvar Aspecto</button>
+          <button type="button" id="aia-clear" class="btn ghost">Limpar</button>
+        </div>
+      </form>
+    </section>
+    <section>
+      <h4>Aspectos Registrados</h4>
+      <div style="overflow:auto"><table id="aia-table">
+        <thead><tr><th>Processo</th><th>Aspecto</th><th>Impacto</th><th>Cond.</th><th>S×P</th><th>Significância</th><th>Legal</th><th>Ação</th><th>Status</th><th class="row-actions">Ações</th></tr></thead>
+        <tbody></tbody>
+      </table></div>
+    </section>
+  </div>
+
+  <div id="Objetivos" class="tab-content">
+    <section>
+      <h4>Objetivos e Metas Ambientais — Cláusula 6.2</h4>
+      <form id="obj-form" autocomplete="off">
+        <input type="hidden" id="obj-id">
+        <div class="grid">
+          <div class="field span-2"><label>Objetivo</label><input type="text" id="obj-objetivo" required placeholder="Ex.: Reduzir geração de refile plástico"></div>
+          <div class="field span-2"><label>Meta (indicador quantificado)</label><input type="text" id="obj-meta" required placeholder="Ex.: -20% de refile por lote injetado até dez/2026"></div>
+          <div class="field"><label>Responsável</label><input type="text" id="obj-responsavel"></div>
+          <div class="field"><label>Prazo</label><input type="date" id="obj-prazo"></div>
+          <div class="field"><label>Status</label><select id="obj-status"><option value="iniciar">A Iniciar</option><option value="iniciado">Iniciado</option><option value="pausado">Pausado</option><option value="finalizado">Finalizado</option><option value="atraso">Em Atraso</option></select></div>
+        </div>
+        <div style="margin-top:16px;display:flex;gap:10px;">
+          <button type="submit" class="btn primary">Salvar Objetivo</button>
+          <button type="button" id="obj-clear" class="btn ghost">Limpar</button>
+        </div>
+      </form>
+    </section>
+    <section>
+      <h4>Objetivos Cadastrados</h4>
+      <div style="overflow:auto"><table id="obj-table">
+        <thead><tr><th>Objetivo</th><th>Meta</th><th>Responsável</th><th>Prazo</th><th>Status</th><th class="row-actions">Ações</th></tr></thead>
+        <tbody></tbody>
+      </table></div>
+    </section>
+  </div>
+
+  <div id="Legal" class="tab-content">
+    <section>
+      <h4>Registro de Requisitos Legais — Cláusula 6.1.3</h4>
+      <form id="leg-form" autocomplete="off">
+        <input type="hidden" id="leg-id">
+        <div class="grid">
+          <div class="field"><label>Norma/Lei</label><input type="text" id="leg-norma" required placeholder="Ex.: Lei 12.305/2010"></div>
+          <div class="field span-2"><label>Aplicação</label><input type="text" id="leg-aplicacao" required placeholder="Ex.: Gestão de resíduos sólidos"></div>
+          <div class="field"><label>Situação</label><select id="leg-situacao"><option value="Atende">Atende</option><option value="Em adequação">Em adequação</option><option value="Não atende">Não atende</option></select></div>
+          <div class="field span-2"><label>Observação</label><textarea id="leg-obs"></textarea></div>
+        </div>
+        <div style="margin-top:16px;display:flex;gap:10px;">
+          <button type="submit" class="btn primary">Salvar Requisito</button>
+          <button type="button" id="leg-clear" class="btn ghost">Limpar</button>
+        </div>
+      </form>
+    </section>
+    <section>
+      <h4>Requisitos Cadastrados</h4>
+      <div style="overflow:auto"><table id="leg-table">
+        <thead><tr><th>Norma/Lei</th><th>Aplicação</th><th>Situação</th><th>Observação</th><th class="row-actions">Ações</th></tr></thead>
+        <tbody></tbody>
+      </table></div>
+    </section>
+  </div>
+
+  <div id="Ajuda" class="tab-content">
+    <section class="help-content">
+      <h2>Guia — Aspectos e Impactos Ambientais (ISO 14001)</h2>
+      <p>Esta ferramenta apoia o requisito <code>6.1.2</code> da ISO 14001:2015 (identificação de aspectos e impactos ambientais) e se conecta aos requisitos <code>6.1.3</code> (requisitos legais) e <code>6.2</code> (objetivos e metas ambientais).</p>
+      <h3>Como calcular a significância</h3>
+      <p>Cada aspecto recebe uma nota de <b>Severidade</b> (1 a 5, quão grave é o impacto) e de <b>Probabilidade</b> (1 a 5, quão frequente é a ocorrência). A significância é o produto dos dois (1 a 25). Aspectos com pontuação <b>≥ 12</b> são marcados como <b>Significativos</b> e devem ter ação de melhoria com responsável e prazo definidos. Condições <b>Emergenciais</b> (ex.: vazamentos) devem ser tratadas como significativas independentemente da pontuação.</p>
+      <h3>Fluxo recomendado</h3>
+      <ul>
+        <li>Levantar aspectos por processo (injeção, ferramentaria/moldes, manutenção, almoxarifado/expedição).</li>
+        <li>Classificar impactos e calcular significância.</li>
+        <li>Vincular requisitos legais aplicáveis na aba <b>Requisitos Legais</b>.</li>
+        <li>Transformar aspectos significativos em <b>Objetivos e Metas</b> com indicador, responsável e prazo.</li>
+        <li>Revisar periodicamente (recomenda-se semestral, ou após mudança de processo/produto).</li>
+      </ul>
+      <h3>Exemplos de aspectos comuns em injeção plástica</h3>
+      <ul>
+        <li>Geração de resíduo plástico (rebarba/refile)</li>
+        <li>Consumo de energia elétrica das injetoras</li>
+        <li>Geração de resíduo perigoso (óleo/graxa de manutenção)</li>
+        <li>Consumo de água em sistemas de resfriamento</li>
+        <li>Geração de resíduo de embalagem</li>
+      </ul>
+    </section>
+  </div>
+</main>
+<script>
+document.addEventListener('DOMContentLoaded',()=>{
+  const DB_KEY='itp_iso14001_v1';
+  const showToast=(m,t='info')=>{const c=document.getElementById('toast-container');const el=document.createElement('div');el.className=`toast ${t}`;el.textContent=m;c.appendChild(el);setTimeout(()=>el.classList.add('show'),10);setTimeout(()=>{el.classList.remove('show');el.addEventListener('transitionend',()=>el.remove())},4000);};
+  window.openTab=(e,tab)=>{document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));document.querySelectorAll('.tab-link').forEach(l=>l.classList.remove('active'));document.getElementById(tab).classList.add('active');e.currentTarget.classList.add('active');};
+
+  let aiaList=[], objList=[], legList=[];
+
+  const statusLabel={iniciar:'A Iniciar',iniciado:'Iniciado',pausado:'Pausado',finalizado:'Finalizado',atraso:'Em Atraso'};
+  const statusSelectHtml=(id,val)=>`<select class="status-select status-${val}" data-id="${id}">${Object.entries(statusLabel).map(([k,v])=>`<option value="${k}" ${k===val?'selected':''}>${v}</option>`).join('')}</select>`;
+
+  function save(){localStorage.setItem(DB_KEY,JSON.stringify({aiaList,objList,legList}));renderAll();}
+
+  function seed(){
+    aiaList=[
+      {id:1,processo:'Injeção de peças técnicas',aspecto:'Geração de resíduo plástico (rebarba/refile)',impacto:'Contaminação do solo / geração de resíduo sólido industrial',condicao:'Normal',severidade:3,probabilidade:5,legalFlag:'Sim',legalNorma:'Lei 12.305/2010 (PNRS)',controle:'Refile parcialmente reaproveitado, sem registro formal',acao:'Implantar PGRS com meta de reciclagem interna do refile',responsavel:'Produção & Qualidade',prazo:'',status:'iniciado'},
+      {id:2,processo:'Injeção de peças técnicas',aspecto:'Consumo de energia elétrica das injetoras',impacto:'Esgotamento de recursos naturais / aumento da pegada de carbono',condicao:'Normal',severidade:2,probabilidade:5,legalFlag:'Não',legalNorma:'',controle:'Sem monitoramento de consumo por máquina',acao:'Instalar medição individual e definir meta de kWh/peça',responsavel:'Engenharia',prazo:'',status:'iniciar'},
+      {id:3,processo:'Manutenção de moldes',aspecto:'Geração de resíduo perigoso (óleo/graxa contaminados, panos)',impacto:'Contaminação do solo e da água',condicao:'Anormal',severidade:5,probabilidade:2,legalFlag:'Sim',legalNorma:'NBR 10004:2004',controle:'Descarte sem coletor licenciado',acao:'Contratar empresa licenciada para destinação de resíduos Classe I',responsavel:'Manutenção & Qualidade',prazo:'',status:'iniciar'},
+      {id:4,processo:'Resfriamento de moldes',aspecto:'Consumo de água em torres de resfriamento',impacto:'Esgotamento do recurso hídrico',condicao:'Normal',severidade:2,probabilidade:3,legalFlag:'Não',legalNorma:'',controle:'Sem sistema de recirculação',acao:'Avaliar implantação de circuito fechado de recirculação',responsavel:'Engenharia',prazo:'',status:'iniciar'},
+      {id:5,processo:'Expedição/Almoxarifado',aspecto:'Geração de resíduo de embalagem (papelão/plástico)',impacto:'Geração de resíduo sólido',condicao:'Normal',severidade:1,probabilidade:5,legalFlag:'Sim',legalNorma:'Lei 12.305/2010 (PNRS)',controle:'Coleta seletiva parcial',acao:'Ampliar coleta seletiva e logística reversa com fornecedores',responsavel:'Logística',prazo:'',status:'iniciado'},
+      {id:6,processo:'Área de injeção',aspecto:'Vazamento de óleo hidráulico das injetoras',impacto:'Contaminação do solo (condição emergencial)',condicao:'Emergencial',severidade:5,probabilidade:2,legalFlag:'Sim',legalNorma:'NBR 10004:2004',controle:'Sem kit de contenção de vazamento em todas as máquinas',acao:'Distribuir kits de contenção e treinar operadores em resposta a emergência',responsavel:'SESMT & Manutenção',prazo:'',status:'iniciar'}
+    ];
+    objList=[
+      {id:1,objetivo:'Reduzir geração de refile plástico',meta:'-20% de refile por lote injetado até dez/2026',responsavel:'Produção & Qualidade',prazo:'',status:'iniciado'},
+      {id:2,objetivo:'Reduzir consumo energético das injetoras',meta:'kWh/peça produzida -10% em 12 meses',responsavel:'Engenharia',prazo:'',status:'iniciar'},
+      {id:3,objetivo:'Eliminar descarte irregular de resíduos perigosos',meta:'100% dos resíduos Classe I com MTR (Manifesto de Transporte de Resíduos)',responsavel:'SESMT/Qualidade',prazo:'',status:'iniciar'},
+      {id:4,objetivo:'Aumentar taxa de reciclagem interna',meta:'30% do refile reaproveitado internamente no processo',responsavel:'Produção',prazo:'',status:'iniciar'}
+    ];
+    legList=[
+      {id:1,norma:'Lei 12.305/2010 (PNRS)',aplicacao:'Gestão de resíduos sólidos',situacao:'Em adequação',obs:'PGRS em elaboração'},
+      {id:2,norma:'ABNT NBR ISO 14001:2015',aplicacao:'Sistema de gestão ambiental',situacao:'Em adequação',obs:'Implantação em andamento'},
+      {id:3,norma:'ABNT NBR 10004:2004',aplicacao:'Classificação de resíduos sólidos',situacao:'Em adequação',obs:'Laudo de classificação pendente para resíduos de manutenção'},
+      {id:4,norma:'Resolução CONAMA 313/2002',aplicacao:'Inventário de resíduos sólidos industriais',situacao:'Não atende',obs:'Inventário ainda não estruturado'},
+      {id:5,norma:'Licenciamento Ambiental (CETESB/órgão estadual)',aplicacao:'Licença de Operação',situacao:'Atende',obs:'Renovação a acompanhar'}
+    ];
+    save();
+  }
+
+  function load(){
+    const d=JSON.parse(localStorage.getItem(DB_KEY)||'null');
+    if(d){aiaList=d.aiaList||[];objList=d.objList||[];legList=d.legList||[];renderAll();}
+    else seed();
+  }
+
+  function sigInfo(sev,prob,cond){
+    const score=sev*prob;
+    const sig=(cond==='Emergencial')||score>=12;
+    return {score,sig};
+  }
+
+  function renderAia(){
+    const tbody=document.querySelector('#aia-table tbody');tbody.innerHTML='';
+    aiaList.forEach(a=>{
+      const {score,sig}=sigInfo(a.severidade,a.probabilidade,a.condicao);
+      const tr=document.createElement('tr');
+      tr.innerHTML=`<td>${a.processo}</td><td>${a.aspecto}</td><td>${a.impacto}</td><td>${a.condicao}</td><td>${score}</td>
+        <td><span class="badge ${sig?'sig':'nsig'}">${sig?'Significativo':'Não significativo'}</span></td>
+        <td>${a.legalFlag==='Sim'?`<span class="badge legal">${a.legalNorma||'Sim'}</span>`:'Não'}</td>
+        <td>${a.acao||'-'}</td>
+        <td></td>
+        <td class="row-actions"><button data-act="edit-aia" data-id="${a.id}">✏️</button><button data-act="del-aia" data-id="${a.id}">🗑️</button></td>`;
+      tr.children[8].appendChild(document.createRange().createContextualFragment(statusSelectHtml(a.id,a.status)));
+      tbody.appendChild(tr);
+    });
+    document.querySelectorAll('#aia-table .status-select').forEach(s=>{s.className='status-select status-'+s.value;s.addEventListener('change',e=>{const it=aiaList.find(x=>x.id==e.target.dataset.id);if(it){it.status=e.target.value;save();}});});
+  }
+
+  function renderObj(){
+    const tbody=document.querySelector('#obj-table tbody');tbody.innerHTML='';
+    objList.forEach(o=>{
+      const tr=document.createElement('tr');
+      tr.innerHTML=`<td>${o.objetivo}</td><td>${o.meta}</td><td>${o.responsavel||'-'}</td><td>${o.prazo||'-'}</td><td></td>
+        <td class="row-actions"><button data-act="edit-obj" data-id="${o.id}">✏️</button><button data-act="del-obj" data-id="${o.id}">🗑️</button></td>`;
+      tr.children[4].appendChild(document.createRange().createContextualFragment(statusSelectHtml(o.id,o.status)));
+      tbody.appendChild(tr);
+    });
+    document.querySelectorAll('#obj-table .status-select').forEach(s=>{s.className='status-select status-'+s.value;s.addEventListener('change',e=>{const it=objList.find(x=>x.id==e.target.dataset.id);if(it){it.status=e.target.value;save();}});});
+  }
+
+  function renderLeg(){
+    const tbody=document.querySelector('#leg-table tbody');tbody.innerHTML='';
+    legList.forEach(l=>{
+      const tr=document.createElement('tr');
+      tr.innerHTML=`<td>${l.norma}</td><td>${l.aplicacao}</td><td>${l.situacao}</td><td>${l.obs||'-'}</td>
+        <td class="row-actions"><button data-act="edit-leg" data-id="${l.id}">✏️</button><button data-act="del-leg" data-id="${l.id}">🗑️</button></td>`;
+      tbody.appendChild(tr);
+    });
+  }
+
+  function renderKpis(){
+    document.getElementById('kpi-total').textContent=aiaList.length;
+    document.getElementById('kpi-sig').textContent=aiaList.filter(a=>sigInfo(a.severidade,a.probabilidade,a.condicao).sig).length;
+    document.getElementById('kpi-legal').textContent=aiaList.filter(a=>a.legalFlag==='Sim').length;
+    document.getElementById('kpi-atraso').textContent=[...aiaList,...objList].filter(x=>x.status==='atraso').length;
+  }
+
+  function renderAll(){renderAia();renderObj();renderLeg();renderKpis();}
+
+  // ===== AIA form =====
+  document.getElementById('aia-form').addEventListener('submit',e=>{
+    e.preventDefault();
+    const id=document.getElementById('aia-id').value;
+    const data={
+      processo:document.getElementById('aia-processo').value,
+      aspecto:document.getElementById('aia-aspecto').value,
+      impacto:document.getElementById('aia-impacto').value,
+      condicao:document.getElementById('aia-condicao').value,
+      severidade:parseInt(document.getElementById('aia-severidade').value)||1,
+      probabilidade:parseInt(document.getElementById('aia-probabilidade').value)||1,
+      legalFlag:document.getElementById('aia-legal-flag').value,
+      legalNorma:document.getElementById('aia-legal-norma').value,
+      controle:document.getElementById('aia-controle').value,
+      acao:document.getElementById('aia-acao').value,
+      responsavel:document.getElementById('aia-responsavel').value,
+      prazo:document.getElementById('aia-prazo').value,
+      status:document.getElementById('aia-status').value
+    };
+    if(id){const it=aiaList.find(x=>x.id==id);Object.assign(it,data);}
+    else{data.id=Date.now();aiaList.push(data);}
+    save();document.getElementById('aia-form').reset();document.getElementById('aia-id').value='';
+    showToast('Aspecto salvo!','success');
+  });
+  document.getElementById('aia-clear').addEventListener('click',()=>{document.getElementById('aia-form').reset();document.getElementById('aia-id').value='';});
+  document.querySelector('#aia-table tbody')?.addEventListener('click',()=>{});
+  document.getElementById('aia-table').addEventListener('click',e=>{
+    const id=e.target.dataset.id;if(!id)return;
+    if(e.target.dataset.act==='del-aia'){aiaList=aiaList.filter(x=>x.id!=id);save();showToast('Removido.','info');}
+    if(e.target.dataset.act==='edit-aia'){
+      const it=aiaList.find(x=>x.id==id);if(!it)return;
+      document.getElementById('aia-id').value=it.id;
+      document.getElementById('aia-processo').value=it.processo;
+      document.getElementById('aia-aspecto').value=it.aspecto;
+      document.getElementById('aia-impacto').value=it.impacto;
+      document.getElementById('aia-condicao').value=it.condicao;
+      document.getElementById('aia-severidade').value=it.severidade;
+      document.getElementById('aia-probabilidade').value=it.probabilidade;
+      document.getElementById('aia-legal-flag').value=it.legalFlag;
+      document.getElementById('aia-legal-norma').value=it.legalNorma;
+      document.getElementById('aia-controle').value=it.controle;
+      document.getElementById('aia-acao').value=it.acao;
+      document.getElementById('aia-responsavel').value=it.responsavel;
+      document.getElementById('aia-prazo').value=it.prazo;
+      document.getElementById('aia-status').value=it.status;
+      window.scrollTo({top:0,behavior:'smooth'});
+    }
+  });
+
+  // ===== Objetivos form =====
+  document.getElementById('obj-form').addEventListener('submit',e=>{
+    e.preventDefault();
+    const id=document.getElementById('obj-id').value;
+    const data={objetivo:document.getElementById('obj-objetivo').value,meta:document.getElementById('obj-meta').value,responsavel:document.getElementById('obj-responsavel').value,prazo:document.getElementById('obj-prazo').value,status:document.getElementById('obj-status').value};
+    if(id){const it=objList.find(x=>x.id==id);Object.assign(it,data);}
+    else{data.id=Date.now();objList.push(data);}
+    save();document.getElementById('obj-form').reset();document.getElementById('obj-id').value='';
+    showToast('Objetivo salvo!','success');
+  });
+  document.getElementById('obj-clear').addEventListener('click',()=>{document.getElementById('obj-form').reset();document.getElementById('obj-id').value='';});
+  document.getElementById('obj-table').addEventListener('click',e=>{
+    const id=e.target.dataset.id;if(!id)return;
+    if(e.target.dataset.act==='del-obj'){objList=objList.filter(x=>x.id!=id);save();showToast('Removido.','info');}
+    if(e.target.dataset.act==='edit-obj'){
+      const it=objList.find(x=>x.id==id);if(!it)return;
+      document.getElementById('obj-id').value=it.id;
+      document.getElementById('obj-objetivo').value=it.objetivo;
+      document.getElementById('obj-meta').value=it.meta;
+      document.getElementById('obj-responsavel').value=it.responsavel;
+      document.getElementById('obj-prazo').value=it.prazo;
+      document.getElementById('obj-status').value=it.status;
+      window.scrollTo({top:0,behavior:'smooth'});
+    }
+  });
+
+  // ===== Requisitos legais form =====
+  document.getElementById('leg-form').addEventListener('submit',e=>{
+    e.preventDefault();
+    const id=document.getElementById('leg-id').value;
+    const data={norma:document.getElementById('leg-norma').value,aplicacao:document.getElementById('leg-aplicacao').value,situacao:document.getElementById('leg-situacao').value,obs:document.getElementById('leg-obs').value};
+    if(id){const it=legList.find(x=>x.id==id);Object.assign(it,data);}
+    else{data.id=Date.now();legList.push(data);}
+    save();document.getElementById('leg-form').reset();document.getElementById('leg-id').value='';
+    showToast('Requisito salvo!','success');
+  });
+  document.getElementById('leg-clear').addEventListener('click',()=>{document.getElementById('leg-form').reset();document.getElementById('leg-id').value='';});
+  document.getElementById('leg-table').addEventListener('click',e=>{
+    const id=e.target.dataset.id;if(!id)return;
+    if(e.target.dataset.act==='del-leg'){legList=legList.filter(x=>x.id!=id);save();showToast('Removido.','info');}
+    if(e.target.dataset.act==='edit-leg'){
+      const it=legList.find(x=>x.id==id);if(!it)return;
+      document.getElementById('leg-id').value=it.id;
+      document.getElementById('leg-norma').value=it.norma;
+      document.getElementById('leg-aplicacao').value=it.aplicacao;
+      document.getElementById('leg-situacao').value=it.situacao;
+      document.getElementById('leg-obs').value=it.obs;
+      window.scrollTo({top:0,behavior:'smooth'});
+    }
+  });
+
+  // ===== Backup / restore / export =====
+  document.getElementById('btn-download-backup').addEventListener('click',()=>{
+    const b=new Blob([JSON.stringify({aiaList,objList,legList},null,2)],{type:'application/json'});
+    const l=document.createElement('a');l.href=URL.createObjectURL(b);l.download=`itp_iso14001_${new Date().toISOString().slice(0,10)}.json`;l.click();
+  });
+  document.getElementById('btn-restore-backup').addEventListener('click',()=>{
+    const i=document.createElement('input');i.type='file';i.accept='.json';
+    i.onchange=e=>{const f=e.target.files[0];if(f){const r=new FileReader();r.onload=ev=>{try{const d=JSON.parse(ev.target.result);aiaList=d.aiaList||[];objList=d.objList||[];legList=d.legList||[];save();showToast('Restaurado!','success');}catch(err){showToast('Arquivo inválido.','error');}};r.readAsText(f);}};
+    i.click();
+  });
+  document.getElementById('btn-archive-and-clear').addEventListener('click',()=>{
+    if(confirm('Isso vai baixar um backup e apagar todos os registros. Continuar?')){
+      document.getElementById('btn-download-backup').click();
+      localStorage.removeItem(DB_KEY);
+      setTimeout(()=>location.reload(),1500);
+    }
+  });
+  document.getElementById('btn-export-pdf').addEventListener('click',()=>window.print());
+
+  load();
+});
+</script>
+</body>
+</html>

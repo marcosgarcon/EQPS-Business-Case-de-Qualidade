@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EQPS - Indicadores de Sucata</title>
+<script src="https://unpkg.com/@phosphor-icons/web"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+:root{--bg:#0a1628;--panel:#0f1e36;--muted:#1a2942;--card:#0d1a2e;--text:#e5e7eb;--accent:#ff7a1a;--accent2:#ffa552;--ok:#22c55e;--warn:#f59e0b;--bad:#ef4444;--shadow:0 10px 30px rgba(0,0,0,.45);--radius:16px;}
+*{box-sizing:border-box}html,body{height:100%}
+body{margin:0;font-family:system-ui,Inter,Arial;background:linear-gradient(120deg,#081225,#0a1a35);color:var(--text);display:grid;grid-template-columns:280px 1fr;grid-template-rows:auto 1fr;}
+header{grid-column:1/3;display:flex;align-items:center;justify-content:space-between;padding:14px 20px;background:linear-gradient(90deg,#081225,#0a1f3d);border-bottom:1px solid #1e2f4d;position:sticky;top:0;z-index:5}
+.header-title h1{margin:0;font-size:20px;}.header-title .subtitle{margin:4px 0 0 0;font-size:14px;color:var(--accent);}.header-title .dev-credit{margin:4px 0 0 0;font-size:11px;color:#64748b;}
+button,.btn{background:var(--muted);color:var(--text);border:1px solid #2a3a55;border-radius:12px;padding:10px 14px;cursor:pointer;box-shadow:var(--shadow);transition:.2s;font-weight:600}
+button:hover,.btn:hover{transform:translateY(-1px);border-color:#3d4f6f}
+button.primary,.btn.primary{background:linear-gradient(180deg,#ff7a1a,#e85d04);border-color:transparent;color:#fff}
+button.ghost,.btn.ghost{background:transparent;border-color:#3d4f6f}
+aside{border-right:1px solid #1e2f4d;background:linear-gradient(180deg,#081225,#0a1a35);padding:16px;display:flex;flex-direction:column;gap:24px;justify-content:space-between;}
+.menu a{display:flex;gap:10px;align-items:center;color:#cbd5e1;padding:10px 12px;border:1px solid #1e2f4d;border-radius:12px;background:rgba(255,255,255,.02);cursor:pointer;}
+.menu a.active,.menu a:hover{border-color:#ff7a1a;background:rgba(255,122,26,.1);color:#ffe0c2}
+main{padding:18px;overflow:auto}.hidden,.tab-content.hidden{display:none!important}
+section{background:rgba(255,255,255,.03);border:1px solid #1e2f4d;border-radius:var(--radius);padding:20px;margin-bottom:20px;box-shadow:var(--shadow)}
+h2,h3,h4{margin:0 0 12px 0;color:var(--accent);}h4{color:var(--accent2)}
+.grid{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));}
+.field{display:flex;flex-direction:column;gap:6px}label{font-size:12px;color:#ffa552}
+input,select,textarea{background:#0d1a2e;border:1px solid #2a3a55;color:var(--text);padding:10px 12px;border-radius:10px;font-size:14px;min-height:44px}
+table{width:100%;border-collapse:collapse;}th,td{padding:10px 12px;border-bottom:1px solid var(--muted);text-align:left;font-size:14px;}th{background:rgba(255,122,26,.08);color:#ffa552;}
+.kpi-card{background:var(--card);border-radius:var(--radius);padding:16px;text-align:center;}.kpi-card h3{font-size:12px;color:var(--accent2);margin:0 0 8px 0;font-weight:normal;text-transform:uppercase;}.kpi-card .kpi-value{font-size:2rem;font-weight:bold;color:var(--accent);}
+#record-counter{background:rgba(255,255,255,.02);border:1px solid #1e2f4d;border-radius:12px;padding:12px;}#record-counter p{display:flex;justify-content:space-between;}#record-counter span{color:var(--accent);font-weight:bold;}
+.toast-container{position:fixed;top:20px;right:20px;z-index:200;display:flex;flex-direction:column;gap:10px;}
+.toast{padding:12px 18px;border-radius:12px;color:#fff;font-weight:600;opacity:0;transform:translateX(100%);transition:.4s;}.toast.show{opacity:1;transform:translateX(0);}.toast.success{background:linear-gradient(90deg,#22c55e,#16a34a);}.toast.error{background:linear-gradient(90deg,#ef4444,#dc2626);}.toast.info{background:linear-gradient(90deg,#ff7a1a,#e85d04);}
+.drop-zone{border:2px dashed var(--muted);border-radius:var(--radius);padding:40px;text-align:center;cursor:pointer;transition:.2s;}
+.drop-zone:hover,.drop-zone.dragover{border-color:var(--accent);background:rgba(255,122,26,.08);}
+.autocomplete-container{position:relative;}
+.autocomplete-list{position:absolute;top:100%;left:0;right:0;z-index:10;background:var(--panel);border:1px solid var(--muted);border-radius:10px;max-height:200px;overflow-y:auto;margin-top:4px;}
+.autocomplete-item{padding:10px 12px;cursor:pointer;font-size:14px;}
+.autocomplete-item:hover{background:var(--muted);}
+.autocomplete-item.is-new{font-style:italic;color:var(--accent);}
+@media print{body{grid-template-columns:1fr;color:#000;background:#fff;}header,aside,.hidden-print,.btn{display:none!important;}}
+</style>
+</head>
+<body>
+<div id="toast-container" class="toast-container"></div>
+<header>
+  <div class="header-title"><h1>🛡️ EQPS</h1><p class="subtitle">Dashboard de Indicadores de Sucata</p><p class="dev-credit">Desenvolvido por Marcos Garçon</p></div>
+  <div style="display:flex;gap:8px;flex-wrap:wrap;">
+    <button class="btn ghost" id="btn-restore-backup">Restaurar</button>
+    <button class="btn ghost" id="btn-download-backup">Backup</button>
+    <button class="btn ghost" id="btn-archive-and-clear" style="color:var(--warn);">Arquivar</button>
+    <button class="btn primary" id="btn-export-pdf">PDF</button>
+  </div>
+</header>
+<aside>
+  <div><div class="menu">
+    <a class="tab-link active" onclick="openTab(event,'data-entry-container')">📝 Lançamentos</a>
+    <a class="tab-link" onclick="openTab(event,'dashboard-container')">📊 Dashboard</a>
+    <a class="tab-link" onclick="openTab(event,'cadastros-container')">📂 Cadastros</a>
+  </div></div>
+  <div id="record-counter"><p>Total: <span id="log-count">0</span></p></div>
+</aside>
+<main>
+  <div id="data-entry-container" class="tab-content active">
+    <section>
+      <h4>Registrar Sucata</h4>
+      <form id="scrap-log-form" autocomplete="off">
+        <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(150px,1fr));">
+          <div class="field"><label>Data</label><input type="date" id="log-data" required></div>
+          <div class="field"><label>Turno</label><select id="log-turno"><option>1º</option><option>2º</option><option>3º</option><option>ADM</option></select></div>
+          <div class="field autocomplete-container"><label>Centro Custo</label><input type="text" id="log-centro"></div>
+          <div class="field autocomplete-container"><label>Setor</label><input type="text" id="log-setor"></div>
+          <div class="field autocomplete-container"><label>Material</label><input type="text" id="log-material"></div>
+          <div class="field autocomplete-container"><label>Motivo</label><input type="text" id="log-motivo"></div>
+          <div class="field"><label>Quantidade</label><input type="number" id="log-quantidade" value="1" min="1" required></div>
+          <div class="field"><label>Unidade</label><select id="log-unidade"><option>Qtd</option><option>Kg</option><option>ML</option></select></div>
+          <div class="field"><label>Valor Unit. (R$)</label><input type="number" step="0.01" id="log-valor-unitario"></div>
+        </div>
+        <div style="margin-top:16px;"><button type="submit" class="btn primary">+ Adicionar</button></div>
+      </form>
+    </section>
+    <section>
+      <h4>Importar em Massa</h4>
+      <div id="dropZone" class="drop-zone"><p>Arraste ou clique para .xlsx/.csv</p><input type="file" id="input-file" accept=".xlsx,.xls,.csv" class="hidden"></div>
+      <div style="display:flex;justify-content:center;margin-top:10px;"><button type="button" id="btn-download-template" class="btn ghost">📥 Modelo</button></div>
+    </section>
+    <section>
+      <h4>Registros Recentes</h4>
+      <div style="max-height:400px;overflow-y:auto;">
+        <table id="log-table"><thead><tr><th>Data</th><th>Turno</th><th>Setor</th><th>Material</th><th>Motivo</th><th>Qtd</th><th>Valor</th><th class="hidden-print">Ação</th></tr></thead><tbody></tbody></table>
+      </div>
+    </section>
+  </div>
+  <div id="dashboard-container" class="tab-content hidden">
+    <section>
+      <h4>Filtros</h4>
+      <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(160px,1fr));">
+        <div class="field"><label>De</label><input type="date" id="filter-start"></div>
+        <div class="field"><label>Até</label><input type="date" id="filter-end"></div>
+        <div class="field"><label>Setor</label><select id="filter-sector"></select></div>
+        <div class="field"><label>Turno</label><select id="filter-shift"><option value="">Todos</option><option>1º</option><option>2º</option><option>3º</option><option>ADM</option></select></div>
+        <div class="field"><label>Centro</label><select id="filter-centro"></select></div>
+        <div class="field" style="justify-content:flex-end;"><button type="button" class="btn primary" id="btn-apply-filters">Aplicar</button> <button type="button" class="btn ghost" id="btn-clear-filters">Limpar</button></div>
+      </div>
+    </section>
+    <section><h4>Indicadores</h4><div class="grid" id="kpi-container" style="grid-template-columns:repeat(auto-fit,minmax(200px,1fr));"></div></section>
+    <section><h4>Pareto - Motivos (Valor)</h4><div style="min-height:400px;"><canvas id="pareto-chart"></canvas></div></section>
+  </div>
+  <div id="cadastros-container" class="tab-content hidden">
+    <section><h4>Setores</h4><table class="db-table" id="sector-db-table"><thead><tr><th>Nome</th><th class="hidden-print">Ação</th></tr></thead><tbody></tbody></table><div style="margin-top:10px;display:flex;gap:10px;"><input type="text" id="new-sector" placeholder="Novo setor" style="flex-grow:1;"><button class="btn ghost" data-type="sector">+</button></div></section>
+    <section><h4>Centros de Custo</h4><table class="db-table" id="centro-db-table"><thead><tr><th>Nome</th><th class="hidden-print">Ação</th></tr></thead><tbody></tbody></table><div style="margin-top:10px;display:flex;gap:10px;"><input type="text" id="new-centro" placeholder="Novo CC" style="flex-grow:1;"><button class="btn ghost" data-type="centro">+</button></div></section>
+    <section><h4>Materiais</h4><table class="db-table" id="material-db-table"><thead><tr><th>Nome</th><th class="hidden-print">Ação</th></tr></thead><tbody></tbody></table><div style="margin-top:10px;display:flex;gap:10px;"><input type="text" id="new-material" placeholder="Novo material" style="flex-grow:1;"><button class="btn ghost" data-type="material">+</button></div></section>
+    <section><h4>Motivos</h4><table class="db-table" id="motivo-db-table"><thead><tr><th>Nome</th><th class="hidden-print">Ação</th></tr></thead><tbody></tbody></table><div style="margin-top:10px;display:flex;gap:10px;"><input type="text" id="new-motivo" placeholder="Novo motivo" style="flex-grow:1;"><button class="btn ghost" data-type="motivo">+</button></div></section>
+  </div>
+</main>
+<script>
+document.addEventListener('DOMContentLoaded',()=>{
+  let scrapLog=[],sectorDB=[],centroDB=[],materialDB=[],motivoDB=[];
+  const DB_KEY='itp_sucata_v1';let chart=null;
+  const showToast=(m,t='info')=>{const c=document.getElementById('toast-container');const el=document.createElement('div');el.className=`toast ${t}`;el.textContent=m;c.appendChild(el);setTimeout(()=>el.classList.add('show'),10);setTimeout(()=>{el.classList.remove('show');el.addEventListener('transitionend',()=>el.remove())},4000);};
+
+  const save=()=>localStorage.setItem(DB_KEY,JSON.stringify({scrapLog,sectorDB,centroDB,materialDB,motivoDB}));
+
+  const genLog=()=>{
+    const motivos=['Rebarba (flash)','Porosidade','Variação dimensional','Empenamento','Quebra de macho'];
+    const materiais=['PA66','ABS','POM','PP','PC'];
+    const setores=['Injeção','Moldes/Ferramentaria','Montagem'];
+    const centros=['CC-INJ-01','CC-FER-02','CC-MNT-03'];
+    const rows=[];
+    for(let i=0;i<14;i++){
+      const d=new Date();d.setDate(d.getDate()-i);
+      rows.push({
+        id:Date.now()-i,
+        data:d.toISOString().slice(0,10),
+        turno:['1º','2º','3º'][i%3],
+        centro:centros[i%centros.length],
+        setor:setores[i%setores.length],
+        material:materiais[i%materiais.length],
+        motivo:motivos[i%motivos.length],
+        quantidade:2+(i%6),
+        unidade:i%3===0?'Kg':'Qtd',
+        valorUnitario:(3+(i%5)*1.5)
+      });
+    }
+    return rows;
+  };
+
+  const load=()=>{
+    const d=JSON.parse(localStorage.getItem(DB_KEY)||'null');
+    sectorDB=d?.sectorDB||['Injeção','Moldes/Ferramentaria','Montagem','Acabamento'];
+    centroDB=d?.centroDB||['CC-INJ-01','CC-FER-02','CC-MNT-03'];
+    materialDB=d?.materialDB||['PA66','ABS','POM','PP','PC','PBT'];
+    motivoDB=d?.motivoDB||['Rebarba (flash)','Porosidade','Variação dimensional','Empenamento','Quebra de macho','Contaminação'];
+    scrapLog=d?.scrapLog||genLog();
+    if(!d)save();
+  };
+
+  window.openTab=(e,id)=>{
+    document.querySelectorAll('.tab-content').forEach(x=>x.classList.add('hidden'));
+    document.getElementById(id)?.classList.remove('hidden');
+    document.querySelectorAll('.tab-link').forEach(l=>l.classList.remove('active'));
+    e.currentTarget.classList.add('active');
+  };
+
+  const createAuto=(id,arr,dbKey)=>{
+    const inp=document.getElementById(id);if(!inp)return;
+    const cont=inp.parentElement;
+    let list=cont.querySelector('.autocomplete-list');
+    if(!list){list=document.createElement('div');list.className='autocomplete-list hidden';cont.appendChild(list);}
+    const render=(f='')=>{
+      list.innerHTML='';const fl=f.toLowerCase();
+      if(!f){list.classList.add('hidden');return;}
+      const ms=arr.filter(i=>i.toLowerCase().includes(fl));
+      ms.forEach(it=>{const el=document.createElement('div');el.className='autocomplete-item';el.textContent=it;el.addEventListener('mousedown',()=>{inp.value=it;list.classList.add('hidden');});list.appendChild(el);});
+      const ex=arr.some(i=>i.toLowerCase()===fl);
+      if(f&&!ex){const el=document.createElement('div');el.className='autocomplete-item is-new';el.textContent=`+ Adicionar "${f}"`;el.addEventListener('mousedown',()=>{list.classList.add('hidden');arr.push(f);inp.value=f;save();renderCadastros();});list.appendChild(el);}
+      list.classList.toggle('hidden',list.children.length===0);
+    };
+    inp.addEventListener('input',()=>render(inp.value));
+    inp.addEventListener('focus',()=>render(inp.value));
+    inp.addEventListener('blur',()=>setTimeout(()=>list.classList.add('hidden'),200));
+  };
+
+  const setupDb=(arr,tbodySel,btnSel,inputId)=>{
+    const tb=document.querySelector(tbodySel);
+    const render=()=>{
+      if(!tb)return;tb.innerHTML='';
+      arr.forEach((it,i)=>{const r=tb.insertRow();r.innerHTML=`<td>${it}</td><td class="hidden-print"><button class="btn ghost btn-del-db" data-i="${i}">Excluir</button></td>`;});
+    };
+    if(tb)tb.addEventListener('click',e=>{
+      if(e.target.classList.contains('btn-del-db')){if(confirm('Excluir item?')){arr.splice(e.target.dataset.i,1);save();render();}}
+    });
+    const btn=document.querySelector(btnSel);
+    if(btn)btn.addEventListener('click',()=>{
+      const inp=document.getElementById(inputId);const v=inp.value.trim();
+      if(!v)return showToast('Preencha o campo.','error');
+      arr.push(v);save();render();inp.value='';showToast('Adicionado!','success');
+    });
+    return render;
+  };
+
+  let rSector,rCentro,rMaterial,rMotivo;
+  const renderCadastros=()=>{rSector();rCentro();rMaterial();rMotivo();};
+
+  const renderLogTable=()=>{
+    const tb=document.querySelector('#log-table tbody');tb.innerHTML='';
+    [...scrapLog].sort((a,b)=>new Date(b.data)-new Date(a.data)).slice(0,150).forEach(l=>{
+      const valor=(l.quantidade*(l.valorUnitario||0)).toFixed(2);
+      const r=tb.insertRow();
+      r.innerHTML=`<td>${new Date(l.data+'T00:00:00').toLocaleDateString('pt-BR')}</td><td>${l.turno}</td><td>${l.setor}</td><td>${l.material}</td><td>${l.motivo}</td><td>${l.quantidade} ${l.unidade}</td><td>R$ ${valor}</td><td class="hidden-print"><button class="btn ghost btn-del-log" data-id="${l.id}">Excluir</button></td>`;
+    });
+    document.getElementById('log-count').textContent=scrapLog.length;
+  };
+
+  const populateFilters=()=>{
+    const p=(id,arr)=>{const s=document.getElementById(id);if(!s)return;const cur=s.value;s.innerHTML='<option value="">Todos</option>';arr.forEach(v=>{const o=document.createElement('option');o.value=v;o.textContent=v;s.appendChild(o);});s.value=cur;};
+    p('filter-sector',sectorDB);p('filter-centro',centroDB);
+  };
+
+  const filteredLog=()=>{
+    let d=[...scrapLog];
+    const st=document.getElementById('filter-start').value,en=document.getElementById('filter-end').value;
+    const se=document.getElementById('filter-sector').value,sh=document.getElementById('filter-shift').value,ce=document.getElementById('filter-centro').value;
+    if(st)d=d.filter(l=>l.data>=st);
+    if(en)d=d.filter(l=>l.data<=en);
+    if(se)d=d.filter(l=>l.setor===se);
+    if(sh)d=d.filter(l=>l.turno===sh);
+    if(ce)d=d.filter(l=>l.centro===ce);
+    return d;
+  };
+
+  const renderKpis=(d)=>{
+    const c=document.getElementById('kpi-container');if(!c)return;
+    const totalQtd=d.reduce((a,l)=>a+l.quantidade,0);
+    const totalValor=d.reduce((a,l)=>a+(l.quantidade*(l.valorUnitario||0)),0);
+    const registros=d.length;
+    const porSetor={};d.forEach(l=>{porSetor[l.setor]=(porSetor[l.setor]||0)+l.quantidade;});
+    const piorSetor=Object.entries(porSetor).sort(([,a],[,b])=>b-a)[0];
+    c.innerHTML=`
+      <div class="kpi-card"><h3>Registros</h3><div class="kpi-value">${registros}</div></div>
+      <div class="kpi-card"><h3>Qtd. Total Sucata</h3><div class="kpi-value">${totalQtd}</div></div>
+      <div class="kpi-card"><h3>Valor Total</h3><div class="kpi-value">R$ ${totalValor.toFixed(2)}</div></div>
+      <div class="kpi-card"><h3>Setor Crítico</h3><div class="kpi-value" style="font-size:1.1rem">${piorSetor?piorSetor[0]:'-'}</div></div>
+    `;
+  };
+
+  const renderPareto=(d)=>{
+    const ctx=document.getElementById('pareto-chart').getContext('2d');
+    if(chart)chart.destroy();
+    if(!d.length){ctx.clearRect(0,0,ctx.canvas.width,ctx.canvas.height);return;}
+    const byMotivo=d.reduce((a,l)=>{const v=l.quantidade*(l.valorUnitario||0);a[l.motivo]=(a[l.motivo]||0)+v;return a;},{});
+    const sorted=Object.entries(byMotivo).sort(([,a],[,b])=>b-a);
+    const total=sorted.reduce((a,[,v])=>a+v,0);
+    let acc=0;const pct=sorted.map(([,v])=>{acc+=v;return total?((acc/total)*100):0;});
+    chart=new Chart(ctx,{
+      type:'bar',
+      data:{labels:sorted.map(([k])=>k),datasets:[
+        {label:'Valor (R$)',data:sorted.map(([,v])=>v.toFixed(2)),backgroundColor:'rgba(255,122,26,0.6)',yAxisID:'y'},
+        {label:'% Acumulado',data:pct.map(p=>p.toFixed(1)),type:'line',borderColor:'#ffa552',yAxisID:'y1'}
+      ]},
+      options:{scales:{y:{position:'left',ticks:{color:'#cbd5e1'}},y1:{position:'right',min:0,max:100,ticks:{color:'#cbd5e1'},grid:{drawOnChartArea:false}},x:{ticks:{color:'#cbd5e1'}}},plugins:{legend:{labels:{color:'#cbd5e1'}}}}
+    });
+  };
+
+  const applyFilters=()=>{const d=filteredLog();renderKpis(d);renderPareto(d);};
+
+  // ===== Form: novo lançamento =====
+  document.getElementById('scrap-log-form').addEventListener('submit',e=>{
+    e.preventDefault();
+    const log={
+      id:Date.now(),
+      data:document.getElementById('log-data').value,
+      turno:document.getElementById('log-turno').value,
+      centro:document.getElementById('log-centro').value,
+      setor:document.getElementById('log-setor').value,
+      material:document.getElementById('log-material').value,
+      motivo:document.getElementById('log-motivo').value,
+      quantidade:parseFloat(document.getElementById('log-quantidade').value)||0,
+      unidade:document.getElementById('log-unidade').value,
+      valorUnitario:parseFloat(document.getElementById('log-valor-unitario').value)||0
+    };
+    if(!log.data||!log.setor||!log.material||!log.motivo)return showToast('Preencha os campos obrigatórios.','error');
+    scrapLog.push(log);save();renderLogTable();populateFilters();applyFilters();
+    document.getElementById('scrap-log-form').reset();
+    document.getElementById('log-data').valueAsDate=new Date();
+    showToast('Sucata registrada!','success');
+  });
+
+  document.querySelector('#log-table').addEventListener('click',e=>{
+    if(e.target.classList.contains('btn-del-log')){
+      if(confirm('Excluir registro?')){scrapLog=scrapLog.filter(l=>l.id!=e.target.dataset.id);save();renderLogTable();applyFilters();}
+    }
+  });
+
+  // ===== Cadastros =====
+  rSector=setupDb(sectorDB,'#sector-db-table tbody','button[data-type="sector"]','new-sector');
+  rCentro=setupDb(centroDB,'#centro-db-table tbody','button[data-type="centro"]','new-centro');
+  rMaterial=setupDb(materialDB,'#material-db-table tbody','button[data-type="material"]','new-material');
+  rMotivo=setupDb(motivoDB,'#motivo-db-table tbody','button[data-type="motivo"]','new-motivo');
+
+  // ===== Filtros =====
+  document.getElementById('btn-apply-filters').addEventListener('click',()=>{applyFilters();showToast('Filtros aplicados.','info');});
+  document.getElementById('btn-clear-filters').addEventListener('click',()=>{
+    document.getElementById('filter-start').value='';document.getElementById('filter-end').value='';
+    document.getElementById('filter-sector').value='';document.getElementById('filter-shift').value='';document.getElementById('filter-centro').value='';
+    applyFilters();
+  });
+
+  // ===== Importação em massa (.xlsx/.csv) =====
+  const dropZone=document.getElementById('dropZone');
+  const fileInput=document.getElementById('input-file');
+  dropZone.addEventListener('click',()=>fileInput.click());
+  dropZone.addEventListener('dragover',e=>{e.preventDefault();dropZone.classList.add('dragover');});
+  dropZone.addEventListener('dragleave',()=>dropZone.classList.remove('dragover'));
+  dropZone.addEventListener('drop',e=>{e.preventDefault();dropZone.classList.remove('dragover');if(e.dataTransfer.files[0])handleImportFile(e.dataTransfer.files[0]);});
+  fileInput.addEventListener('change',e=>{if(e.target.files[0])handleImportFile(e.target.files[0]);});
+
+  function handleImportFile(file){
+    const reader=new FileReader();
+    reader.onload=ev=>{
+      try{
+        const wb=XLSX.read(ev.target.result,{type:'binary'});
+        const ws=wb.Sheets[wb.SheetNames[0]];
+        const rows=XLSX.utils.sheet_to_json(ws);
+        let added=0;
+        rows.forEach(r=>{
+          const data=r['Data']||r['data'];
+          if(!data)return;
+          const dataStr=(typeof data==='number')?XLSX.SSF.format('yyyy-mm-dd',data):String(data);
+          const log={
+            id:Date.now()+added,
+            data:dataStr,
+            turno:String(r['Turno']||r['turno']||'1º'),
+            centro:String(r['Centro Custo']||r['Centro']||r['centro']||''),
+            setor:String(r['Setor']||r['setor']||''),
+            material:String(r['Material']||r['material']||''),
+            motivo:String(r['Motivo']||r['motivo']||''),
+            quantidade:parseFloat(r['Quantidade']||r['quantidade'])||0,
+            unidade:String(r['Unidade']||r['unidade']||'Qtd'),
+            valorUnitario:parseFloat(r['Valor Unitario']||r['Valor Unit.']||r['valorUnitario'])||0
+          };
+          if(log.setor&&!sectorDB.includes(log.setor))sectorDB.push(log.setor);
+          if(log.centro&&!centroDB.includes(log.centro))centroDB.push(log.centro);
+          if(log.material&&!materialDB.includes(log.material))materialDB.push(log.material);
+          if(log.motivo&&!motivoDB.includes(log.motivo))motivoDB.push(log.motivo);
+          scrapLog.push(log);added++;
+        });
+        save();renderLogTable();renderCadastros();populateFilters();applyFilters();
+        showToast(`${added} registros importados!`,'success');
+      }catch(err){showToast('Erro ao importar arquivo.','error');}
+    };
+    reader.readAsBinaryString(file);
+  }
+
+  document.getElementById('btn-download-template').addEventListener('click',()=>{
+    const ws=XLSX.utils.json_to_sheet([{Data:'2026-08-01',Turno:'1º','Centro Custo':'CC-INJ-01',Setor:'Injeção',Material:'PA66',Motivo:'Rebarba (flash)',Quantidade:5,Unidade:'Kg','Valor Unitario':4.5}]);
+    const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'Modelo');
+    XLSX.writeFile(wb,'modelo_sucata_itp.xlsx');
+  });
+
+  // ===== Backup / restaurar / arquivar / PDF =====
+  document.getElementById('btn-download-backup').addEventListener('click',()=>{
+    const b=new Blob([JSON.stringify({scrapLog,sectorDB,centroDB,materialDB,motivoDB},null,2)],{type:'application/json'});
+    const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=`itp_sucata_${new Date().toISOString().slice(0,10)}.json`;a.click();
+    showToast('Backup baixado!','success');
+  });
+  document.getElementById('btn-restore-backup').addEventListener('click',()=>{
+    const i=document.createElement('input');i.type='file';i.accept='.json';
+    i.onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=ev=>{
+      if(!confirm('Isso vai substituir os dados atuais. Continuar?'))return;
+      try{const d=JSON.parse(ev.target.result);scrapLog=d.scrapLog||[];sectorDB=d.sectorDB||[];centroDB=d.centroDB||[];materialDB=d.materialDB||[];motivoDB=d.motivoDB||[];save();showToast('Restaurado!','success');setTimeout(()=>location.reload(),1000);}
+      catch(err){showToast('Arquivo inválido.','error');}
+    };r.readAsText(f);};
+    i.click();
+  });
+  document.getElementById('btn-archive-and-clear').addEventListener('click',()=>{
+    if(confirm('Isso vai baixar um backup e apagar todos os registros. Continuar?')){
+      document.getElementById('btn-download-backup').click();
+      localStorage.removeItem(DB_KEY);
+      setTimeout(()=>location.reload(),1500);
+    }
+  });
+  document.getElementById('btn-export-pdf').addEventListener('click',()=>window.print());
+
+  // ===== Init =====
+  load();
+  document.getElementById('log-data').valueAsDate=new Date();
+  createAuto('log-centro',centroDB);
+  createAuto('log-setor',sectorDB);
+  createAuto('log-material',materialDB);
+  createAuto('log-motivo',motivoDB);
+  renderLogTable();renderCadastros();populateFilters();applyFilters();
+});
+</script>
+</body>
+</html>
+

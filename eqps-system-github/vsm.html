@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>EQPS - Mapeamento VSM</title>
+<script src="https://unpkg.com/@phosphor-icons/web"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+:root{--bg:#0a1628;--panel:#0f1e36;--muted:#1a2942;--card:#0d1a2e;--text:#e5e7eb;--accent:#ff7a1a;--accent2:#ffa552;--ok:#22c55e;--warn:#f59e0b;--bad:#ef4444;--shadow:0 10px 30px rgba(0,0,0,.45);--radius:16px;}
+*{box-sizing:border-box}html,body{height:100%}
+body{margin:0;font-family:system-ui,Inter,Arial;background:linear-gradient(120deg,#081225,#0a1a35);color:var(--text);display:grid;grid-template-columns:320px 1fr;grid-template-rows:auto 1fr;}
+header{grid-column:1/3;display:flex;align-items:center;justify-content:space-between;padding:14px 20px;background:linear-gradient(90deg,#081225,#0a1f3d);border-bottom:1px solid #1e2f4d;position:sticky;top:0;z-index:5}
+.header-title h1{margin:0;font-size:20px;}.header-title .subtitle{margin:4px 0 0 0;font-size:14px;color:var(--accent);}.header-title .dev-credit{margin:4px 0 0 0;font-size:11px;color:#64748b;}
+button,.btn{background:var(--muted);color:var(--text);border:1px solid #2a3a55;border-radius:12px;padding:10px 14px;cursor:pointer;box-shadow:var(--shadow);transition:.2s;font-weight:600}
+button:hover,.btn:hover{transform:translateY(-1px);border-color:#3d4f6f}
+button.primary,.btn.primary{background:linear-gradient(180deg,#ff7a1a,#e85d04);border-color:transparent;color:#fff}
+button.ghost,.btn.ghost{background:transparent;border-color:#3d4f6f}
+aside{border-right:1px solid #1e2f4d;background:linear-gradient(180deg,#081225,#0a1a35);padding:16px;display:flex;flex-direction:column;gap:18px;}
+main{padding:18px;overflow:auto}
+section{background:rgba(255,255,255,.03);border:1px solid #1e2f4d;border-radius:var(--radius);padding:16px;margin-bottom:18px;box-shadow:var(--shadow)}
+h2,h3{margin:0 0 12px 0;font-size:18px;color:var(--accent);}h4{color:var(--accent2);}
+.grid{display:grid;grid-template-columns:repeat(12,1fr);gap:12px}.col-6{grid-column:span 6}.col-4{grid-column:span 4}.col-3{grid-column:span 3}
+.field{display:flex;flex-direction:column;gap:6px}label{font-size:12px;color:#ffa552}
+input,select,textarea{background:#0d1a2e;border:1px solid #2a3a55;color:var(--text);padding:10px 12px;border-radius:10px;font-size:14px;}
+table{width:100%;border-collapse:collapse;margin-top:12px;}th,td{padding:10px;text-align:left;border-bottom:1px solid var(--muted);font-size:14px;}th{color:var(--accent2);font-size:12px;}td input{width:100%;padding:6px;background:transparent;border:none;color:var(--text);}
+.remove-step-btn{background:none;border:none;color:var(--bad);font-size:20px;cursor:pointer;}
+.dashboard-card{background:var(--card);padding:16px;border-radius:12px;text-align:center;border:1px solid var(--muted);}.dashboard-card .value{font-size:28px;font-weight:bold;color:var(--accent2);margin-bottom:8px;}.dashboard-card .label{font-size:12px;color:#ffa552;}
+#record-counter{background:rgba(255,255,255,.02);border:1px solid #1e2f4d;border-radius:12px;padding:12px;}#record-counter p{display:flex;justify-content:space-between;}#record-counter span{color:var(--accent);font-weight:bold;}
+.toast-container{position:fixed;top:20px;right:20px;z-index:200;display:flex;flex-direction:column;gap:10px;}
+.toast{padding:12px 18px;border-radius:12px;color:#fff;font-weight:600;opacity:0;transform:translateX(100%);transition:.4s;}.toast.show{opacity:1;transform:translateX(0);}.toast.success{background:linear-gradient(90deg,#22c55e,#16a34a);}.toast.error{background:linear-gradient(90deg,#ef4444,#dc2626);}.toast.info{background:linear-gradient(90deg,#ff7a1a,#e85d04);}
+.action-item-block{padding:12px;border:1px solid var(--muted);border-radius:12px;background:var(--card);position:relative;margin-top:10px;}
+.remove-action-btn{position:absolute;top:5px;right:5px;background:none;border:none;color:#fca5a5;font-size:1.5rem;cursor:pointer;}
+.history-list{max-height:300px;overflow:auto;display:flex;flex-direction:column;gap:8px;margin-top:8px;}
+.history-item{display:flex;justify-content:space-between;gap:8px;align-items:center;padding:8px;border-radius:8px;border:1px solid var(--muted);background:rgba(255,255,255,.02);}
+.history-item .meta{font-size:12px;color:#ffa552;}
+.hidden{display:none!important}
+@media print{body{grid-template-columns:1fr;color:#000;background:#fff;}header,aside,.btn,.remove-step-btn,.hidden-print{display:none!important;}main{padding:0;}}
+</style>
+</head>
+<body>
+<div id="toast-container" class="toast-container"></div>
+<header>
+  <div class="header-title"><h1>🛡️ EQPS</h1><p class="subtitle">Mapeamento de Fluxo de Valor (VSM)</p><p class="dev-credit">Desenvolvido por Marcos Garçon<span id="last-saved-display" style="font-size:11px;color:#ffa552;margin-left:8px;"></span></p></div>
+  <div style="display:flex;gap:8px;flex-wrap:wrap;">
+    <button class="btn ghost" id="btn-restore-backup">Restaurar</button>
+    <button class="btn ghost" id="btn-download-backup">Backup</button>
+    <button class="btn ghost" id="btn-save-analysis">Salvar</button>
+    <button class="btn ghost" id="btn-new-analysis">Nova</button>
+    <button class="btn ghost" id="btn-archive-and-clear" style="color:var(--warn);">Arquivar</button>
+    <button class="btn primary" id="btn-export-pdf">PDF</button>
+  </div>
+</header>
+<aside>
+  <div id="record-counter"><h4>Registros</h4><p>Etapas: <span id="vsm-steps-count">0</span></p><p>Último save: <span id="last-saved-mini">—</span></p></div>
+  <div><h4>Histórico</h4><div class="history-list" id="history-list"></div><button class="btn ghost" id="btn-clear-history" style="margin-top:10px;">Limpar Histórico</button></div>
+</aside>
+<main>
+  <form id="vsm-form">
+    <section><h2>Informações do Mapa</h2><div class="grid">
+      <div class="col-4 field"><label>Projeto</label><input type="text" id="projectName"></div>
+      <div class="col-4 field"><label>ID</label><input type="text" id="vsmId" readonly></div>
+      <div class="col-4 field"><label>Responsável</label><input type="text" id="responsible"></div>
+    </div></section>
+    <section><h2>Takt Time</h2><div class="grid">
+      <div class="col-4 field"><label>Demanda (un/dia)</label><input type="number" id="vsm-demand" value="460"></div>
+      <div class="col-4 field"><label>Tempo (s/dia)</label><input type="number" id="vsm-time" value="28800"></div>
+      <div class="col-4 field"><label>Takt Time</label><input type="text" id="vsm-takt" readonly style="color:var(--accent);font-weight:bold;"></div>
+    </div></section>
+    <section><h2>Etapas do Processo</h2><div style="overflow-x:auto;">
+      <table id="vsm-steps-table"><thead><tr><th>Processo</th><th>C/T (s)</th><th>TAV (s)</th><th>C/O (s)</th><th>Uptime (%)</th><th>WIP</th><th>Dist (m)</th><th>Efic (%)</th><th class="hidden-print">Ação</th></tr></thead><tbody></tbody></table>
+    </div><button id="add-vsm-step" type="button" class="btn ghost" style="width:100%;margin-top:12px;">+ Adicionar Etapa</button></section>
+    <section><h2>Resultados</h2><div class="grid">
+      <div class="col-3"><div class="dashboard-card"><div class="value" id="vsm-total-ct">0 s</div><div class="label">C/T Total</div></div></div>
+      <div class="col-3"><div class="dashboard-card"><div class="value" id="vsm-total-lt">0 s</div><div class="label">Lead Time</div></div></div>
+      <div class="col-3"><div class="dashboard-card"><div class="value" id="vsm-total-tav">0 s</div><div class="label">TAV</div></div></div>
+      <div class="col-3"><div class="dashboard-card"><div class="value" id="vsm-pce" style="color:var(--ok);">0 %</div><div class="label">PCE</div></div></div>
+    </div></section>
+    <section><h2>C/T vs TAV</h2><canvas id="vsm-chart"></canvas></section>
+    <section><h2>Planos de Ação</h2><div id="action-plan-form-container"></div><button type="button" id="btn-add-action-plan" class="btn ghost" style="width:100%;margin-top:12px;">+ Plano</button></section>
+  </form>
+</main>
+<template id="action-plan-form-template">
+  <div class="action-item-block"><button type="button" class="remove-action-btn hidden-print">&times;</button><div class="grid">
+    <div class="field" style="grid-column:span 12;"><label>Ação</label><textarea class="action-input" rows="2"></textarea></div>
+    <div class="field" style="grid-column:span 3;"><label>Responsável</label><input type="text" class="responsible-input"></div>
+    <div class="field" style="grid-column:span 3;"><label>Status</label><select class="status-input"><option value="aberto">Aberto</option><option value="andamento">Em Andamento</option><option value="concluido">Concluído</option><option value="cancelado">Cancelado</option></select></div>
+    <div class="field" style="grid-column:span 3;"><label>Início</label><input type="date" class="start-date-input"></div>
+    <div class="field" style="grid-column:span 3;"><label>Final</label><input type="date" class="end-date-input"></div>
+  </div></div>
+</template>
+<script>
+document.addEventListener('DOMContentLoaded',()=>{
+  const DB_KEY='itp_vsm_v1',ARCHIVE_KEY='itp_vsm_archive_v1',AUTO=120000;let chart=null,timer=null;
+  const main=document.querySelector('main'),f=document.getElementById('vsm-form'),tB=document.querySelector('#vsm-steps-table tbody'),aC=document.getElementById('action-plan-form-container'),tplA=document.getElementById('action-plan-form-template'),hL=document.getElementById('history-list'),lD=document.getElementById('last-saved-display'),lM=document.getElementById('last-saved-mini');
+  const fmt=(d=new Date())=>d.toLocaleString('pt-BR',{hour12:false});
+  const showToast=(m,t='info')=>{const c=document.getElementById('toast-container');const el=document.createElement('div');el.className=`toast ${t}`;el.textContent=m;c.appendChild(el);setTimeout(()=>el.classList.add('show'),10);setTimeout(()=>{el.classList.remove('show');el.addEventListener('transitionend',()=>el.remove())},3500);};
+  const gather=()=>{const d={meta:{version:'itp_vsm'},header:{},takt:{},steps:[],actionPlans:[],savedAt:new Date().toISOString()};document.querySelectorAll('#projectName,#vsmId,#responsible').forEach(e=>d.header[e.id]=e.value);document.querySelectorAll('#vsm-demand,#vsm-time').forEach(e=>d.takt[e.id]=e.value);tB.querySelectorAll('tr').forEach(r=>{const s={};r.querySelectorAll('input').forEach(i=>{if(i.dataset.field)s[i.dataset.field]=i.value;});const ct=parseFloat(s.ct)||0,tav=parseFloat(s.tav)||0;s.efficiency=ct>0?((tav/ct)*100).toFixed(2):'0.00';d.steps.push(s);});aC.querySelectorAll('.action-item-block').forEach(b=>d.actionPlans.push({action:b.querySelector('.action-input').value,responsible:b.querySelector('.responsible-input').value,status:b.querySelector('.status-input').value,startDate:b.querySelector('.start-date-input').value,endDate:b.querySelector('.end-date-input').value}));return d;};
+  const save=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v));return true;}catch(e){return false;}};
+  const load=(k)=>{const r=localStorage.getItem(k);if(!r)return null;try{return JSON.parse(r);}catch(e){return null;}};
+  const autosave=()=>{const d=gather();save(DB_KEY,d);const n=fmt();lD.textContent=` • Última: ${n}`;lM.textContent=n;};
+  const saveAnalysis=()=>{const d=gather();const name=prompt('Nome:',`${d.header.projectName||'Análise'} - ${new Date().toISOString().slice(0,10)}`);if(!name)return;const a=load(ARCHIVE_KEY)||{};const k=`vsm_${new Date().toISOString()}`;d.savedName=name;a[k]=d;save(ARCHIVE_KEY,a);renderHistory();save(DB_KEY,d);showToast('Salvo!','success');};
+  const populate=(d)=>{if(!d)return;if(d.header)for(const k in d.header){const e=document.getElementById(k);if(e)e.value=d.header[k];}if(d.takt)for(const k in d.takt){const e=document.getElementById(k);if(e)e.value=d.takt[k];}tB.innerHTML='';(d.steps||[]).forEach(s=>{const r=addRow(false);for(const k in s){const i=r.querySelector(`[data-field="${k}"]`);if(i)i.value=s[k];}});renderAPs(d.actionPlans||[]);calc();};
+  const renderAPs=(p=[])=>{aC.innerHTML='';p.forEach(pl=>{const cl=tplA.content.cloneNode(true),b=cl.querySelector('.action-item-block');b.querySelector('.action-input').value=pl.action||'';b.querySelector('.responsible-input').value=pl.responsible||'';b.querySelector('.status-input').value=pl.status||'aberto';b.querySelector('.start-date-input').value=pl.startDate||'';b.querySelector('.end-date-input').value=pl.endDate||'';aC.appendChild(cl);});};
+  const addRow=(c=true)=>{const r=document.createElement('tr');r.innerHTML=`<td><input type="text" data-field="processName"></td><td><input type="number" data-field="ct" value="0" min="0"></td><td><input type="number" data-field="tav" value="0" min="0"></td><td><input type="number" data-field="co" value="0" min="0"></td><td><input type="number" data-field="uptime" value="100" min="0" max="100"></td><td><input type="number" data-field="wip" value="0" min="0"></td><td><input type="number" data-field="distance" value="0" min="0"></td><td><input type="text" data-field="efficiency" value="0.00" readonly></td><td class="hidden-print"><button type="button" class="remove-step-btn">&times;</button></td>`;tB.appendChild(r);if(c){calc();save(DB_KEY,gather());}return r;};
+  const calc=()=>{const dem=parseFloat(document.getElementById('vsm-demand').value)||0,tm=parseFloat(document.getElementById('vsm-time').value)||0,tt=dem>0?tm/dem:0;document.getElementById('vsm-takt').value=`${tt.toFixed(2)} s/un`;let tCT=0,tTAV=0,tWIP=0;const cd={labels:[],ct:[],tav:[]};tB.querySelectorAll('tr').forEach(r=>{const ct=parseFloat(r.querySelector('[data-field="ct"]').value)||0,tav=parseFloat(r.querySelector('[data-field="tav"]').value)||0,wip=parseFloat(r.querySelector('[data-field="wip"]').value)||0,pn=r.querySelector('[data-field="processName"]').value||'Etapa';tCT+=ct;tTAV+=tav;tWIP+=wip;cd.labels.push(pn);cd.ct.push(ct);cd.tav.push(tav);const eff=ct>0?((tav/ct)*100):0;const ei=r.querySelector('[data-field="efficiency"]');if(ei)ei.value=eff.toFixed(2);});const lt=(tWIP*tt)+tCT,pce=lt>0?(tTAV/lt)*100:0;document.getElementById('vsm-total-ct').textContent=`${tCT.toFixed(2)} s`;document.getElementById('vsm-total-lt').textContent=`${lt.toFixed(2)} s`;document.getElementById('vsm-total-tav').textContent=`${tTAV.toFixed(2)} s`;document.getElementById('vsm-pce').textContent=`${pce.toFixed(2)} %`;document.getElementById('vsm-steps-count').textContent=tB.rows.length;updateChart(cd);};
+  const updateChart=(d)=>{const ctx=document.getElementById('vsm-chart').getContext('2d');if(chart)chart.destroy();chart=new Chart(ctx,{type:'bar',data:{labels:d.labels,datasets:[{label:'C/T',data:d.ct,backgroundColor:'rgba(255,122,26,0.6)'},{label:'TAV',data:d.tav,backgroundColor:'rgba(255,165,82,0.6)'}]},options:{scales:{y:{beginAtZero:true,ticks:{color:'#e5e7eb'}},x:{ticks:{color:'#e5e7eb'}}},plugins:{legend:{labels:{color:'#e5e7eb'}}}}});};
+  const renderHistory=()=>{hL.innerHTML='';const a=load(ARCHIVE_KEY)||{};const ks=Object.keys(a).sort((x,y)=>a[x].savedAt<a[y].savedAt?1:-1);if(!ks.length){hL.innerHTML='<div style="font-size:13px;color:#ffa552">Nenhuma análise.</div>';return;}ks.forEach(k=>{const it=a[k];const el=document.createElement('div');el.className='history-item';el.innerHTML=`<div><div style="font-weight:700">${it.savedName||'Sem nome'}</div><div class="meta">${new Date(it.savedAt).toLocaleString('pt-BR')}</div></div><div style="display:flex;gap:6px;"><button class="btn ghost" style="padding:6px 8px;" data-act="open" data-k="${k}">Abrir</button><button class="btn ghost" style="padding:6px 8px;color:var(--bad);" data-act="del" data-k="${k}">×</button></div>`;hL.appendChild(el);});};
+  hL.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;const k=b.dataset.k,a=load(ARCHIVE_KEY)||{};if(b.dataset.act==='open'&&a[k]){if(confirm('Abrir?'))populate(a[k]);}if(b.dataset.act==='del'){if(confirm('Excluir?')){delete a[k];save(ARCHIVE_KEY,a);renderHistory();}}});
+  const newA=()=>{const n=new Date();const id=`VSM-${n.getFullYear()}${String(n.getMonth()+1).padStart(2,'0')}${String(n.getDate()).padStart(2,'0')}-${String(n.getHours()).padStart(2,'0')}${String(n.getMinutes()).padStart(2,'0')}`;document.getElementById('projectName').value='';document.getElementById('vsmId').value=id;document.getElementById('responsible').value='';document.getElementById('vsm-demand').value=460;document.getElementById('vsm-time').value=28800;tB.innerHTML='';aC.innerHTML='';addRow(false);calc();save(DB_KEY,gather());showToast('Nova análise!','success');};
+  f.addEventListener('input',()=>{calc();save(DB_KEY,gather());});
+  document.getElementById('add-vsm-step').addEventListener('click',()=>addRow());
+  document.getElementById('btn-add-action-plan').addEventListener('click',()=>aC.appendChild(tplA.content.cloneNode(true)));
+  main.addEventListener('click',e=>{if(e.target.classList.contains('remove-step-btn')){e.target.closest('tr').remove();calc();save(DB_KEY,gather());}if(e.target.classList.contains('remove-action-btn')){e.target.closest('.action-item-block').remove();save(DB_KEY,gather());}});
+  document.getElementById('btn-download-backup').addEventListener('click',()=>{const b=new Blob([JSON.stringify({current:load(DB_KEY),archive:load(ARCHIVE_KEY)},null,2)],{type:'application/json'});const l=document.createElement('a');l.href=URL.createObjectURL(b);l.download=`itp_vsm_${new Date().toISOString().slice(0,10)}.json`;l.click();showToast('Backup!','success');});
+  document.getElementById('btn-restore-backup').addEventListener('click',()=>{const i=document.createElement('input');i.type='file';i.accept='.json';i.onchange=e=>{const r=new FileReader();r.onload=ev=>{try{const o=JSON.parse(ev.target.result);if(o.current)save(DB_KEY,o.current);if(o.archive)save(ARCHIVE_KEY,o.archive);populate(o.current||{});renderHistory();showToast('Restaurado!','success');}catch(err){showToast('Inválido.','error');}};r.readAsText(e.target.files[0]);};i.click();});
+  document.getElementById('btn-archive-and-clear').addEventListener('click',()=>{if(!confirm("Apagar?"))return;document.getElementById('btn-download-backup').click();localStorage.removeItem(DB_KEY);localStorage.removeItem(ARCHIVE_KEY);setTimeout(()=>window.location.reload(),800);});
+  document.getElementById('btn-export-pdf').addEventListener('click',()=>window.print());
+  document.getElementById('btn-save-analysis').addEventListener('click',saveAnalysis);
+  document.getElementById('btn-new-analysis').addEventListener('click',()=>{if(confirm('Limpar e criar nova?'))newA();});
+  document.getElementById('btn-clear-history').addEventListener('click',()=>{if(confirm('Apagar histórico?')){localStorage.removeItem(ARCHIVE_KEY);renderHistory();}});
+  window.addEventListener('beforeunload',()=>save(DB_KEY,gather()));
+  renderHistory();const d=load(DB_KEY);if(d){populate(d);const n=fmt(new Date(d.savedAt||Date.now()));lD.textContent=` • Última: ${n}`;lM.textContent=n;}else newA();calc();timer=setInterval(autosave,AUTO);save(DB_KEY,gather());const n=fmt();lD.textContent=` • Última: ${n}`;lM.textContent=n;
+});
+</script>
+</body>
+</html>

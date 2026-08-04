@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EQPS - Mapeamento de Processos</title>
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.0.3/src/regular/style.css">
+<style>
+  :root{--bg:#0a1628;--panel:#0f1e36;--muted:#1a2942;--card:#0d1a2e;--text:#e5e7eb;--accent:#ff7a1a;--accent2:#ffa552;--ok:#22c55e;--warn:#f59e0b;--bad:#ef4444;--shadow:0 10px 30px rgba(0,0,0,.45);--radius:16px;}
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:system-ui,Inter,Arial;background:var(--bg);color:var(--text);line-height:1.6;padding:20px;}
+  .container{max-width:1200px;margin:0 auto;}
+  .header{text-align:center;margin-bottom:30px;padding:20px;background:linear-gradient(135deg,var(--accent),#e85d04);border-radius:12px;color:#0a1628;}
+  .header h1{font-size:2.5rem;font-weight:700;margin-bottom:10px;}
+  .header p{font-size:1.1rem;opacity:.85;}
+  .controls{display:flex;justify-content:space-between;align-items:center;margin-bottom:30px;flex-wrap:wrap;gap:15px;}
+  .btn{padding:12px 24px;border:none;border-radius:8px;font-weight:600;cursor:pointer;transition:.2s;display:inline-flex;align-items:center;gap:8px;font-size:14px;}
+  .btn-primary{background:var(--accent);color:#0a1628;}.btn-primary:hover{background:#e85d04;transform:translateY(-1px);}
+  .btn-secondary{background:var(--muted);color:var(--text);border:1px solid #2a3a55;}.btn-secondary:hover{background:#3d4f6f;}
+  .btn-success{background:var(--ok);color:#fff;}.btn-danger{background:var(--bad);color:#fff;}
+  .progress-bar{background:var(--panel);border-radius:8px;padding:4px;margin-bottom:30px;}
+  .progress-fill{background:linear-gradient(90deg,var(--accent),var(--accent2));height:8px;border-radius:4px;transition:.3s;width:0%;}
+  .progress-text{text-align:center;margin-top:10px;font-size:14px;color:#94a3b8;}
+  .step-container{background:var(--panel);border-radius:12px;margin-bottom:20px;overflow:hidden;border:1px solid #2a3a55;}
+  .step-header{background:var(--muted);padding:20px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;transition:.2s;}
+  .step-header:hover{background:#3d4f6f;}
+  .step-header.active{background:var(--accent);color:#0a1628;}
+  .step-title{font-size:1.2rem;font-weight:600;display:flex;align-items:center;gap:12px;}
+  .step-number{background:var(--accent);color:#0a1628;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;}
+  .step-header.active .step-number{background:#0a1628;color:var(--accent);}
+  .step-content{max-height:0;overflow:hidden;transition:all .3s;}
+  .step-content.active{padding:20px;max-height:2000px;}
+  .form-group{margin-bottom:20px;}
+  .form-label{display:block;margin-bottom:8px;font-weight:600;color:#ffa552;}
+  .form-input,.form-textarea,.form-select{width:100%;padding:12px;border:1px solid #2a3a55;border-radius:8px;background:var(--muted);color:var(--text);font-size:14px;}
+  .form-input:focus,.form-textarea:focus,.form-select:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(255,122,26,.1);}
+  .form-textarea{resize:vertical;min-height:100px;}
+  .checkbox-group{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:12px;margin-top:12px;}
+  .checkbox-item{display:flex;align-items:center;gap:8px;padding:8px;background:var(--muted);border-radius:6px;cursor:pointer;}
+  .checkbox-item:hover{background:#3d4f6f;}
+  .checkbox-item input[type="checkbox"]{width:16px;height:16px;accent-color:var(--accent);}
+  .dynamic-list{margin-top:15px;}
+  .list-item{display:flex;gap:10px;margin-bottom:10px;align-items:center;}
+  .list-item input{flex:1;}
+  .btn-small{padding:8px 12px;font-size:12px;}
+  .summary-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:1000;backdrop-filter:blur(4px);}
+  .modal-content{background:var(--panel);margin:5% auto;padding:30px;border-radius:12px;width:90%;max-width:800px;max-height:80vh;overflow-y:auto;border:1px solid #2a3a55;}
+  .modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;padding-bottom:15px;border-bottom:1px solid #2a3a55;}
+  .modal-title{font-size:1.5rem;font-weight:700;color:var(--accent);}
+  .close-btn{background:none;border:none;color:#94a3b8;font-size:24px;cursor:pointer;}
+  .summary-section{margin-bottom:25px;}
+  .summary-section h4{color:var(--accent);margin-bottom:10px;}
+  .notification{position:fixed;top:20px;right:20px;padding:15px 20px;border-radius:8px;color:#fff;font-weight:600;z-index:1001;transform:translateX(400px);transition:.3s;}
+  .notification.show{transform:translateX(0);}
+  .notification.success{background:var(--ok);}.notification.error{background:var(--bad);}.notification.info{background:var(--accent);color:#0a1628;}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <h1>🛡️ EQPS</h1>
+    <p>Mapeamento de Processos — Desenvolvido por Marcos Garçon</p>
+  </div>
+  <div class="controls">
+    <div><button class="btn btn-secondary" onclick="loadData()">📁 Carregar</button> <button class="btn btn-secondary" onclick="saveData()">💾 Salvar</button></div>
+    <div><button class="btn btn-success" onclick="generateSummary()">📄 Resumo</button> <button class="btn btn-primary" onclick="exportData()">⬇️ Exportar</button></div>
+  </div>
+  <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+  <div class="progress-text" id="progressText">0 de 8 etapas (0%)</div>
+  <div class="step-container">
+    <div class="step-header" onclick="toggleStep(1)"><div class="step-title"><span class="step-number">1</span>Objetivo</div><span id="status1">⏳</span></div>
+    <div class="step-content" id="content1">
+      <form id="form1">
+        <div class="form-group"><label class="form-label">Objetivos:</label>
+          <div class="checkbox-group">
+            <label class="checkbox-item"><input type="checkbox" name="objetivos_lista" value="Identificar gargalos"><span>Identificar gargalos</span></label>
+            <label class="checkbox-item"><input type="checkbox" name="objetivos_lista" value="Padronizar"><span>Padronizar</span></label>
+            <label class="checkbox-item"><input type="checkbox" name="objetivos_lista" value="Treinar"><span>Treinar</span></label>
+            <label class="checkbox-item"><input type="checkbox" name="objetivos_lista" value="Melhorar comunicação"><span>Melhorar comunicação</span></label>
+            <label class="checkbox-item"><input type="checkbox" name="objetivos_lista" value="Reduzir tempo"><span>Reduzir tempo</span></label>
+            <label class="checkbox-item"><input type="checkbox" name="objetivos_lista" value="Aumentar qualidade"><span>Aumentar qualidade</span></label>
+          </div>
+        </div>
+        <div class="form-group"><label class="form-label">Declaração:</label><textarea class="form-textarea" name="objetivoFinal"></textarea></div>
+        <button type="button" class="btn btn-primary" onclick="saveStep(1)">✓ Salvar</button>
+      </form>
+    </div>
+  </div>
+  <div class="step-container">
+    <div class="step-header" onclick="toggleStep(2)"><div class="step-title"><span class="step-number">2</span>Processo</div><span id="status2">⏳</span></div>
+    <div class="step-content" id="content2">
+      <form id="form2">
+        <div class="form-group"><label class="form-label">Nome:</label><input type="text" class="form-input" name="nomeProcesso"></div>
+        <div class="form-group"><label class="form-label">Escopo:</label><textarea class="form-textarea" name="escopo"></textarea></div>
+        <div class="form-group"><label class="form-label">Justificativa:</label><textarea class="form-textarea" name="justificativa"></textarea></div>
+        <button type="button" class="btn btn-primary" onclick="saveStep(2)">✓ Salvar</button>
+      </form>
+    </div>
+  </div>
+  <div class="step-container">
+    <div class="step-header" onclick="toggleStep(3)"><div class="step-title"><span class="step-number">3</span>Pessoas</div><span id="status3">⏳</span></div>
+    <div class="step-content" id="content3">
+      <form id="form3">
+        <div class="form-group"><label class="form-label">Executores:</label><textarea class="form-textarea" name="executores"></textarea></div>
+        <div class="form-group"><label class="form-label">Aprovadores:</label><textarea class="form-textarea" name="aprovadores"></textarea></div>
+        <div class="form-group"><label class="form-label">Entrevistas:</label><textarea class="form-textarea" name="entrevistas"></textarea></div>
+        <button type="button" class="btn btn-primary" onclick="saveStep(3)">✓ Salvar</button>
+      </form>
+    </div>
+  </div>
+  <div class="step-container">
+    <div class="step-header" onclick="toggleStep(4)"><div class="step-title"><span class="step-number">4</span>Etapas</div><span id="status4">⏳</span></div>
+    <div class="step-content" id="content4">
+      <form id="form4">
+        <div class="form-group"><label class="form-label">Início (gatilho):</label><input type="text" class="form-input" name="etapaInicio"></div>
+        <div class="form-group"><label class="form-label">Atividades:</label>
+          <div class="dynamic-list" id="passosList">
+            <div class="list-item"><input type="text" class="form-input passo-input" placeholder="Primeiro passo..."><button type="button" class="btn btn-danger btn-small" onclick="removeListItem(this)">🗑️</button></div>
+          </div>
+          <button type="button" class="btn btn-secondary btn-small" onclick="addListItem('passosList','Próximo passo...')">+ Adicionar</button>
+        </div>
+        <div class="form-group"><label class="form-label">Fim:</label><input type="text" class="form-input" name="etapaFim"></div>
+        <button type="button" class="btn btn-primary" onclick="saveStep(4)">✓ Salvar</button>
+      </form>
+    </div>
+  </div>
+  <div class="step-container">
+    <div class="step-header" onclick="toggleStep(5)"><div class="step-title"><span class="step-number">5</span>Fluxograma</div><span id="status5">⏳</span></div>
+    <div class="step-content" id="content5">
+      <form id="form5">
+        <div class="form-group"><label class="form-label">Atividades:</label><textarea class="form-textarea" name="atividades"></textarea></div>
+        <div class="form-group"><label class="form-label">Decisões:</label><textarea class="form-textarea" name="decisoes"></textarea></div>
+        <div class="form-group"><label class="form-label">Entradas:</label><textarea class="form-textarea" name="entradas"></textarea></div>
+        <div class="form-group"><label class="form-label">Saídas:</label><textarea class="form-textarea" name="saidas"></textarea></div>
+        <div class="form-group"><label class="form-label">Ferramentas:</label>
+          <div class="checkbox-group">
+            <label class="checkbox-item"><input type="checkbox" name="ferramentas" value="ERP"><span>ERP</span></label>
+            <label class="checkbox-item"><input type="checkbox" name="ferramentas" value="Excel"><span>Excel</span></label>
+            <label class="checkbox-item"><input type="checkbox" name="ferramentas" value="E-mail"><span>E-mail</span></label>
+            <label class="checkbox-item"><input type="checkbox" name="ferramentas" value="Telefone"><span>Telefone</span></label>
+          </div>
+        </div>
+        <button type="button" class="btn btn-primary" onclick="saveStep(5)">✓ Salvar</button>
+      </form>
+    </div>
+  </div>
+  <div class="step-container">
+    <div class="step-header" onclick="toggleStep(6)"><div class="step-title"><span class="step-number">6</span>Validação</div><span id="status6">⏳</span></div>
+    <div class="step-content" id="content6">
+      <form id="form6">
+        <div class="form-group"><label class="form-label">Checklist:</label>
+          <div class="checkbox-group">
+            <label class="checkbox-item"><input type="checkbox" name="validacao" value="Reflete realidade"><span>Reflete realidade</span></label>
+            <label class="checkbox-item"><input type="checkbox" name="validacao" value="Atividades incluídas"><span>Atividades incluídas</span></label>
+            <label class="checkbox-item"><input type="checkbox" name="validacao" value="Responsabilidades claras"><span>Responsabilidades claras</span></label>
+            <label class="checkbox-item"><input type="checkbox" name="validacao" value="Fluxo correto"><span>Fluxo correto</span></label>
+            <label class="checkbox-item"><input type="checkbox" name="validacao" value="Equipe aprovou"><span>Equipe aprovou</span></label>
+          </div>
+        </div>
+        <div class="form-group"><label class="form-label">Feedback:</label><textarea class="form-textarea" name="feedback"></textarea></div>
+        <button type="button" class="btn btn-primary" onclick="saveStep(6)">✓ Salvar</button>
+      </form>
+    </div>
+  </div>
+  <div class="step-container">
+    <div class="step-header" onclick="toggleStep(7)"><div class="step-title"><span class="step-number">7</span>Documentação</div><span id="status7">⏳</span></div>
+    <div class="step-content" id="content7">
+      <form id="form7">
+        <div class="form-group"><label class="form-label">Responsável:</label><input type="text" class="form-input" name="responsavel"></div>
+        <div class="form-group"><label class="form-label">Regras:</label><textarea class="form-textarea" name="descImportantes"></textarea></div>
+        <div class="form-group"><label class="form-label">Indicadores:</label><textarea class="form-textarea" name="indicadores"></textarea></div>
+        <button type="button" class="btn btn-primary" onclick="saveStep(7)">✓ Salvar</button>
+      </form>
+    </div>
+  </div>
+  <div class="step-container">
+    <div class="step-header" onclick="toggleStep(8)"><div class="step-title"><span class="step-number">8</span>Plano de Ação</div><span id="status8">⏳</span></div>
+    <div class="step-content" id="content8">
+      <form id="form8">
+        <div class="form-group"><label class="form-label">Melhorias:</label><textarea class="form-textarea" name="melhorias"></textarea></div>
+        <div class="form-group"><label class="form-label">Plano:</label><textarea class="form-textarea" name="planoAcao"></textarea></div>
+        <div class="form-group"><label class="form-label">Próximos passos:</label><textarea class="form-textarea" name="proximosPassos"></textarea></div>
+        <button type="button" class="btn btn-primary" onclick="saveStep(8)">✓ Salvar</button>
+      </form>
+    </div>
+  </div>
+</div>
+<div class="summary-modal" id="summaryModal">
+  <div class="modal-content">
+    <div class="modal-header"><h2 class="modal-title">📄 Resumo</h2><button class="close-btn" onclick="closeSummaryModal()">&times;</button></div>
+    <div id="summary-content"></div>
+    <div style="margin-top:30px;text-align:center;"><button class="btn btn-primary" onclick="exportSummary()">⬇️ Exportar</button> <button class="btn btn-secondary" onclick="closeSummaryModal()">Fechar</button></div>
+  </div>
+</div>
+<script>
+let processData={};const totalSteps=8;
+document.addEventListener('DOMContentLoaded',()=>{updateProgress();
+  if(!localStorage.getItem('itp_mapping_v1')){
+    processData={
+      1:{objetivos_lista:['Padronizar','Reduzir tempo','Aumentar qualidade'],objetivoFinal:'Estruturar o processo de qualidade do zero — como sistema e como cultura — em uma operação que cresceu rápido demais e onde o conhecimento crítico ainda está apenas na cabeça dos operadores mais antigos.'},
+      2:{nomeProcesso:'Mapeamento SIPOC das Linhas de Injeção de Peças Técnicas e Moldes',escopo:'Da chegada da resina/matéria-prima até a liberação do produto acabado, cobrindo injeção, resfriamento/desmoldagem e inspeção final.',justificativa:'Zero fluxos formalizados, POPs inexistentes/falhos, inspeção "no olho" e nenhum controle formal de documentos ou registros.'},
+      3:{executores:'Operadores das linhas de Injeção de Peças Técnicas e Moldes',aprovadores:'Líder de Produção e Analista de Qualidade',entrevistas:'Entrevistas com os operadores mais antigos (Gemba) para converter o conhecimento tácito em explícito.'},
+      4:{etapaInicio:'Recebimento e secagem da resina plástica',etapaFim:'Liberação do lote aprovado para expedição',passos:['Recebimento e conferência de insumos','Setup de parâmetros de injeção (temperatura/pressão/tempo de ciclo)','Injeção / Resfriamento / Desmoldagem','Inspeção em processo (dimensional / visual)','Registro em Ficha de Setup e PIT','Liberação ou tratamento de não conformidade (RNC)']},
+      5:{atividades:'Setup, injeção, resfriamento/desmoldagem, inspeção por amostragem, registro dos parâmetros.',decisoes:'Aprovar, reprocessar ou sucatear o lote com base no resultado do teste dimensional/visual.',entradas:'Resina plástica, molde, parâmetros padrão de injeção.',saidas:'Produto acabado aprovado + registros de qualidade (ITV, PIT, RNC).',ferramentas:['Excel','ERP']},
+      6:{validacao:['Reflete realidade','Responsabilidades claras','Fluxo correto'],feedback:'Validado em campo com operadores veteranos via mapeamento Gemba antes de formalizar os documentos.'},
+      7:{responsavel:'Analista de Qualidade Pleno (Marcos Garçon)',descImportantes:'Fixar Lições de Ponto Único (LPU) na bancada e usar amostras douradas/limite para eliminar a inspeção "no olho".',indicadores:'First Time Yield (FTY), Taxa de Refugo Interno, DPPM de Clientes, Custo da Não-Qualidade (COQ).'},
+      8:{melhorias:'Sensores IoT e radiômetro digital para monitoramento preditivo, reduzindo dependência de inspeção manual.',planoAcao:'Mês 1: diagnóstico e 3 documentos primários. Mês 2-3: LPUs e treinamento. Mês 4-5: auditorias em camada. Mês 6: MVP do SGQ.',proximosPassos:'Consolidar CEP com sensores e revisar POPs a cada trimestre.'}
+    };
+    localStorage.setItem('itp_mapping_v1',JSON.stringify(processData));
+  }
+  loadSavedData();
+});
+function toggleStep(n){for(let i=1;i<=totalSteps;i++){if(i!==n){document.getElementById(`content${i}`).classList.remove('active');document.getElementById(`content${i}`).previousElementSibling.classList.remove('active');}}const c=document.getElementById(`content${n}`),h=c.previousElementSibling;if(c.classList.contains('active')){c.classList.remove('active');h.classList.remove('active');}else{c.classList.add('active');h.classList.add('active');}}
+function saveStep(s){const f=document.getElementById(`form${s}`);if(!f)return;const fd=new FormData(f),d={};for(let[k,v]of fd.entries()){if(d.hasOwnProperty(k)){if(!Array.isArray(d[k]))d[k]=[d[k]];d[k].push(v);}else d[k]=v;}if(s===4)d.passos=Array.from(document.querySelectorAll('#form4 .passo-input')).map(i=>i.value).filter(Boolean);processData[s]=d;document.getElementById(`status${s}`).innerHTML='✅';showNotification('Salvo!','success');updateProgress();localStorage.setItem('itp_mapping_v1',JSON.stringify(processData));if(s<totalSteps)setTimeout(()=>toggleStep(s+1),500);}
+function updateProgress(){const c=Object.keys(processData).length,p=(c/totalSteps)*100;document.getElementById('progressFill').style.width=`${p}%`;document.getElementById('progressText').textContent=`${c} de ${totalSteps} (${Math.round(p)}%)`;}
+function addListItem(cId,ph){const c=document.getElementById(cId),i=document.createElement('div');i.className='list-item';i.innerHTML=`<input type="text" class="form-input passo-input" placeholder="${ph}"><button type="button" class="btn btn-danger btn-small" onclick="removeListItem(this)">🗑️</button>`;c.appendChild(i);}
+function removeListItem(b){b.parentElement.remove();}
+function generateSummary(){const c=document.getElementById('summary-content');const gl=(d)=>!d?'<li>-</li>':Array.isArray(d)?d.map(i=>`<li>${i}</li>`).join(''):`<li>${d}</li>`;const gv=(s,f,dv='-')=>processData[s]&&processData[s][f]?processData[s][f]:dv;c.innerHTML=`<div class="summary-section"><h4>1. Objetivo</h4><ul>${gl(processData[1]?.objetivos_lista)}</ul><p>${gv(1,'objetivoFinal')}</p></div><div class="summary-section"><h4>2. Processo</h4><p><b>Nome:</b> ${gv(2,'nomeProcesso')}</p><p><b>Escopo:</b> ${gv(2,'escopo')}</p></div><div class="summary-section"><h4>3. Pessoas</h4><p><b>Executores:</b> ${gv(3,'executores')}</p></div><div class="summary-section"><h4>4. Etapas</h4><p><b>Início:</b> ${gv(4,'etapaInicio')}</p><ol>${(processData[4]?.passos||[]).map(p=>`<li>${p}</li>`).join('')||'<li>-</li>'}</ol><p><b>Fim:</b> ${gv(4,'etapaFim')}</p></div><div class="summary-section"><h4>5. Fluxograma</h4><p>${gv(5,'atividades')}</p></div><div class="summary-section"><h4>6. Validação</h4><ul>${gl(processData[6]?.validacao)}</ul></div><div class="summary-section"><h4>7. Documentação</h4><p><b>Responsável:</b> ${gv(7,'responsavel')}</p></div><div class="summary-section"><h4>8. Plano</h4><p>${gv(8,'planoAcao')}</p></div>`;document.getElementById('summaryModal').style.display='block';}
+function closeSummaryModal(){document.getElementById('summaryModal').style.display='none';}
+function exportSummary(){const c=document.getElementById('summary-content').innerHTML;const h=`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Resumo ITP Systems</title><style>body{font-family:Arial;margin:40px;}h4{color:#ff7a1a;}</style></head><body><h1>🛡️ EQPS - Mapeamento</h1>${c}</body></html>`;const b=new Blob([h],{type:'text/html'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=`itp_mapeamento_${new Date().toISOString().slice(0,10)}.html`;a.click();showNotification('Exportado!','success');}
+function saveData(){localStorage.setItem('itp_mapping_v1',JSON.stringify(processData));showNotification('Salvo!','success');}
+function loadSavedData(){try{const s=localStorage.getItem('itp_mapping_v1');if(s){processData=JSON.parse(s);populateForms();updateProgress();}}catch(e){}}
+function loadData(){loadSavedData();showNotification('Carregado!','info');}
+function populateForms(){for(let s in processData){const d=processData[s],f=document.getElementById(`form${s}`);if(f){document.getElementById(`status${s}`).innerHTML='✅';for(let k in d){const el=f.querySelector(`[name="${k}"]`);if(el){if(el.type==='checkbox'){const cbs=f.querySelectorAll(`[name="${k}"]`),vs=Array.isArray(d[k])?d[k]:[d[k]];cbs.forEach(c=>c.checked=vs.includes(c.value));}else el.value=d[k];}}if(s==4&&d.passos){const c=document.getElementById('passosList');c.innerHTML='';d.passos.forEach(p=>{const i=document.createElement('div');i.className='list-item';i.innerHTML=`<input type="text" class="form-input passo-input" value="${p}"><button type="button" class="btn btn-danger btn-small" onclick="removeListItem(this)">🗑️</button>`;c.appendChild(i);});}}}}
+function exportData(){const d={processData,metadata:{exportDate:new Date().toISOString(),progress:(Object.keys(processData).length/totalSteps)*100}};const b=new Blob([JSON.stringify(d,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=`itp_mapeamento_${new Date().toISOString().slice(0,10)}.json`;a.click();showNotification('Exportado!','success');}
+function showNotification(m,t='info'){const n=document.createElement('div');n.className=`notification ${t}`;n.textContent=m;document.body.appendChild(n);setTimeout(()=>n.classList.add('show'),100);setTimeout(()=>{n.classList.remove('show');setTimeout(()=>n.remove(),300);},3000);}
+window.onclick=e=>{if(e.target===document.getElementById('summaryModal'))closeSummaryModal();};
+</script>
+</body>
+</html>

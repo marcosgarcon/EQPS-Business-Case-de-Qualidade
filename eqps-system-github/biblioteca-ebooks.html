@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EQPS — Biblioteca de E-books | Marcos Garçon</title>
+<style>
+  :root{
+    --bg:#081225; --bg2:#0a1a35; --panel:#0d1a2e; --panel2:#0f2140;
+    --border:#1e2f4d; --text:#f5f7fa; --muted:#a8c0e0;
+    --orange:#ff7a1a; --orange-light:#ffa552; --orange-dark:#e85d04;
+    --green:#4ade80; --green-light:#86efac;
+    --shadow:0 12px 32px rgba(0,0,0,.45); --radius:18px;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Inter,Arial;background:linear-gradient(160deg,var(--bg),var(--bg2) 60%,#081b3a);color:var(--text);line-height:1.6}
+  a{color:inherit}
+  .wrap{max-width:1180px;margin:0 auto;padding:0 22px 60px}
+
+  header.top{background:linear-gradient(90deg,#081225,#0a2145);border-bottom:2px solid var(--orange);padding:20px 22px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px;position:sticky;top:0;z-index:10;box-shadow:var(--shadow)}
+  .brand{display:flex;align-items:center;gap:14px}
+  .brand svg{width:52px;height:56px}
+  .brand-text .name{font-size:22px;font-weight:800;letter-spacing:.5px}
+  .brand-text .tag{font-size:12.5px;color:var(--orange-light);font-weight:600}
+  .back-link{background:var(--panel2);border:1px solid var(--border);color:var(--text);text-decoration:none;padding:10px 16px;border-radius:12px;font-size:13.5px;font-weight:600;transition:.2s}
+  .back-link:hover{border-color:var(--orange);color:var(--orange-light)}
+
+  .hero{padding:56px 0 30px;text-align:center}
+  .hero h1{font-size:clamp(28px,4vw,42px);margin:0 0 12px;font-weight:800}
+  .hero h1 span{color:var(--orange-light)}
+  .hero p{max-width:720px;margin:0 auto;color:var(--muted);font-size:16px}
+  .hero .stats{display:flex;justify-content:center;gap:36px;margin-top:30px;flex-wrap:wrap}
+  .hero .stat{text-align:center}
+  .hero .stat .num{font-size:30px;font-weight:800;color:var(--green-light)}
+  .hero .stat .lbl{font-size:12.5px;color:var(--muted)}
+
+  .tabs{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin:34px 0 8px}
+  .tab-btn{background:var(--panel);border:1.5px solid var(--orange-dark);color:var(--orange-light);padding:9px 18px;border-radius:999px;font-size:13.5px;font-weight:700;cursor:pointer;transition:.2s;letter-spacing:.2px}
+  .tab-btn:hover{background:rgba(255,122,26,.12)}
+  .tab-btn.active{background:linear-gradient(135deg,var(--orange),var(--orange-dark));border-color:transparent;color:#fff;box-shadow:0 6px 16px rgba(232,93,4,.35)}
+
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:22px;margin-top:28px}
+  .card{background:linear-gradient(165deg,var(--panel),var(--panel2));border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow);display:flex;flex-direction:column;transition:transform .2s,border-color .2s}
+  .card:hover{transform:translateY(-4px);border-color:var(--orange)}
+  .cover{height:140px;display:flex;align-items:center;justify-content:center;font-size:44px;position:relative}
+  .cover .cat-tag{position:absolute;top:10px;left:10px;background:rgba(0,0,0,.35);border:1px solid rgba(255,255,255,.25);color:#fff;font-size:10.5px;font-weight:700;padding:4px 10px;border-radius:999px;letter-spacing:.3px}
+  .card .body{padding:18px 18px 20px;display:flex;flex-direction:column;flex:1;gap:10px}
+  .card h3{margin:0;font-size:16.5px;font-weight:800;line-height:1.3}
+  .card p{margin:0;font-size:13.5px;color:var(--muted);flex:1}
+  .card .meta{display:flex;justify-content:space-between;align-items:center;font-size:11.5px;color:#7c93b8;margin-top:2px}
+  .dl-btn{margin-top:6px;display:inline-flex;align-items:center;justify-content:center;gap:8px;background:linear-gradient(135deg,var(--green),#16a34a);color:#04270f;font-weight:800;padding:11px 14px;border-radius:12px;text-decoration:none;font-size:13.5px;transition:.2s;border:none;cursor:pointer}
+  .dl-btn:hover{filter:brightness(1.08);transform:translateY(-1px)}
+
+  .c-carreira{background:linear-gradient(135deg,#1565c0,#0d3d78)}
+  .c-operacional{background:linear-gradient(135deg,var(--orange),var(--orange-dark))}
+  .c-comportamento{background:linear-gradient(135deg,#7c3aed,#4c1d95)}
+  .c-compliance{background:linear-gradient(135deg,#0f766e,#134e4a)}
+  .c-saudemental{background:linear-gradient(135deg,#be185d,#831843)}
+
+  .bonus-section{margin-top:56px}
+  .bonus-card{display:grid;grid-template-columns:220px 1fr;gap:0;background:linear-gradient(120deg,var(--panel),var(--panel2));border:2px solid var(--green);border-radius:var(--radius);overflow:hidden;box-shadow:0 14px 36px rgba(74,222,128,.15)}
+  .bonus-cover{background:linear-gradient(160deg,var(--green),#166534);display:flex;align-items:center;justify-content:center;font-size:64px}
+  .bonus-body{padding:26px 28px}
+  .bonus-badge{display:inline-block;background:var(--green);color:#04270f;font-weight:800;font-size:11px;letter-spacing:.5px;padding:4px 12px;border-radius:999px;margin-bottom:10px}
+  .bonus-body h2{margin:0 0 4px;font-size:22px}
+  .bonus-body .subtitle{color:var(--green-light);font-weight:600;font-size:13.5px;margin-bottom:12px}
+  .bonus-body p{color:var(--muted);font-size:14px;margin:0 0 14px}
+  .memoriam{font-size:12.5px;color:#7c93b8;margin-bottom:16px;font-style:italic}
+
+  .section-title{margin:52px 0 4px;font-size:22px;font-weight:800;text-align:center}
+  .section-sub{text-align:center;color:var(--muted);font-size:13.5px;margin-bottom:6px}
+
+  footer{text-align:center;padding:40px 20px 10px;color:#6b84a8;font-size:12.5px;border-top:1px solid var(--border);margin-top:60px}
+  footer a{color:var(--orange-light);text-decoration:none;font-weight:600}
+
+  @media(max-width:640px){.bonus-card{grid-template-columns:1fr}.bonus-cover{height:130px}}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="brand">
+    <svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="bgG" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#0d3d78"/><stop offset="55%" stop-color="#0a2a55"/><stop offset="100%" stop-color="#081d3d"/></linearGradient>
+        <linearGradient id="rG" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#ffa552"/><stop offset="100%" stop-color="#e85d04"/></linearGradient>
+        <linearGradient id="gG" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#86efac"/><stop offset="100%" stop-color="#4ade80"/></linearGradient>
+      </defs>
+      <polygon points="256,20 452,138 452,374 256,492 60,374 60,138" fill="url(#bgG)" stroke="url(#rG)" stroke-width="16"/>
+      <polyline points="128,300 190,255 240,290 300,210 372,168" fill="none" stroke="url(#gG)" stroke-width="14" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="372" cy="168" r="14" fill="#86efac"/><circle cx="300" cy="210" r="10" fill="#86efac" opacity=".85"/><circle cx="240" cy="290" r="10" fill="#86efac" opacity=".85"/><circle cx="190" cy="255" r="10" fill="#86efac" opacity=".85"/><circle cx="128" cy="300" r="10" fill="#86efac" opacity=".85"/>
+      <text x="256" y="345" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-weight="800" font-size="100" fill="#ffffff" letter-spacing="2">EQPS</text>
+    </svg>
+    <div class="brand-text">
+      <div class="name">EQPS — Biblioteca de E-books</div>
+      <div class="tag">Engenharia · Processos · Qualidade e Estatística</div>
+    </div>
+  </div>
+  <a class="back-link" href="index.html">← Voltar ao Painel EQPS</a>
+</header>
+
+<div class="wrap">
+  <section class="hero">
+    <h1>Portfólio de E-books de <span>Marcos Garçon</span></h1>
+    <p>Um acervo técnico com metodologias práticas em três frentes: Carreira e Recolocação Profissional, Excelência Operacional (Lean/Six Sigma/Kaizen) e Comportamento Humano, Saúde Mental e Compliance Trabalhista. Todos os títulos abaixo estão disponíveis para download gratuito em PDF.</p>
+    <div class="stats">
+      <div class="stat"><div class="num">9</div><div class="lbl">E-books técnicos</div></div>
+      <div class="stat"><div class="num">3</div><div class="lbl">Eixos temáticos</div></div>
+      <div class="stat"><div class="num">1</div><div class="lbl">Livro bônus (201 pág.)</div></div>
+      <div class="stat"><div class="num">100%</div><div class="lbl">Download gratuito</div></div>
+    </div>
+  </section>
+
+  <div class="tabs" id="tabs">
+    <button class="tab-btn active" data-filter="todos">Todos</button>
+    <button class="tab-btn" data-filter="carreira">Carreira</button>
+    <button class="tab-btn" data-filter="operacional">Excelência Operacional</button>
+    <button class="tab-btn" data-filter="comportamento">Comportamento e Liderança</button>
+    <button class="tab-btn" data-filter="compliance">Compliance e RH</button>
+    <button class="tab-btn" data-filter="saudemental">Saúde Mental</button>
+  </div>
+
+  <div class="grid" id="grid">
+
+    <div class="card" data-cat="carreira">
+      <div class="cover c-carreira"><span class="cat-tag">Carreira</span>💼</div>
+      <div class="body">
+        <h3>30 Minutos por Dia no LinkedIn</h3>
+        <p>Metodologia prática para otimizar a busca de emprego dedicando 30 minutos diários ao LinkedIn, em 5 blocos semanais: perfil, vagas ocultas, conexões estratégicas, autoridade via comentários e follow-up.</p>
+        <div class="meta"><span>PDF · 3,6 MB</span><span>Autor: Marcos Garçon</span></div>
+        <a class="dl-btn" href="ebooks/ebook-01-30-minutos-linkedin.pdf" download>⬇ Baixar PDF</a>
+      </div>
+    </div>
+
+    <div class="card" data-cat="operacional">
+      <div class="cover c-operacional"><span class="cat-tag">Operacional</span>🏭</div>
+      <div class="body">
+        <h3>A Jornada Enxuta</h3>
+        <p>Roteiro completo de implementação Lean: os 5 princípios, os 8 desperdícios (TIM WOOD + talento) e ferramentas práticas (5S, Kanban, Heijunka, Jidoka, Poka-Yoke, SMED, TPM), com plano de implantação em 5 fases.</p>
+        <div class="meta"><span>PDF · 520 KB</span><span>Autor: Marcos Garçon</span></div>
+        <a class="dl-btn" href="ebooks/ebook-02-jornada-enxuta.pdf" download>⬇ Baixar PDF</a>
+      </div>
+    </div>
+
+    <div class="card" data-cat="operacional">
+      <div class="cover c-operacional"><span class="cat-tag">Operacional</span>⚙️</div>
+      <div class="body">
+        <h3>Cultura Lean na Indústria</h3>
+        <p>Guia em 4 módulos: fundamentos Lean, os 8 MUDAs, ferramentas essenciais (5S, VSM, Kanban, Jidoka, Poka-Yoke, TPM/OEE, PDCA) e transformação cultural — conectando Lean tradicional à Indústria 4.0.</p>
+        <div class="meta"><span>PDF · 460 KB</span><span>Autor: Marcos Garçon (com IA)</span></div>
+        <a class="dl-btn" href="ebooks/ebook-03-cultura-lean-industria.pdf" download>⬇ Baixar PDF</a>
+      </div>
+    </div>
+
+    <div class="card" data-cat="operacional">
+      <div class="cover c-operacional"><span class="cat-tag">Operacional</span>🔄</div>
+      <div class="body">
+        <h3>Kaizen: A Jornada da Melhoria Contínua</h3>
+        <p>Metodologia de 6 passos apoiada no ciclo PDCA e em ferramentas como VSM, Ishikawa, 5 Porquês e Pareto — pensada para eventos Kaizen de 3 a 5 dias com ganhos rápidos e replicáveis.</p>
+        <div class="meta"><span>PDF · 484 KB</span><span>Autor: Marcos Garçon</span></div>
+        <a class="dl-btn" href="ebooks/ebook-04-kaizen-jornada-melhoria.pdf" download>⬇ Baixar PDF</a>
+      </div>
+    </div>
+
+    <div class="card" data-cat="operacional">
+      <div class="cover c-operacional"><span class="cat-tag">Operacional</span>📈</div>
+      <div class="body">
+        <h3>Lean Six Sigma — Da Teoria à Prática</h3>
+        <p>Curso completo unindo Lean e Six Sigma: estrutura de Belts (White a Master Black Belt) e DMAIC detalhado com base estatística (DPMO, Z-score, nível Sigma), templates práticos e estudo de caso.</p>
+        <div class="meta"><span>PDF · 644 KB</span><span>Autor: Marcos Garçon</span></div>
+        <a class="dl-btn" href="ebooks/ebook-05-lean-six-sigma.pdf" download>⬇ Baixar PDF</a>
+      </div>
+    </div>
+
+    <div class="card" data-cat="comportamento">
+      <div class="cover c-comportamento"><span class="cat-tag">Comportamento</span>🧠</div>
+      <div class="body">
+        <h3>Neurociência e Comportamento Humano</h3>
+        <p>Compêndio sobre neuroanatomia, neurotransmissores, memória e inteligência emocional aplicados à liderança, neuromarketing e tomada de decisão — com casos históricos e glossário técnico.</p>
+        <div class="meta"><span>PDF · 528 KB</span><span>Autor: Manus AI / compilado por Marcos</span></div>
+        <a class="dl-btn" href="ebooks/ebook-06-neurociencia-comportamento.pdf" download>⬇ Baixar PDF</a>
+      </div>
+    </div>
+
+    <div class="card" data-cat="carreira">
+      <div class="cover c-carreira"><span class="cat-tag">Carreira</span>🎯</div>
+      <div class="body">
+        <h3>Invisível para o Algoritmo</h3>
+        <p>Diagnóstico de como os sistemas ATS descartam até 75% dos currículos antes da triagem humana. Une estratégias técnicas (currículo, JD, networking) com reconstrução emocional e confiança.</p>
+        <div class="meta"><span>PDF · 7,3 MB</span><span>Autor: Marcos Garçon</span></div>
+        <a class="dl-btn" href="ebooks/ebook-07-invisivel-para-o-algoritmo.pdf" download>⬇ Baixar PDF</a>
+      </div>
+    </div>
+
+    <div class="card" data-cat="compliance">
+      <div class="cover c-compliance"><span class="cat-tag">Compliance</span>⚖️</div>
+      <div class="body">
+        <h3>NR-1 e a Revolução da Saúde Mental no Trabalho</h3>
+        <p>Guia jurídico-prático sobre a atualização da NR-1, que tornou obrigatória a gestão de riscos psicossociais no PGR: norma comentada, tabela de infrações/multas e roteiro de implementação.</p>
+        <div class="meta"><span>PDF · 1,7 MB</span><span>Autor: Marcos Garçon (com IA)</span></div>
+        <a class="dl-btn" href="ebooks/ebook-08-nr1-revolucao-saude-mental.pdf" download>⬇ Baixar PDF</a>
+      </div>
+    </div>
+
+    <div class="card" data-cat="saudemental">
+      <div class="cover c-saudemental"><span class="cat-tag">Saúde Mental</span>🕊️</div>
+      <div class="body">
+        <h3>Silêncios que Gritam</h3>
+        <p>Análise crítica das violências invisíveis no ambiente de trabalho e do ciclo de adoecimento corporativo — avalia se a nova NR-1 é transformação real ou "compliance cosmético".</p>
+        <div class="meta"><span>PDF · 236 KB</span><span>Autor: Marcos Garçon</span></div>
+        <a class="dl-btn" href="ebooks/ebook-09-silencios-que-gritam.pdf" download>⬇ Baixar PDF</a>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="bonus-section">
+    <h2 class="section-title">📖 Bônus — Livro de Autoria de Marcos Garçon</h2>
+    <p class="section-sub">Fora do universo técnico-corporativo: uma obra pessoal sobre luto, perda e transição.</p>
+    <div class="bonus-card">
+      <div class="bonus-cover">🕯️</div>
+      <div class="bonus-body">
+        <span class="bonus-badge">BÔNUS · LIVRO COMPLETO</span>
+        <h2>Luto — Uma Transição para a Vida</h2>
+        <div class="subtitle">Como Encarar a Partida de Quem Amamos e Acolher um Novo Ciclo</div>
+        <p>Um livro nascido da saudade: uma jornada pelo processo do luto, que vai muito além da morte física e abrange a perda de sonhos, relacionamentos e partes da própria identidade. Com relatos pessoais do autor, o livro desmistifica o luto — não como um inimigo a ser combatido, mas como um processo natural e transformador, oferecendo ferramentas, insights e validação para quem atravessa a dor da perda.</p>
+        <div class="memoriam">Em memória de Pedro Preto de Oliveira, Sinesio Merida, Geraldo Moreira e Maria Hilda Moreira.</div>
+        <div class="meta" style="margin-bottom:14px"><span>PDF · 2,5 MB · 201 páginas</span><span>Autor: Marcos Garçon P. de Oliveira</span></div>
+        <a class="dl-btn" style="max-width:220px" href="ebooks/bonus-luto-uma-transicao-para-a-vida.pdf" download>⬇ Baixar Livro em PDF</a>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    Sistema EQPS — Engenharia, Processos, Qualidade e Estatística · Desenvolvido por Marcos Garçon<br>
+    <a href="https://github.com/eqps-system/Eng-Process-Quality-and-Statistics" target="_blank" rel="noopener">github.com/eqps-system/Eng-Process-Quality-and-Statistics</a>
+  </footer>
+</div>
+
+<script>
+document.getElementById('tabs').addEventListener('click', e=>{
+  const btn = e.target.closest('.tab-btn');
+  if(!btn) return;
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  const f = btn.dataset.filter;
+  document.querySelectorAll('#grid .card').forEach(c=>{
+    c.style.display = (f==='todos' || c.dataset.cat===f) ? '' : 'none';
+  });
+});
+</script>
+
+</body>
+</html>

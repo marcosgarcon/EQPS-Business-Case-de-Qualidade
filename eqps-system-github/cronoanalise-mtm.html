@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EQPS - Cronoanálise MTM</title>
+<style>
+  :root{
+    --bg:#0a1628;--panel:#0f1e36;--muted:#1a2942;--card:#0d1a2e;--text:#e5e7eb;
+    --accent:#ff7a1a;--accent2:#ffa552;--ok:#22c55e;--warn:#f59e0b;--bad:#ef4444;
+    --shadow:0 10px 30px rgba(0,0,0,.45);--radius:16px;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Inter,Arial;background:linear-gradient(120deg,#081225,#0a1a35);color:var(--text);display:grid;grid-template-columns:280px 1fr;grid-template-rows:auto 1fr;}
+  header{grid-column:1/3;display:flex;align-items:center;justify-content:space-between;padding:14px 20px;background:linear-gradient(90deg,#081225,#0a1f3d);border-bottom:1px solid #1e2f4d;position:sticky;top:0;z-index:5}
+  .header-title h1{margin:0;font-size:20px;color:var(--text);}
+  .header-title .subtitle{margin:4px 0 0 0;font-size:14px;color:var(--accent);}
+  .header-title .dev-credit{margin:4px 0 0 0;font-size:11px;color:#64748b;}
+  header .actions{display:flex;flex-wrap:wrap;gap:8px}
+  button, .btn{background:var(--muted);color:var(--text);border:1px solid #2a3a55;border-radius:12px;padding:10px 14px;cursor:pointer;box-shadow:var(--shadow);transition:.2s;font-weight:600;display:inline-flex;align-items:center;justify-content:center;gap:8px;}
+  button:hover, .btn:hover{transform:translateY(-1px);border-color:#3d4f6f}
+  button.primary{background:linear-gradient(180deg,#ff7a1a,#e85d04);border-color:transparent;color:#fff}
+  button.ghost{background:transparent;border-color:#3d4f6f}
+  aside{border-right:1px solid #1e2f4d;background:linear-gradient(180deg,#081225,#0a1a35);padding:16px;display:flex;flex-direction:column;gap:24px;}
+  .menu{display:flex;flex-direction:column;gap:8px}
+  .menu a{display:flex;gap:10px;align-items:center;text-decoration:none;color:#cbd5e1;padding:10px 12px;border:1px solid #1e2f4d;border-radius:12px;background:rgba(255,255,255,.02);cursor:pointer;}
+  .menu a.active, .menu a:hover{border-color:#ff7a1a;background:rgba(255,122,26,.1);color:#ffe0c2}
+  main{padding:18px;overflow:auto}
+  .hidden, .tab-content.hidden{display:none !important}
+  section{background:rgba(255,255,255,.03);border:1px solid #1e2f4d;border-radius:var(--radius);padding:20px;margin-bottom:20px;box-shadow:var(--shadow)}
+  h2, h3, h4{margin:0 0 12px 0;color:var(--accent);} h4{color:var(--accent2)}
+  .grid{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));}
+  .field{display:flex;flex-direction:column;gap:6px}
+  label{font-size:12px;color:#ffa552}
+  input, select, textarea{background:#0d1a2e;border:1px solid #2a3a55;color:var(--text);padding:10px 12px;border-radius:10px;outline:none;font-family:inherit;font-size:14px;min-height:44px}
+  input:focus, select:focus, textarea:focus{border-color:var(--accent)}
+  table{width:100%;border-collapse:collapse;} th, td{padding:10px 12px;border-bottom:1px solid var(--muted);text-align:left;font-size:13px;} th{background:rgba(255,122,26,.08);color:#ffa552;font-size:12px;}
+  .video-wrapper{position:relative;background:#000;border-radius:12px;overflow:hidden;border:1px solid #2a3a55;}
+  video{width:100%;display:block;max-height:500px;}
+  .timer-display{font-family:'Courier New',monospace;font-size:48px;text-align:center;color:var(--accent);background:#0d1a2e;border:1px solid #2a3a55;padding:20px;border-radius:12px;margin:12px 0;font-weight:bold;}
+  .timer-controls{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;}
+  .step-row{display:grid;grid-template-columns:60px 1fr 120px 120px 120px 100px;gap:10px;padding:10px;background:rgba(255,255,255,.02);border:1px solid #1e2f4d;border-radius:10px;margin-bottom:8px;align-items:center;}
+  .kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;}
+  .kpi-card{background:var(--card);border-radius:12px;padding:16px;text-align:center;border:1px solid #1e2f4d}
+  .kpi-card h3{font-size:12px;color:var(--accent2);margin:0 0 8px 0;font-weight:normal;text-transform:uppercase;}
+  .kpi-card .kpi-value{font-size:2rem;font-weight:bold;color:var(--accent);}
+  .toast-container{position:fixed;top:20px;right:20px;z-index:200;display:flex;flex-direction:column;gap:10px;}
+  .toast{padding:12px 18px;border-radius:12px;color:white;font-weight:600;font-size:14px;box-shadow:var(--shadow);opacity:0;transform:translateX(100%);transition:all 0.4s;}
+  .toast.show{opacity:1;transform:translateX(0);}
+  .toast.success{background:linear-gradient(90deg,#22c55e,#16a34a);}
+  .toast.error{background:linear-gradient(90deg,#ef4444,#dc2626);}
+  .toast.info{background:linear-gradient(90deg,#ff7a1a,#e85d04);}
+  @media print{body{grid-template-columns:1fr;color:#000;background:#fff;}header,aside,.btn,.hidden-print{display:none!important;}main{padding:0;}section{border:1px solid #ccc;background:#fff;}h2,h3,h4,label{color:black;}}
+</style>
+</head>
+<body>
+<div id="toast-container"></div>
+<header>
+  <div class="header-title">
+    <h1>🛡️ EQPS</h1>
+    <p class="subtitle">Cronoanálise MTM</p>
+    <p class="dev-credit">Desenvolvido por Marcos Garçon</p>
+  </div>
+  <div class="actions">
+    <button class="btn ghost" id="btn-restore-backup">Restaurar Backup</button>
+    <button class="btn ghost" id="btn-download-backup">Baixar Backup (.json)</button>
+    <button class="btn ghost" id="btn-archive-and-clear" style="color:var(--warn);">Arquivar e Limpar</button>
+    <button class="btn primary hidden-print" id="btn-export-pdf">Exportar PDF</button>
+  </div>
+</header>
+<aside>
+  <div class="menu">
+    <a href="#" class="tab-link active" onclick="openTab(event,'study')">📹 Estudo de Tempo</a>
+    <a href="#" class="tab-link" onclick="openTab(event,'steps')">📋 Etapas/Elementos</a>
+    <a href="#" class="tab-link" onclick="openTab(event,'analysis')">📊 Análise</a>
+    <a href="#" class="tab-link" onclick="openTab(event,'history')">📁 Histórico</a>
+    <a href="#" class="tab-link" onclick="openTab(event,'help')">❓ Ajuda</a>
+  </div>
+</aside>
+<main id="main-content"></main>
+
+<script>
+document.addEventListener('DOMContentLoaded',()=>{
+  let state={studies:[],currentStudy:null};
+  const DB_KEY='itp_mtm_v1';
+  let timer={start:0,running:false,interval:null,elapsed:0};
+  const main=document.getElementById('main-content');
+
+  const showToast=(msg,type='info')=>{const c=document.getElementById('toast-container');const t=document.createElement('div');t.className=`toast ${type}`;t.textContent=msg;c.appendChild(t);setTimeout(()=>t.classList.add('show'),10);setTimeout(()=>{t.classList.remove('show');t.addEventListener('transitionend',()=>t.remove())},4000);};
+  const saveData=()=>{try{localStorage.setItem(DB_KEY,JSON.stringify(state))}catch(e){showToast('Erro ao salvar.','error')}};
+  const loadData=()=>{const l=JSON.parse(localStorage.getItem(DB_KEY));if(l)state=l;};
+  const fmtTime=(ms)=>{const t=Math.floor(ms/1000);const m=Math.floor(t/60);const s=t%60;const c=Math.floor((ms%1000)/10);return `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}.${String(c).padStart(2,'0')}`;};
+
+  window.openTab=(evt,tabId)=>{evt.preventDefault();document.querySelectorAll('.tab-content').forEach(t=>t.classList.add('hidden'));const el=document.getElementById(tabId);if(el)el.classList.remove('hidden');document.querySelectorAll('.menu a').forEach(l=>l.classList.remove('active'));if(evt.currentTarget)evt.currentTarget.classList.add('active');if(tabId==='analysis')renderAnalysis();if(tabId==='history')renderHistory();if(tabId==='steps')renderSteps();};
+
+  const newStudy=()=>{state.currentStudy={id:Date.now(),name:'Novo Estudo',operator:'',operation:'',date:new Date().toISOString().slice(0,10),steps:[],videoSrc:null,createdAt:new Date().toISOString()};saveData();renderStudyInfo();renderSteps();showToast('Novo estudo criado!','success');};
+  const saveStudy=()=>{if(!state.currentStudy)return;const ex=state.studies.findIndex(s=>s.id===state.currentStudy.id);if(ex>=0)state.studies[ex]=state.currentStudy;else state.studies.push(state.currentStudy);saveData();showToast('Estudo salvo!','success');};
+
+  const renderStudyInfo=()=>{if(!state.currentStudy)return;document.getElementById('study_name').value=state.currentStudy.name||'';document.getElementById('study_operator').value=state.currentStudy.operator||'';document.getElementById('study_operation').value=state.currentStudy.operation||'';document.getElementById('study_date').value=state.currentStudy.date||'';};
+
+  const renderSteps=()=>{const c=document.getElementById('steps-list');if(!c||!state.currentStudy)return;c.innerHTML='';state.currentStudy.steps.forEach((s,i)=>{const r=document.createElement('div');r.className='step-row';r.innerHTML=`<div><b>${i+1}</b></div><input value="${s.description||''}" placeholder="Descrição da etapa" onchange="updateStep(${i},'description',this.value)"><input type="number" step="0.01" value="${s.time||''}" placeholder="Tempo (s)" onchange="updateStep(${i},'time',this.value)"><input type="number" value="${s.tmu||''}" placeholder="TMU" onchange="updateStep(${i},'tmu',this.value)"><input value="${s.classification||''}" placeholder="Class. MTM" onchange="updateStep(${i},'classification',this.value)"><button class="btn ghost" onclick="removeStep(${i})" style="color:var(--bad)">×</button>`;c.appendChild(r);});};
+  window.updateStep=(i,k,v)=>{state.currentStudy.steps[i][k]=v;saveData();};
+  window.removeStep=(i)=>{state.currentStudy.steps.splice(i,1);saveData();renderSteps();};
+
+  const renderAnalysis=()=>{if(!state.currentStudy||!state.currentStudy.steps.length){document.getElementById('analysis-content').innerHTML='<p>Nenhum estudo ativo.</p>';return;}const steps=state.currentStudy.steps;const tT=steps.reduce((a,s)=>a+(parseFloat(s.time)||0),0);const tTmu=steps.reduce((a,s)=>a+(parseFloat(s.tmu)||0),0);const aT=steps.length?tT/steps.length:0;document.getElementById('analysis-content').innerHTML=`<div class="kpi-grid"><div class="kpi-card"><h3>Tempo Total</h3><b class="kpi-value">${tT.toFixed(2)}s</b></div><div class="kpi-card"><h3>TMU Total</h3><b class="kpi-value">${tTmu.toFixed(0)}</b></div><div class="kpi-card"><h3>Tempo Médio</h3><b class="kpi-value">${aT.toFixed(2)}s</b></div><div class="kpi-card"><h3>Nº Etapas</h3><b class="kpi-value">${steps.length}</b></div></div><div style="margin-top:20px;overflow:auto"><table><thead><tr><th>#</th><th>Descrição</th><th>Tempo (s)</th><th>TMU</th><th>Class.</th><th>%</th></tr></thead><tbody>${steps.map((s,i)=>`<tr><td>${i+1}</td><td>${s.description||''}</td><td>${s.time||0}</td><td>${s.tmu||0}</td><td>${s.classification||''}</td><td>${tT>0?((s.time/tT)*100).toFixed(1):0}%</td></tr>`).join('')}</tbody></table></div>`;};
+
+  const renderHistory=()=>{const c=document.getElementById('history-list');if(!c)return;c.innerHTML=`<table><thead><tr><th>Nome</th><th>Operação</th><th>Operador</th><th>Data</th><th>Etapas</th><th>Ações</th></tr></thead><tbody>${state.studies.map(s=>`<tr><td>${s.name}</td><td>${s.operation||''}</td><td>${s.operator||''}</td><td>${s.date||''}</td><td>${s.steps.length}</td><td><button class="btn ghost" onclick="loadStudy(${s.id})">Abrir</button> <button class="btn ghost" onclick="deleteStudy(${s.id})" style="color:var(--bad)">Excluir</button></td></tr>`).join('')}</tbody></table>`;};
+  window.loadStudy=(id)=>{const s=state.studies.find(x=>x.id===id);if(s){state.currentStudy=JSON.parse(JSON.stringify(s));saveData();renderStudyInfo();renderSteps();document.querySelector('.menu a').click();showToast('Estudo carregado!','success');}};
+  window.deleteStudy=(id)=>{if(confirm('Excluir estudo?')){state.studies=state.studies.filter(s=>s.id!==id);saveData();renderHistory();}};
+
+  const startTimer=()=>{if(timer.running)return;timer.start=Date.now()-timer.elapsed;timer.running=true;timer.interval=setInterval(()=>{timer.elapsed=Date.now()-timer.start;document.getElementById('timer-display').textContent=fmtTime(timer.elapsed);},50);};
+  const stopTimer=()=>{if(!timer.running)return;clearInterval(timer.interval);timer.running=false;};
+  const resetTimer=()=>{stopTimer();timer.elapsed=0;document.getElementById('timer-display').textContent='00:00.00';};
+  const captureTime=()=>{if(!state.currentStudy)return showToast('Crie um estudo primeiro!','error');const sec=(timer.elapsed/1000).toFixed(2);state.currentStudy.steps.push({description:`Etapa ${state.currentStudy.steps.length+1}`,time:sec,tmu:Math.round(sec*27.78),classification:''});saveData();renderSteps();resetTimer();showToast('Tempo capturado!','success');};
+
+  const createViewsHTML=()=>`
+    <div id="study" class="tab-content">
+      <section><h2>Estudo de Tempo</h2>
+        <div style="display:flex;gap:10px;margin-bottom:12px;flex-wrap:wrap;">
+          <button class="btn primary" onclick="document.dispatchEvent(new CustomEvent('newStudy'))">+ Novo Estudo</button>
+          <button class="btn ghost" onclick="document.dispatchEvent(new CustomEvent('saveStudy'))">💾 Salvar</button>
+          <input type="file" id="video-input" accept="video/*" style="display:none">
+          <button class="btn ghost" onclick="document.getElementById('video-input').click()">📹 Carregar Vídeo</button>
+        </div>
+        <div class="grid" style="grid-template-columns:repeat(4,1fr);">
+          <div class="field"><label>Nome do Estudo</label><input id="study_name" onchange="state.currentStudy&&(state.currentStudy.name=this.value);saveData&&saveData();"></div>
+          <div class="field"><label>Operador</label><input id="study_operator"></div>
+          <div class="field"><label>Operação</label><input id="study_operation"></div>
+          <div class="field"><label>Data</label><input id="study_date" type="date"></div>
+        </div>
+      </section>
+      <section><h4>Vídeo</h4>
+        <div class="video-wrapper"><video id="video-player" controls></video></div>
+      </section>
+      <section><h4>Cronômetro</h4>
+        <div class="timer-display" id="timer-display">00:00.00</div>
+        <div class="timer-controls">
+          <button class="btn primary" id="btn-timer-start">▶ Iniciar</button>
+          <button class="btn ghost" id="btn-timer-stop">⏸ Pausar</button>
+          <button class="btn ghost" id="btn-timer-reset">⟳ Zerar</button>
+          <button class="btn primary" id="btn-timer-capture">✓ Capturar Etapa</button>
+        </div>
+      </section>
+    </div>
+    <div id="steps" class="tab-content hidden">
+      <section><div style="display:flex;justify-content:space-between;align-items:center;"><h2>Etapas / Elementos</h2><button class="btn primary" id="btn-add-step">+ Nova Etapa</button></div>
+        <div id="steps-list" style="margin-top:16px;"></div>
+      </section>
+    </div>
+    <div id="analysis" class="tab-content hidden">
+      <section><h2>Análise do Estudo</h2><div id="analysis-content"></div></section>
+    </div>
+    <div id="history" class="tab-content hidden">
+      <section><h2>Histórico de Estudos</h2><div id="history-list" style="overflow:auto"></div></section>
+    </div>
+    <div id="help" class="tab-content hidden">
+      <section><h2>Guia Rápido - Cronoanálise MTM</h2>
+        <h4>O que é MTM?</h4>
+        <p>Methods Time Measurement — sistema que decompõe operações em movimentos básicos e atribui tempos pré-determinados (TMU = 0.036s).</p>
+        <h4>Fluxo:</h4>
+        <ol>
+          <li>Crie um Novo Estudo</li>
+          <li>Carregue um vídeo da operação (opcional)</li>
+          <li>Use o cronômetro para capturar cada etapa</li>
+          <li>Ajuste descrições, tempos e classificações MTM em "Etapas"</li>
+          <li>Veja análise consolidada em "Análise"</li>
+          <li>Salve para acessar no Histórico</li>
+        </ol>
+      </section>
+    </div>`;
+
+  document.addEventListener('newStudy',newStudy);
+  document.addEventListener('saveStudy',saveStudy);
+
+  const initApp=()=>{
+    loadData();main.innerHTML=createViewsHTML();
+    document.getElementById('btn-timer-start').addEventListener('click',startTimer);
+    document.getElementById('btn-timer-stop').addEventListener('click',stopTimer);
+    document.getElementById('btn-timer-reset').addEventListener('click',resetTimer);
+    document.getElementById('btn-timer-capture').addEventListener('click',captureTime);
+    document.getElementById('btn-add-step').addEventListener('click',()=>{if(!state.currentStudy)return showToast('Crie um estudo!','error');state.currentStudy.steps.push({description:'',time:0,tmu:0,classification:''});saveData();renderSteps();});
+    document.getElementById('video-input').addEventListener('change',e=>{const f=e.target.files[0];if(f){const url=URL.createObjectURL(f);document.getElementById('video-player').src=url;showToast('Vídeo carregado!','success');}});
+    ['name','operator','operation','date'].forEach(k=>{const el=document.getElementById(`study_${k}`);if(el)el.addEventListener('change',()=>{if(state.currentStudy){state.currentStudy[k]=el.value;saveData();}});});
+    if(!state.currentStudy && state.studies.length===0){
+      const seedStudy={id:Date.now(),name:'Inspeção em Processo — Peças Injetadas (Inspeção Visual + Gabarito Dimensional)',operator:'Equipe de Produção — Turno A',operation:'Injeção / Inspeção',date:new Date().toISOString().slice(0,10),
+        steps:[
+          {description:'Limpeza do molde e conferência de setup antes do ciclo de injeção',time:'8.20',tmu:228,classification:'Preparação'},
+          {description:'Posicionar peça de teste na bancada e aguardar estabilização térmica',time:'6.50',tmu:181,classification:'Setup'},
+          {description:'Aplicar controle dimensional com paquímetro/gabarito na peça de teste',time:'22.40',tmu:622,classification:'Inspeção'},
+          {description:'Checagem visual de rebarba e porosidade (gabarito Aprovado/Tolerável/Reprovado)',time:'3.10',tmu:86,classification:'Inspeção'},
+          {description:'Registrar resultado na Ficha de Setup / Plano de Inspeção (PIT)',time:'5.00',tmu:139,classification:'Registro'}
+        ],videoSrc:null,createdAt:new Date().toISOString()};
+      state.studies.push(seedStudy);
+      state.currentStudy=JSON.parse(JSON.stringify(seedStudy));
+      saveData();
+    }
+    if(!state.currentStudy)newStudy();else{renderStudyInfo();renderSteps();}
+  };
+
+  document.getElementById('btn-download-backup').addEventListener('click',()=>{const b=new Blob([JSON.stringify(state,null,2)],{type:'application/json'});const l=document.createElement("a");l.href=URL.createObjectURL(b);l.download=`itp_mtm_${new Date().toISOString().slice(0,10)}.json`;l.click();URL.revokeObjectURL(l.href);showToast("Backup baixado!","success");});
+  document.getElementById('btn-restore-backup').addEventListener('click',()=>{const i=document.createElement('input');i.type='file';i.accept='.json';i.onchange=e=>{const r=new FileReader();r.onload=ev=>{if(!confirm('Substituir dados?'))return;try{state=JSON.parse(ev.target.result);saveData();showToast('Restaurado!','success');setTimeout(()=>location.reload(),1000);}catch(err){showToast('Inválido.','error');}};r.readAsText(e.target.files[0]);};i.click();});
+  document.getElementById('btn-archive-and-clear').addEventListener('click',()=>{if(confirm("Baixar backup e APAGAR dados?")){document.getElementById('btn-download-backup').click();localStorage.removeItem(DB_KEY);setTimeout(()=>location.reload(),1500);}});
+  document.getElementById('btn-export-pdf').addEventListener('click',()=>window.print());
+  initApp();
+});
+</script>
+</body>
+</html>

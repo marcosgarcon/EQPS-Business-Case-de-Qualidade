@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EQPS - Análise de Causa Raiz (RCA)</title>
+<script src="https://unpkg.com/@phosphor-icons/web"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+:root{--bg:#0a1628;--panel:#0f1e36;--muted:#1a2942;--card:#0d1a2e;--text:#e5e7eb;--accent:#ff7a1a;--accent2:#ffa552;--ok:#22c55e;--warn:#f59e0b;--bad:#ef4444;--shadow:0 10px 30px rgba(0,0,0,.45);--radius:16px;}
+*{box-sizing:border-box}
+body{margin:0;padding:20px;background:linear-gradient(135deg,#081225,#0a1a35);color:var(--text);font-family:system-ui,Inter,Arial;min-height:100vh;}
+.container{max-width:1200px;margin:0 auto;}
+.header{text-align:center;margin-bottom:30px;padding:30px;background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);border:1px solid #2a3a55;}
+.header h1{margin:0 0 10px 0;font-size:2.2rem;color:var(--accent);}
+.header p{margin:0;color:#94a3b8;}
+.dev-credit{margin-top:8px;font-size:11px;color:#64748b;}
+.tabs{display:flex;background:var(--muted);border-radius:var(--radius);padding:8px;margin-bottom:30px;border:1px solid #2a3a55;flex-wrap:wrap;}
+.tab{flex:1;padding:12px 20px;background:transparent;border:none;color:var(--text);cursor:pointer;border-radius:12px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:8px;min-width:120px;}
+.tab.active{background:var(--accent);color:#fff;}
+.tab:hover:not(.active){background:rgba(255,122,26,.15);}
+.tab-content{display:none;background:var(--card);border-radius:var(--radius);padding:30px;box-shadow:var(--shadow);border:1px solid #2a3a55;}
+.tab-content.active{display:block;}
+.form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px;margin-bottom:30px;}
+.form-group{margin-bottom:20px;}
+.form-label{display:block;margin-bottom:8px;font-weight:600;color:var(--accent);}
+.form-input,.form-select,.form-textarea{width:100%;padding:12px 16px;background:var(--muted);border:1px solid #2a3a55;border-radius:8px;color:var(--text);font-size:14px;}
+.form-input:focus,.form-select:focus,.form-textarea:focus{outline:none;border-color:var(--accent);}
+.form-textarea{resize:vertical;min-height:100px;}
+.btn{padding:12px 24px;background:var(--accent);color:#fff;border:none;border-radius:8px;cursor:pointer;font-weight:600;display:inline-flex;align-items:center;gap:8px;}
+.btn:hover{background:#e85d04;}
+.btn-secondary{background:var(--muted);}.btn-secondary:hover{background:#2a3a55;}
+.btn-danger{background:var(--bad);}.btn-danger:hover{background:#dc2626;}
+.btn-success{background:var(--ok);}
+.why-level{background:var(--muted);border-radius:12px;padding:20px;margin-bottom:16px;border:1px solid #2a3a55;}
+.why-header{display:flex;align-items:center;gap:12px;margin-bottom:16px;flex-wrap:wrap;}
+.why-number{background:var(--accent);color:#fff;width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;}
+.why-title{font-weight:600;color:var(--accent);margin:0;flex:1;}
+.cause-item{background:var(--card);border-radius:8px;padding:16px;margin-bottom:12px;border:1px solid #2a3a55;}
+.cause-category{padding:4px 12px;border-radius:20px;font-size:12px;font-weight:600;color:#fff;}
+.category-people{background:#3b82f6;}.category-process{background:var(--accent2);}.category-environment{background:var(--ok);}.category-material{background:var(--warn);}.category-machine{background:var(--bad);}.category-method{background:#8b5cf6;}
+.summary-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:20px;margin-bottom:30px;}
+.summary-card{background:var(--muted);border-radius:12px;padding:20px;text-align:center;border:1px solid #2a3a55;}
+.summary-value{font-size:2rem;font-weight:700;color:var(--accent);margin-bottom:8px;}
+.summary-label{color:#ffa552;font-size:14px;}
+.chart-container{background:var(--muted);border-radius:12px;padding:20px;margin-bottom:20px;border:1px solid #2a3a55;}
+.chart-title{font-size:1.2rem;font-weight:600;color:var(--accent);margin-bottom:20px;text-align:center;}
+.timeline-item{display:flex;align-items:center;padding:16px;margin-bottom:12px;background:var(--card);border-radius:8px;border:1px solid #2a3a55;flex-wrap:wrap;gap:12px;}
+.timeline-time{background:var(--accent);color:#fff;padding:8px 16px;border-radius:20px;font-weight:600;min-width:120px;text-align:center;}
+.timeline-content{flex:1;}
+.notification{padding:16px;border-radius:8px;margin-bottom:20px;border-left:4px solid;display:none;}
+.notification.success{background:rgba(34,197,94,.1);border-color:var(--ok);color:var(--ok);}
+.notification.error{background:rgba(239,68,68,.1);border-color:var(--bad);color:var(--bad);}
+.notification.info{background:rgba(255,122,26,.1);border-color:var(--accent);color:var(--accent);}
+.fishbone-container{background:var(--muted);border-radius:12px;padding:30px;margin-bottom:20px;border:1px solid #2a3a55;overflow-x:auto;}
+.fishbone-diagram{min-width:800px;height:400px;position:relative;background:var(--card);border-radius:8px;border:1px solid #2a3a55;}
+.actions{display:flex;gap:12px;margin-top:30px;flex-wrap:wrap;}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <h1>🛡️ EQPS</h1>
+    <p>Análise de Causa Raiz (RCA)</p>
+    <p class="dev-credit">Desenvolvido por Marcos Garçon</p>
+  </div>
+  <div id="notification" class="notification"></div>
+  <div class="tabs">
+    <button class="tab active" data-tab="problem">⚠️ Problema</button>
+    <button class="tab" data-tab="five-whys">❓ 5 Porquês</button>
+    <button class="tab" data-tab="fishbone">🐟 Ishikawa</button>
+    <button class="tab" data-tab="timeline">⏰ Timeline</button>
+    <button class="tab" data-tab="analysis">📊 Análise</button>
+    <button class="tab" data-tab="report">📄 Relatório</button>
+  </div>
+  <div class="tab-content active" id="problem">
+    <h2 style="color:var(--accent);margin-bottom:20px;">Definição do Problema</h2>
+    <div class="form-grid">
+      <div class="form-group"><label class="form-label">Título</label><input type="text" class="form-input" id="problem-title"></div>
+      <div class="form-group"><label class="form-label">Categoria</label><select class="form-select" id="problem-category"><option value="">Selecione</option><option value="quality">Qualidade</option><option value="safety">Segurança</option><option value="production">Produção</option><option value="maintenance">Manutenção</option><option value="process">Processo</option></select></div>
+      <div class="form-group"><label class="form-label">Severidade</label><select class="form-select" id="problem-severity"><option value="">Selecione</option><option value="critical">Crítica</option><option value="high">Alta</option><option value="medium">Média</option><option value="low">Baixa</option></select></div>
+      <div class="form-group"><label class="form-label">Frequência</label><select class="form-select" id="problem-frequency"><option value="">Selecione</option><option value="continuous">Contínua</option><option value="frequent">Frequente</option><option value="occasional">Ocasional</option><option value="rare">Rara</option></select></div>
+      <div class="form-group"><label class="form-label">Data</label><input type="datetime-local" class="form-input" id="problem-date"></div>
+      <div class="form-group"><label class="form-label">Reportado por</label><input type="text" class="form-input" id="problem-reporter"></div>
+    </div>
+    <div class="form-group"><label class="form-label">Descrição</label><textarea class="form-textarea" id="problem-description"></textarea></div>
+    <div class="form-group"><label class="form-label">Impacto</label><textarea class="form-textarea" id="problem-impact"></textarea></div>
+    <div class="actions">
+      <button class="btn" onclick="rca.saveProblem()">💾 Salvar</button>
+      <button class="btn btn-secondary" onclick="rca.loadProblem()">📂 Carregar</button>
+    </div>
+  </div>
+  <div class="tab-content" id="five-whys">
+    <h2 style="color:var(--accent);margin-bottom:20px;">Análise dos 5 Porquês</h2>
+    <div id="whys-container"></div>
+    <div class="actions">
+      <button class="btn" onclick="rca.addWhy()">+ Porquê</button>
+      <button class="btn btn-secondary" onclick="rca.resetWhys()">⟲ Reiniciar</button>
+    </div>
+  </div>
+  <div class="tab-content" id="fishbone">
+    <h2 style="color:var(--accent);margin-bottom:20px;">Diagrama de Ishikawa</h2>
+    <div class="fishbone-container"><div class="chart-title">Causa e Efeito</div><div class="fishbone-diagram" id="fishbone-diagram"></div></div>
+    <div style="margin-bottom:20px;"><button class="btn" onclick="rca.addCause()">+ Causa</button> <button class="btn btn-secondary" onclick="rca.generateFishbone()">📊 Gerar</button></div>
+    <div id="causes-list"></div>
+  </div>
+  <div class="tab-content" id="timeline">
+    <h2 style="color:var(--accent);margin-bottom:20px;">Linha do Tempo</h2>
+    <div style="margin-bottom:20px;"><button class="btn" onclick="rca.addTimelineEvent()">+ Evento</button></div>
+    <div id="timeline-events"></div>
+  </div>
+  <div class="tab-content" id="analysis">
+    <h2 style="color:var(--accent);margin-bottom:20px;">Análise e Resultados</h2>
+    <div class="summary-grid">
+      <div class="summary-card"><div class="summary-value" id="total-causes">0</div><div class="summary-label">Causas</div></div>
+      <div class="summary-card"><div class="summary-value" id="root-causes">0</div><div class="summary-label">Causas Raiz</div></div>
+      <div class="summary-card"><div class="summary-value" id="timeline-events-count">0</div><div class="summary-label">Eventos</div></div>
+      <div class="summary-card"><div class="summary-value" id="analysis-completeness">0%</div><div class="summary-label">Completude</div></div>
+    </div>
+    <div class="chart-container"><div class="chart-title">Causas por Categoria</div><canvas id="causesChart" height="100"></canvas></div>
+    <div class="chart-container"><div class="chart-title">Severidade</div><canvas id="severityChart" height="100"></canvas></div>
+    <div class="actions"><button class="btn" onclick="rca.analyzeData()">📊 Analisar</button> <button class="btn btn-secondary" onclick="rca.identifyRootCauses()">🎯 Causas Raiz</button></div>
+  </div>
+  <div class="tab-content" id="report">
+    <h2 style="color:var(--accent);margin-bottom:20px;">Relatório RCA</h2>
+    <div class="actions" style="margin-bottom:30px;"><button class="btn" onclick="rca.generateReport()">📄 Gerar</button> <button class="btn btn-secondary" onclick="window.print()">🖨️ PDF</button></div>
+    <div id="report-content" style="background:var(--muted);padding:30px;border-radius:12px;border:1px solid #2a3a55;"></div>
+  </div>
+</div>
+<script>
+class RCA{
+  constructor(){this.data={problem:{},whys:[],causes:[],timeline:[]};this.charts={};this.init();}
+  init(){this.setupTabs();this.loadData();this.initWhys();this.setDefaultDate();}
+  setupTabs(){document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',()=>{const tt=t.dataset.tab;document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));document.querySelectorAll('.tab-content').forEach(x=>x.classList.remove('active'));t.classList.add('active');document.getElementById(tt).classList.add('active');}));}
+  setDefaultDate(){const n=new Date();n.setMinutes(n.getMinutes()-n.getTimezoneOffset());document.getElementById('problem-date').value=n.toISOString().slice(0,16);}
+  initWhys(){if(!this.data.whys.length)this.data.whys=[{level:1,question:'',answer:'',isRootCause:false}];this.renderWhys();}
+  saveData(){localStorage.setItem('itp_rca_v1',JSON.stringify(this.data));}
+  loadData(){const d=localStorage.getItem('itp_rca_v1');if(d)this.data=JSON.parse(d);}
+  showNotif(m,t='info'){const n=document.getElementById('notification');n.className=`notification ${t}`;n.textContent=m;n.style.display='block';setTimeout(()=>n.style.display='none',3000);}
+  saveProblem(){this.data.problem={title:document.getElementById('problem-title').value,category:document.getElementById('problem-category').value,severity:document.getElementById('problem-severity').value,frequency:document.getElementById('problem-frequency').value,date:document.getElementById('problem-date').value,reporter:document.getElementById('problem-reporter').value,description:document.getElementById('problem-description').value,impact:document.getElementById('problem-impact').value};this.saveData();this.showNotif('Salvo!','success');}
+  loadProblem(){const p=this.data.problem;if(!Object.keys(p).length){this.showNotif('Nenhum salvo.','info');return;}['title','category','severity','frequency','date','reporter','description','impact'].forEach(k=>{const e=document.getElementById('problem-'+k);if(e)e.value=p[k]||'';});this.showNotif('Carregado!','success');}
+  addWhy(){this.data.whys.push({level:this.data.whys.length+1,question:'',answer:'',isRootCause:false});this.renderWhys();this.saveData();}
+  renderWhys(){const c=document.getElementById('whys-container');c.innerHTML='';this.data.whys.forEach((w,i)=>{const el=document.createElement('div');el.className='why-level';el.innerHTML=`<div class="why-header"><div class="why-number">${w.level}</div><h3 class="why-title">Por que ${w.level}?</h3><label style="display:flex;align-items:center;gap:8px;color:var(--ok);"><input type="checkbox" ${w.isRootCause?'checked':''} onchange="rca.toggleRoot(${i})">Causa Raiz</label></div><div class="form-group"><label class="form-label">Pergunta</label><input type="text" class="form-input" value="${w.question}" onchange="rca.updateWhy(${i},'question',this.value)"></div><div class="form-group"><label class="form-label">Resposta</label><textarea class="form-textarea" onchange="rca.updateWhy(${i},'answer',this.value)">${w.answer}</textarea></div><button class="btn btn-danger" onclick="rca.removeWhy(${i})">🗑️ Remover</button>`;c.appendChild(el);});}
+  updateWhy(i,f,v){if(this.data.whys[i]){this.data.whys[i][f]=v;this.saveData();}}
+  toggleRoot(i){if(this.data.whys[i]){this.data.whys[i].isRootCause=!this.data.whys[i].isRootCause;this.saveData();}}
+  removeWhy(i){if(confirm('Remover?')){this.data.whys.splice(i,1);this.data.whys.forEach((w,j)=>w.level=j+1);this.renderWhys();this.saveData();}}
+  resetWhys(){if(confirm('Reiniciar?')){this.data.whys=[{level:1,question:'',answer:'',isRootCause:false}];this.renderWhys();this.saveData();}}
+  addCause(){this.data.causes.push({id:Date.now(),title:'Nova Causa',description:'',category:'process',severity:'medium',likelihood:'medium'});this.renderCauses();this.saveData();}
+  renderCauses(){const c=document.getElementById('causes-list');c.innerHTML='';this.data.causes.forEach(cs=>{const el=document.createElement('div');el.className='cause-item';el.innerHTML=`<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px;"><h3 style="margin:0;">${cs.title}</h3><span class="cause-category category-${cs.category}">${cs.category}</span></div><div style="margin-bottom:12px;">${cs.description||'Não definida'}</div><div>Sev: ${cs.severity} | Prob: ${cs.likelihood}</div><div style="margin-top:12px;"><button class="btn btn-secondary" onclick="rca.editCause(${cs.id})">✏️ Editar</button> <button class="btn btn-danger" onclick="rca.deleteCause(${cs.id})">🗑️</button></div>`;c.appendChild(el);});}
+  editCause(id){const c=this.data.causes.find(x=>x.id===id);if(!c)return;const nt=prompt('Título:',c.title);if(nt!==null)c.title=nt;const nd=prompt('Descrição:',c.description);if(nd!==null)c.description=nd;const nc=prompt('Categoria (people/process/environment/material/machine/method):',c.category);if(nc&&['people','process','environment','material','machine','method'].includes(nc))c.category=nc;this.renderCauses();this.saveData();}
+  deleteCause(id){if(confirm('Excluir?')){this.data.causes=this.data.causes.filter(c=>c.id!==id);this.renderCauses();this.saveData();}}
+  generateFishbone(){const d=document.getElementById('fishbone-diagram');d.innerHTML=`<div style="position:absolute;top:50%;left:10%;right:10%;height:2px;background:var(--accent);"></div><div style="position:absolute;top:50%;right:2%;transform:translateY(-50%);background:var(--accent);color:#fff;padding:8px 16px;border-radius:8px;font-weight:600;">${this.data.problem.title||'Problema'}</div>`;const cats=['people','process','environment','material','machine','method'];cats.forEach((cat,i)=>{const isTop=i<3,pos=(i%3)*25+15;const causes=this.data.causes.filter(c=>c.category===cat);if(causes.length){const br=document.createElement('div');br.style.cssText=`position:absolute;left:${pos}%;top:${isTop?'20%':'70%'};transform:translateX(-50%);`;br.innerHTML=`<div style="background:var(--accent2);color:#fff;padding:6px 12px;border-radius:6px;font-weight:600;margin-bottom:8px;">${cat}</div>${causes.map(c=>`<div style="background:var(--muted);padding:4px 8px;border-radius:4px;margin-bottom:4px;font-size:12px;">${c.title}</div>`).join('')}`;d.appendChild(br);}});this.showNotif('Gerado!','success');}
+  addTimelineEvent(){this.data.timeline.push({id:Date.now(),time:new Date().toISOString().slice(0,16),title:'Novo Evento',description:''});this.renderTimeline();this.saveData();}
+  renderTimeline(){const c=document.getElementById('timeline-events');c.innerHTML='';[...this.data.timeline].sort((a,b)=>new Date(a.time)-new Date(b.time)).forEach(e=>{const el=document.createElement('div');el.className='timeline-item';el.innerHTML=`<div class="timeline-time">${new Date(e.time).toLocaleString('pt-BR')}</div><div class="timeline-content"><div style="font-weight:600;">${e.title}</div><div style="color:#94a3b8;font-size:14px;">${e.description||'Sem descrição'}</div></div><div><button class="btn btn-secondary" onclick="rca.editEvent(${e.id})">✏️</button> <button class="btn btn-danger" onclick="rca.deleteEvent(${e.id})">🗑️</button></div>`;c.appendChild(el);});}
+  editEvent(id){const e=this.data.timeline.find(x=>x.id===id);if(!e)return;const nt=prompt('Data/hora (YYYY-MM-DDTHH:MM):',e.time);if(nt!==null)e.time=nt;const ni=prompt('Título:',e.title);if(ni!==null)e.title=ni;const nd=prompt('Descrição:',e.description);if(nd!==null)e.description=nd;this.renderTimeline();this.saveData();}
+  deleteEvent(id){if(confirm('Excluir?')){this.data.timeline=this.data.timeline.filter(e=>e.id!==id);this.renderTimeline();this.saveData();}}
+  analyzeData(){const tc=this.data.causes.length,rc=this.data.whys.filter(w=>w.isRootCause).length,te=this.data.timeline.length;const pf=Object.values(this.data.problem).filter(v=>v&&String(v).trim()).length;const wf=this.data.whys.filter(w=>w.question&&w.answer).length;const cp=Math.min(100,Math.round((pf/8)*30+(wf/5)*30+(tc/6)*40));document.getElementById('total-causes').textContent=tc;document.getElementById('root-causes').textContent=rc;document.getElementById('timeline-events-count').textContent=te;document.getElementById('analysis-completeness').textContent=cp+'%';this.updateCharts();this.showNotif('Atualizado!','success');}
+  updateCharts(){if(this.charts.c)this.charts.c.destroy();if(this.charts.s)this.charts.s.destroy();const cats=['people','process','environment','material','machine','method'];this.charts.c=new Chart(document.getElementById('causesChart').getContext('2d'),{type:'doughnut',data:{labels:cats,datasets:[{data:cats.map(c=>this.data.causes.filter(x=>x.category===c).length),backgroundColor:['#3b82f6','#ffa552','#22c55e','#f59e0b','#ef4444','#8b5cf6']}]},options:{plugins:{legend:{labels:{color:'#e5e7eb'}}}}});const sd={critical:this.data.causes.filter(c=>c.severity==='critical').length,high:this.data.causes.filter(c=>c.severity==='high').length,medium:this.data.causes.filter(c=>c.severity==='medium').length,low:this.data.causes.filter(c=>c.severity==='low').length};this.charts.s=new Chart(document.getElementById('severityChart').getContext('2d'),{type:'bar',data:{labels:['Crítica','Alta','Média','Baixa'],datasets:[{label:'Causas',data:[sd.critical,sd.high,sd.medium,sd.low],backgroundColor:['#ef4444','#f59e0b','#ff7a1a','#22c55e']}]},options:{plugins:{legend:{labels:{color:'#e5e7eb'}}},scales:{y:{beginAtZero:true,ticks:{color:'#e5e7eb'}},x:{ticks:{color:'#e5e7eb'}}}}});}
+  identifyRootCauses(){const p=[];this.data.whys.forEach(w=>{if(w.level>=3&&w.answer&&w.answer.length>20)p.push({src:'5 Porquês',desc:w.answer,conf:w.level>=5?'Alta':'Média'});});this.data.causes.forEach(c=>{if(['critical','high'].includes(c.severity))p.push({src:'Ishikawa',desc:`${c.title}: ${c.description}`,conf:c.severity==='critical'?'Alta':'Média'});});if(p.length){alert('Possíveis Causas Raiz:\n\n'+p.map((c,i)=>`${i+1}. [${c.src}] ${c.desc} (${c.conf})`).join('\n\n'));}else this.showNotif('Continue a análise.','info');}
+  generateReport(){const p=this.data.problem,c=document.getElementById('report-content');c.innerHTML=`<h3 style="color:var(--accent);">Relatório RCA</h3><div style="margin-bottom:20px;"><h4 style="color:var(--accent2);">Problema</h4><p><b>Título:</b> ${p.title||'-'}</p><p><b>Categoria:</b> ${p.category||'-'}</p><p><b>Severidade:</b> ${p.severity||'-'}</p><p><b>Descrição:</b> ${p.description||'-'}</p><p><b>Impacto:</b> ${p.impact||'-'}</p></div><div style="margin-bottom:20px;"><h4 style="color:var(--accent2);">5 Porquês</h4>${this.data.whys.map(w=>`<div style="padding:8px;background:var(--card);border-radius:8px;margin-bottom:8px;"><b>Por que ${w.level}:</b> ${w.question||'-'}<br><b>R:</b> ${w.answer||'-'}${w.isRootCause?'<br><b style="color:var(--ok);">✓ Causa Raiz</b>':''}</div>`).join('')}</div><div><h4 style="color:var(--accent2);">Causas</h4>${this.data.causes.map(cs=>`<div style="padding:8px;background:var(--card);border-radius:8px;margin-bottom:8px;"><b>${cs.title}</b> (${cs.category})<br>${cs.description}</div>`).join('')}</div>`;this.showNotif('Gerado!','success');}
+}
+const rca=new RCA();
+</script>
+</body>
+</html>
