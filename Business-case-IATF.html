@@ -1,0 +1,927 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Business Case de Qualidade - IATF / ISO 9001</title>
+  <style>
+    @page { size: A4 landscape; margin: 0; }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: #e5e7eb;
+      color: #111827;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+
+    .toolbar {
+      position: sticky;
+      top: 0;
+      z-index: 999;
+      padding: 10px 16px;
+      background: rgba(15, 23, 42, 0.97);
+      backdrop-filter: blur(6px);
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .download-btn {
+      border: none;
+      background: #2563eb;
+      color: #fff;
+      padding: 10px 16px;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .download-btn:hover { background: #1d4ed8; }
+    .download-btn:disabled { opacity: 0.7; cursor: wait; }
+
+    #content {
+      width: 297mm;
+      margin: 0 auto;
+    }
+
+    .slide {
+      width: 297mm;
+      height: 210mm;
+      page-break-after: always;
+      page-break-inside: avoid;
+      break-inside: avoid;
+      position: relative;
+      overflow: hidden;
+      padding: 11mm 16mm 12mm 16mm;
+      background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 45%, #eff6ff 100%);
+      color: #ffffff;
+    }
+
+    .slide.white {
+      background: #ffffff;
+      color: #111827;
+    }
+
+    .slide.navy {
+      background: linear-gradient(135deg, #0f172a 0%, #1d4ed8 100%);
+      color: #ffffff;
+    }
+
+    .topbar {
+      position: absolute;
+      inset: 0 0 auto 0;
+      height: 7mm;
+      background: rgba(255,255,255,0.10);
+    }
+
+    .white .topbar { background: #1d4ed8; }
+
+    .number {
+      position: absolute;
+      top: 8.5mm;
+      right: 16mm;
+      font-size: 38px;
+      font-weight: 900;
+      opacity: 0.16;
+    }
+
+    .title {
+      margin: 0;
+      font-size: 28px;
+      font-weight: 900;
+      line-height: 1.08;
+      letter-spacing: 0.2px;
+    }
+
+    .subtitle {
+      margin: 5px 0 0 0;
+      font-size: 14px;
+      line-height: 1.35;
+      max-width: 92%;
+      opacity: 0.96;
+    }
+
+    .tag {
+      display: inline-block;
+      margin-top: 8px;
+      padding: 5px 10px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.3px;
+      text-transform: uppercase;
+      background: rgba(255,255,255,0.16);
+    }
+
+    .white .tag {
+      background: #dbeafe;
+      color: #1d4ed8;
+    }
+
+    .section {
+      margin-top: 10px;
+      padding: 12px 14px;
+      border-radius: 14px;
+      background: rgba(255,255,255,0.14);
+      backdrop-filter: blur(2px);
+    }
+
+    .white .section {
+      background: #f8fafc;
+      border: 1px solid #e5e7eb;
+    }
+
+    .section h2 {
+      margin: 0 0 8px 0;
+      font-size: 16px;
+    }
+
+    ul {
+      margin: 0;
+      padding-left: 20px;
+      font-size: 12.8px;
+      line-height: 1.38;
+    }
+
+    li { margin-bottom: 6px; }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 10px;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 12px;
+      margin-top: 10px;
+    }
+
+    .table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 11.8px;
+      margin-top: 4px;
+      background: #ffffff;
+    }
+
+    .table th, .table td {
+      border: 1px solid #d1d5db;
+      padding: 7px 8px;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    .table th {
+      background: #dbeafe;
+      color: #111827;
+    }
+
+    .footer {
+      position: absolute;
+      bottom: 6.5mm;
+      left: 16mm;
+      right: 16mm;
+      display: flex;
+      justify-content: space-between;
+      font-size: 10px;
+      opacity: 0.85;
+    }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 12px;
+      margin-top: 10px;
+    }
+
+    .kpi-box {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .kpi {
+      padding: 12px;
+      border-radius: 14px;
+      background: rgba(255,255,255,0.14);
+      text-align: center;
+    }
+
+    .white .kpi {
+      background: #f8fafc;
+      border: 1px solid #e5e7eb;
+    }
+
+    .kpi .value {
+      font-size: 23px;
+      font-weight: 900;
+      margin-bottom: 4px;
+    }
+
+    .kpi .label {
+      font-size: 11px;
+      line-height: 1.3;
+    }
+
+    .callout {
+      padding: 12px 14px;
+      border-left: 5px solid #f59e0b;
+      background: rgba(245, 158, 11, 0.12);
+      border-radius: 10px;
+      font-size: 12.5px;
+      line-height: 1.45;
+      margin-top: 10px;
+    }
+
+    @media print {
+      .toolbar { display: none; }
+      body { background: #fff; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="toolbar">
+    <button id="downloadPdf" class="download-btn">Gerar PDF</button>
+  </div>
+
+  <div id="content">
+
+    <section class="slide navy">
+      <div class="topbar"></div>
+      <div class="number">01</div>
+      <h1 class="title">Business Case de Qualidade</h1>
+      <p class="subtitle">IATF 16949, ISO 9001, auditorias, qualificação de equipe, melhoria contínua e estudo de capacidade produtiva para terminais e conectores automotivos e linha branca.</p>
+      <div class="tag">Projeto estruturado em slides</div>
+
+      <div class="grid-2" style="margin-top:12px;">
+        <div class="section">
+          <h2>Objetivo da apresentação</h2>
+          <ul>
+            <li>Estruturar um projeto de qualidade com foco em conformidade, desempenho e sustentabilidade.</li>
+            <li>Integrar auditorias, indicadores, análise de causa raiz e devolutiva ao cliente.</li>
+            <li>Incluir estudo de capacidade das prensas e injetoras como base técnica do processo.</li>
+          </ul>
+        </div>
+        <div class="section">
+          <h2>Premissas</h2>
+          <ul>
+            <li>Aplicação prática em terminais e conectores automotivos e linha branca.</li>
+            <li>Abordagem orientada por dados, evidências e priorização.</li>
+            <li>Foco em disciplina de rotina, capacidade produtiva e melhoria contínua.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="footer"><div>Business Case de Qualidade</div><div>Slide 1</div></div>
+    </section>
+
+    <section class="slide white">
+      <div class="topbar"></div>
+      <div class="number">02</div>
+      <h1 class="title">Resumo Executivo</h1>
+      <p class="subtitle">O projeto propõe fortalecer o SGQ por meio de auditorias, qualificação técnica, gestão à vista, planos de melhoria e estudo da capacidade dos equipamentos críticos.</p>
+
+      <div class="kpi-box">
+        <div class="kpi"><div class="value">IATF</div><div class="label">Base automotiva para o SGQ</div></div>
+        <div class="kpi"><div class="value">ISO 9001</div><div class="label">Estrutura de auditoria e controle</div></div>
+        <div class="kpi"><div class="value">Capacidade</div><div class="label">Prensas e injetoras como foco técnico</div></div>
+      </div>
+
+      <div class="grid-2">
+        <div class="section">
+          <h2>Leitura do problema</h2>
+          <ul>
+            <li>Falhas de conformidade aumentam risco de retrabalho, devolução e perda de confiança.</li>
+            <li>Sem rotina de auditoria e indicadores, o sistema tende a agir de forma reativa.</li>
+            <li>Capacidade inadequada ou mal balanceada gera gargalos e instabilidade.</li>
+          </ul>
+        </div>
+        <div class="section">
+          <h2>Direção da solução</h2>
+          <ul>
+            <li>Auditoria interna e externa com rotina formal.</li>
+            <li>Qualificação da equipe, fornecedores e recursos produtivos.</li>
+            <li>Gestão visual, KPIs, causa raiz e devolutiva técnica ao cliente.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="footer"><div>Resumo Executivo</div><div>Slide 2</div></div>
+    </section>
+
+    <section class="slide navy">
+      <div class="topbar"></div>
+      <div class="number">03</div>
+      <h1 class="title">Contexto do Negócio</h1>
+      <div class="two-col">
+        <div class="section">
+          <h2>Ambiente industrial</h2>
+          <ul>
+            <li>Terminais e conectores exigem consistência dimensional, elétrica e visual.</li>
+            <li>Clientes automotivos e de linha branca demandam rastreabilidade e resposta rápida.</li>
+            <li>O SGQ precisa suportar auditorias de cliente, certificação, fornecedor e produção.</li>
+          </ul>
+        </div>
+        <div class="section">
+          <h2>Desafios típicos</h2>
+          <ul>
+            <li>Variação de processo.</li>
+            <li>Documentação incompleta.</li>
+            <li>Competência desigual da equipe.</li>
+            <li>Tratativa lenta de não conformidades.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>Hipótese central</h2>
+        <ul><li>O desempenho melhora quando auditoria, treinamento, capacidade produtiva e plano de ação funcionam como um sistema único.</li></ul>
+      </div>
+
+      <div class="footer"><div>Contexto do Negócio</div><div>Slide 3</div></div>
+    </section>
+
+    <section class="slide white">
+      <div class="topbar"></div>
+      <div class="number">04</div>
+      <h1 class="title">Requisitos de Sistema</h1>
+      <div class="grid-2">
+        <div class="section">
+          <h2>ISO 9001</h2>
+          <ul>
+            <li>Auditorias internas planejadas.</li>
+            <li>Critérios, escopo e frequência definidos.</li>
+            <li>Registros e evidências documentadas.</li>
+            <li>Tratamento de não conformidades e ações corretivas.</li>
+          </ul>
+        </div>
+        <div class="section">
+          <h2>IATF 16949</h2>
+          <ul>
+            <li>Foco reforçado em processos automotivos.</li>
+            <li>Auditoria de sistema, processo e produto.</li>
+            <li>Planejamento baseado em risco.</li>
+            <li>Conformidade com requisitos específicos do cliente.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="footer"><div>Requisitos de Sistema</div><div>Slide 4</div></div>
+    </section>
+
+    <section class="slide navy">
+      <div class="topbar"></div>
+      <div class="number">05</div>
+      <h1 class="title">Auditoria Interna e Externa</h1>
+      <div class="grid-2">
+        <div class="section">
+          <h2>Auditoria interna</h2>
+          <ul>
+            <li>Verifica conformidade, eficácia e aderência ao padrão.</li>
+            <li>Identifica desvios antes que virem falhas externas.</li>
+            <li>Gera insumo para ações corretivas e melhoria contínua.</li>
+          </ul>
+        </div>
+        <div class="section">
+          <h2>Auditoria externa</h2>
+          <ul>
+            <li>Inclui auditorias de cliente, certificadora e avaliação de requisitos externos.</li>
+            <li>Exige evidência clara, rastreável e consistente.</li>
+            <li>Demanda preparação documental e governança de resposta.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="footer"><div>Auditoria Interna e Externa</div><div>Slide 5</div></div>
+    </section>
+
+    <section class="slide white">
+      <div class="topbar"></div>
+      <div class="number">06</div>
+      <h1 class="title">Auditoria de Fornecedor e Recebimento</h1>
+      <div class="grid-3">
+        <div class="section">
+          <h2>Fornecedor</h2>
+          <ul>
+            <li>Qualificação técnica.</li>
+            <li>Monitoramento de desempenho.</li>
+            <li>Auditoria de processo e produto.</li>
+          </ul>
+        </div>
+        <div class="section">
+          <h2>Recebimento</h2>
+          <ul>
+            <li>Inspeção conforme criticidade.</li>
+            <li>Rastreabilidade por lote.</li>
+            <li>Tratativa de desvio na entrada.</li>
+          </ul>
+        </div>
+        <div class="section">
+          <h2>Resultado esperado</h2>
+          <ul>
+            <li>Menos risco de escape.</li>
+            <li>Mais controle da cadeia.</li>
+            <li>Melhor comunicação com fornecedor.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="footer"><div>Auditoria de Fornecedor e Recebimento</div><div>Slide 6</div></div>
+    </section>
+
+    <section class="slide navy">
+      <div class="topbar"></div>
+      <div class="number">07</div>
+      <h1 class="title">Estudo de Capacidade das Prensas</h1>
+      <div class="grid-2">
+        <div class="section">
+          <h2>Prensas de estampagem</h2>
+          <ul>
+            <li>Aplicação em corte, dobra, estampagem e repuxo.</li>
+            <li>A seleção considera força nominal, curso, energia disponível e folga de processo.</li>
+            <li>Operações diferentes exigem capacidades diferentes conforme espessura e geometria da peça.</li>
+          </ul>
+        </div>
+        <div class="section">
+          <h2>Critérios de análise</h2>
+          <ul>
+            <li>Tonelagem por operação.</li>
+            <li>Margem de segurança de 10% a 20%.</li>
+            <li>Velocidade, ciclo e repetibilidade.</li>
+            <li>Disponibilidade real por turno e por linha.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="callout">
+        Em processos de terminais e conectores, a capacidade da prensa deve ser compatível com o tipo de operação: <strong>corte</strong>, <strong>dobra</strong>, <strong>estampagem</strong> e <strong>repuxo</strong>, considerando força nominal e energia disponível do equipamento.
+      </div>
+
+      <div class="footer"><div>Estudo de Capacidade das Prensas</div><div>Slide 7</div></div>
+    </section>
+
+    <section class="slide white">
+      <div class="topbar"></div>
+      <div class="number">08</div>
+      <h1 class="title">Capacidade Típica e Seleção de Equipamento</h1>
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Operação</th>
+            <th>Faixa típica de força</th>
+            <th>Observação</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Corte</strong></td>
+            <td>Variável conforme espessura e resistência do material</td>
+            <td>Depende do perímetro de corte e da folga da matriz.</td>
+          </tr>
+          <tr>
+            <td><strong>Dobra</strong></td>
+            <td>Mais comum em faixas médias de tonelagem</td>
+            <td>Exige controle de retorno elástico e repetibilidade.</td>
+          </tr>
+          <tr>
+            <td><strong>Estampagem</strong></td>
+            <td>Faixas amplas, conforme peça e profundidade</td>
+            <td>Requer atenção à força, curso e energia.</td>
+          </tr>
+          <tr>
+            <td><strong>Repuxo</strong></td>
+            <td>Maior exigência de força e controle de fixação</td>
+            <td>Normalmente exige maior robustez do conjunto.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="section">
+        <h2>Critério prático de seleção</h2>
+        <ul>
+          <li>Escolher a prensa com margem de segurança para desgaste de ferramenta, variação de material e ajustes de processo.</li>
+          <li>Validar se a força nominal atende a aplicação sem operar no limite permanente.</li>
+        </ul>
+      </div>
+
+      <div class="footer"><div>Capacidade Típica e Seleção</div><div>Slide 8</div></div>
+    </section>
+
+    <section class="slide navy">
+      <div class="topbar"></div>
+      <div class="number">09</div>
+      <h1 class="title">Estudo de Capacidade das Injetoras Plásticas</h1>
+      <div class="grid-2">
+        <div class="section">
+          <h2>Fatores analisados</h2>
+          <ul>
+            <li>Ciclo total de injeção.</li>
+            <li>Tempo de resfriamento.</li>
+            <li>Número de cavidades.</li>
+            <li>Disponibilidade por turno.</li>
+            <li>Estabilidade dimensional da peça.</li>
+          </ul>
+        </div>
+        <div class="section">
+          <h2>Objetivo do estudo</h2>
+          <ul>
+            <li>Garantir volume com repetibilidade.</li>
+            <li>Evitar gargalo entre moldagem e estampagem.</li>
+            <li>Assegurar atendimento ao mix de produção.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>Ligação com qualidade</h2>
+        <ul>
+          <li>A capacidade da injetora impacta diretamente a entrega, a estabilidade do produto e a ocorrência de desvios dimensionais ou visuais.</li>
+        </ul>
+      </div>
+
+      <div class="footer"><div>Capacidade das Injetoras</div><div>Slide 9</div></div>
+    </section>
+
+    <section class="slide white">
+      <div class="topbar"></div>
+      <div class="number">10</div>
+      <h1 class="title">Qualificação da Equipe de Qualidade</h1>
+      <div class="grid-2">
+        <div class="section">
+          <h2>Competências essenciais</h2>
+          <ul>
+            <li>Leitura de desenho e especificação.</li>
+            <li>Auditoria interna e análise crítica.</li>
+            <li>Ferramentas de causa raiz.</li>
+            <li>CEP, MSA e tratamento de NC.</li>
+          </ul>
+        </div>
+        <div class="section">
+          <h2>Plano de desenvolvimento</h2>
+          <ul>
+            <li>Matriz de competência.</li>
+            <li>Trilha de treinamento por função.</li>
+            <li>Avaliação de eficácia após capacitação.</li>
+            <li>Reciclagem periódica e observação em campo.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="footer"><div>Qualificação da Equipe</div><div>Slide 10</div></div>
+    </section>
+
+    <section class="slide navy">
+      <div class="topbar"></div>
+      <div class="number">11</div>
+      <h1 class="title">Painel de Redução de Custo da Qualidade</h1>
+      <p class="subtitle">Monitoramento do Custo da Não Qualidade (CNQ) e do retorno gerado pelas ações do SGQ.</p>
+
+      <div class="kpi-box">
+        <div class="kpi"><div class="value">CNQ</div><div class="label">Custo de retrabalho, refugo e devolução</div></div>
+        <div class="kpi"><div class="value">PPM</div><div class="label">Peças defeituosas por milhão entregues</div></div>
+        <div class="kpi"><div class="value">ROI</div><div class="label">Retorno das ações de melhoria</div></div>
+      </div>
+
+      <div class="grid-2">
+        <div class="section">
+          <h2>Indicadores acompanhados</h2>
+          <ul>
+            <li>Custo de refugo por linha/turno.</li>
+            <li>Custo de retrabalho (mão de obra + material).</li>
+            <li>Custo de devolução e frete de garantia.</li>
+            <li>Horas de parada por não conformidade.</li>
+            <li>Custo evitado com ações corretivas.</li>
+          </ul>
+        </div>
+        <div class="section">
+          <h2>Ferramenta e rotina</h2>
+          <ul>
+            <li>Dashboard mensal (Excel/Power BI) com meta vs. realizado.</li>
+            <li>Análise de tendência por causa raiz.</li>
+            <li>Revisão em reunião de KPIs (mensal).</li>
+            <li>Meta: redução progressiva do CNQ em % da receita.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="callout">
+        O painel conecta cada ação de qualidade a um <strong>impacto financeiro mensurável</strong>, justificando investimento em treinamento e capacidade produtiva.
+      </div>
+
+      <div class="footer"><div>Painel de Redução de Custo</div><div>Slide 11</div></div>
+    </section>
+
+    <section class="slide white">
+      <div class="topbar"></div>
+      <div class="number">12</div>
+      <h1 class="title">Planejamento de Treinamento</h1>
+      <p class="subtitle">Estruturação da capacitação da equipe com base em matriz de competências e necessidade do processo.</p>
+
+      <div class="grid-2">
+        <div class="section">
+          <h2>Etapas do planejamento</h2>
+          <ul>
+            <li>Levantamento de gaps (matriz de competência x função).</li>
+            <li>Priorização por criticidade do processo/cargo.</li>
+            <li>Definição de conteúdo, carga horária e instrutor.</li>
+            <li>Cronograma anual integrado ao calendário de produção.</li>
+          </ul>
+        </div>
+        <div class="section">
+          <h2>Temas prioritários</h2>
+          <ul>
+            <li>ISO 9001 e IATF 16949.</li>
+            <li>Leitura de desenho e CEP/MSA.</li>
+            <li>Ferramentas de causa raiz.</li>
+            <li>Segurança e capacidade de máquina.</li>
+          </ul>
+        </div>
+      </div>
+
+      <table class="table">
+        <thead>
+          <tr><th>Função</th><th>Treinamento</th><th>Periodicidade</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Operador</td><td>Padrão de processo e inspeção visual</td><td>Admissional + reciclagem anual</td></tr>
+          <tr><td>Inspetor de Qualidade</td><td>CEP, MSA, auditoria interna</td><td>Semestral</td></tr>
+          <tr><td>Analista/Engenheiro</td><td>IATF, causa raiz, capacidade de processo</td><td>Anual</td></tr>
+        </tbody>
+      </table>
+
+      <div class="footer"><div>Planejamento de Treinamento</div><div>Slide 12</div></div>
+    </section>
+
+    <section class="slide navy">
+      <div class="topbar"></div>
+      <div class="number">13</div>
+      <h1 class="title">Reciclagem de Treinamentos</h1>
+      <p class="subtitle">Garantia de que o conhecimento aplicado se mantém atualizado e eficaz ao longo do tempo.</p>
+
+      <div class="grid-2">
+        <div class="section">
+          <h2>Critérios de reciclagem</h2>
+          <ul>
+            <li>Periodicidade definida por criticidade da função (semestral/anual).</li>
+            <li>Reciclagem obrigatória após não conformidade recorrente.</li>
+            <li>Reciclagem após alteração de processo, produto ou norma.</li>
+            <li>Avaliação teórica e prática pós-treinamento.</li>
+          </ul>
+        </div>
+        <div class="section">
+          <h2>Verificação de eficácia</h2>
+          <ul>
+            <li>Observação em campo (auditoria comportamental).</li>
+            <li>Redução de desvios após reciclagem.</li>
+            <li>Registro em matriz de treinamento (evidência para auditoria).</li>
+            <li>Indicador: % de colaboradores com reciclagem em dia.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="callout">
+        A reciclagem é tratada como <strong>requisito de sistema</strong> (ISO 9001/IATF 16949), não apenas como boa prática — com registro auditável de eficácia.
+      </div>
+
+      <div class="footer"><div>Reciclagem de Treinamentos</div><div>Slide 13</div></div>
+    </section>
+
+    <section class="slide white">
+      <div class="topbar"></div>
+      <div class="number">14</div>
+      <h1 class="title">Desenvolvimento de Novas Habilidades e Cursos</h1>
+      <p class="subtitle">Trilhas de capacitação para elevar o nível técnico da equipe além do escopo básico da função.</p>
+
+      <div class="grid-3">
+        <div class="section">
+          <h2>Trilha técnica</h2>
+          <ul>
+            <li>CEP avançado e MSA.</li>
+            <li>FMEA e APQP.</li>
+            <li>Estudo de capacidade de máquina (Cp/Cpk).</li>
+          </ul>
+        </div>
+        <div class="section">
+          <h2>Trilha comportamental</h2>
+          <ul>
+            <li>Trabalho em equipe e comunicação com cliente.</li>
+            <li>Gestão de rotina e disciplina de processo.</li>
+            <li>Liderança para supervisores de qualidade.</li>
+          </ul>
+        </div>
+        <div class="section">
+          <h2>Cursos e certificações</h2>
+          <ul>
+            <li>Formação de auditor interno IATF 16949.</li>
+            <li>Parcerias (SENAI, plataformas online).</li>
+            <li>Vinculação a plano de carreira e reconhecimento.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>Resultado esperado</h2>
+        <ul>
+          <li>Equipe multifuncional, menor dependência de especialistas únicos e maior autonomia na resolução de problemas.</li>
+        </ul>
+      </div>
+
+      <div class="footer"><div>Desenvolvimento de Habilidades e Cursos</div><div>Slide 14</div></div>
+    </section>
+
+    <section class="slide navy">
+      <div class="topbar"></div>
+      <div class="number">15</div>
+      <h1 class="title">Análise de Causa Raiz e Devolutiva</h1>
+      <div class="grid-2">
+        <div class="section">
+          <h2>Análise interna</h2>
+          <ul>
+            <li>5 Porquês, Ishikawa e Pareto.</li>
+            <li>Estratificação por máquina, turno, lote e operador.</li>
+            <li>Contenção imediata e confirmação da causa.</li>
+          </ul>
+        </div>
+        <div class="section">
+          <h2>Devolutiva ao cliente</h2>
+          <ul>
+            <li>Relatório claro e objetivo.</li>
+            <li>Desvio, contenção, causa raiz e ação definitiva.</li>
+            <li>Compromisso com prazo e evidência de eficácia.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="footer"><div>Análise de Causa Raiz e Devolutiva</div><div>Slide 15</div></div>
+    </section>
+
+    <section class="slide white">
+      <div class="topbar"></div>
+      <div class="number">16</div>
+      <h1 class="title">Projeto de Melhoria Contínua</h1>
+      <div class="grid-3">
+        <div class="section">
+          <h2>Priorizar</h2>
+          <ul>
+            <li>Mapear problemas críticos.</li>
+            <li>Classificar por impacto e risco.</li>
+            <li>Selecionar frentes de maior retorno.</li>
+          </ul>
+        </div>
+        <div class="section">
+          <h2>Executar</h2>
+          <ul>
+            <li>Plano de ação com responsável e prazo.</li>
+            <li>Reuniões de acompanhamento.</li>
+            <li>Validação dos resultados.</li>
+          </ul>
+        </div>
+        <div class="section">
+          <h2>Sustentar</h2>
+          <ul>
+            <li>Auditoria.</li>
+            <li>Treinamento.</li>
+            <li>Gestão visual.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="footer"><div>Projeto de Melhoria Contínua</div><div>Slide 16</div></div>
+    </section>
+
+    <section class="slide navy">
+      <div class="topbar"></div>
+      <div class="number">17</div>
+      <h1 class="title">Reuniões de KPIs e Gestão à Vista</h1>
+      <div class="grid-2">
+        <div class="section">
+          <h2>KPIs sugeridos</h2>
+          <ul>
+            <li>PPM de cliente.</li>
+            <li>Refugo e retrabalho.</li>
+            <li>Fechamento de NC no prazo.</li>
+            <li>Eficácia das ações corretivas.</li>
+            <li>Aderência a auditorias e planos.</li>
+          </ul>
+        </div>
+        <div class="section">
+          <h2>Gestão à vista</h2>
+          <ul>
+            <li>Painel visual diário/semanal.</li>
+            <li>Status das ações por responsável.</li>
+            <li>Tendência e desvio por área.</li>
+            <li>Decisão rápida com base em fatos.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="footer"><div>KPIs e Gestão à Vista</div><div>Slide 17</div></div>
+    </section>
+
+    <section class="slide white">
+      <div class="topbar"></div>
+      <div class="number">18</div>
+      <h1 class="title">Cronograma de Implantação</h1>
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Período</th>
+            <th>Entrega</th>
+            <th>Resultado esperado</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>0–30 dias</strong></td>
+            <td>Diagnóstico, levantamento documental e mapeamento de gaps.</td>
+            <td>Visão clara das prioridades.</td>
+          </tr>
+          <tr>
+            <td><strong>30–90 dias</strong></td>
+            <td>Treinamento, auditorias internas e plano de ação.</td>
+            <td>Correções e controle inicial.</td>
+          </tr>
+          <tr>
+            <td><strong>90–180 dias</strong></td>
+            <td>KPIs, gestão à vista, estudo de capacidade e revisão de eficácia.</td>
+            <td>Sustentação dos ganhos.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="footer"><div>Cronograma de Implantação</div><div>Slide 18</div></div>
+    </section>
+
+    <section class="slide navy">
+      <div class="topbar"></div>
+      <div class="number">19</div>
+      <h1 class="title">Conclusão</h1>
+      <div class="section">
+        <ul>
+          <li>O projeto integra requisitos de ISO 9001 e IATF 16949 com auditoria, qualificação, capacidade produtiva, redução de custo e melhoria contínua.</li>
+          <li>O plano de treinamento, reciclagem e desenvolvimento de habilidades sustenta o desempenho técnico da equipe ao longo do tempo.</li>
+          <li>O estudo de prensas e injetoras fortalece a base técnica do processo de terminais e conectores.</li>
+          <li>O resultado esperado é um processo mais previsível, auditável, estável, sustentável e economicamente vantajoso.</li>
+        </ul>
+      </div>
+
+      <div class="footer"><div>Conclusão</div><div>Slide 19</div></div>
+    </section>
+
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <script>
+    const btn = document.getElementById('downloadPdf');
+    const content = document.getElementById('content');
+
+    btn.addEventListener('click', async function () {
+      btn.disabled = true;
+      btn.textContent = 'Gerando PDF...';
+
+      try {
+        const options = {
+          margin: [0, 0, 0, 0],
+          filename: 'business-case-qualidade-iatf-iso9001.pdf',
+          image: { type: 'jpeg', quality: 0.98 },
+          html2canvas: {
+            scale: 1.5,
+            useCORS: true,
+            scrollX: 0,
+            scrollY: 0,
+            backgroundColor: '#ffffff'
+          },
+          jsPDF: {
+            unit: 'mm',
+            format: 'a4',
+            orientation: 'landscape'
+          },
+          pagebreak: {
+            mode: ['avoid-all', 'css', 'legacy']
+          }
+        };
+
+        await html2pdf().set(options).from(content).save();
+      } catch (error) {
+        console.error(error);
+        alert('Não foi possível gerar o PDF. Use a opção de imprimir do navegador, se necessário.');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Gerar PDF';
+      }
+    });
+  </script>
+</body>
+</html>
