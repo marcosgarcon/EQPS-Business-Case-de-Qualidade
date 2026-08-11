@@ -1,0 +1,1062 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>EPQS - Eng Process Quality and Statistics · Painel de Produção</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+:root{--azul-ville:#1565c0;--azul-deep:#0d47a1;--azul-claro:#4a90d9;--laranja:#4a90d9;--laranja-claro:#7fb3e8;--verde:#22c55e;--verde-deep:#16a34a;--verde-claro:#4ade80;--vermelho:#ef4444;--amarelo:#f59e0b;--roxo:#a78bfa;--rosa:#f472b6;--ciano:#22d3ee;--indigo:#818cf8;--cinza-50:#0f1e36;--cinza-100:#1a2942;--cinza-200:#2a3a55;--cinza-300:#2a3a55;--cinza-500:#94a3b8;--cinza-600:#94a3b8;--cinza-700:#cbd5e1;--cinza-800:#e5e7eb;--sombra-sm:0 2px 6px rgba(0,0,0,.3);--sombra-md:0 4px 12px rgba(0,0,0,.35);--sombra-lg:0 10px 30px rgba(0,0,0,.45);--sombra-xl:0 20px 45px rgba(0,0,0,.55);--radius-sm:6px;--radius-md:10px;--radius-lg:14px;--radius-xl:20px;}
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{
+  font-family:'Inter',-apple-system,sans-serif;
+  background:#0a1628;
+  color:var(--cinza-800);
+  min-height:100vh;
+}
+/* HEADER */
+.header{
+  background:linear-gradient(135deg,var(--azul-deep) 0%,var(--azul-ville) 60%,var(--verde-deep) 100%);
+  color:#fff; padding:25px 30px; box-shadow:var(--sombra-xl);
+  position:sticky; top:0; z-index:100;
+}
+.header-inner{
+  display:flex; justify-content:space-between; align-items:center;
+  flex-wrap:wrap; gap:20px; max-width:1700px; margin:0 auto;
+}
+.logo-area{display:flex; align-items:center; gap:18px;}
+.logo-icon{
+  width:65px; height:65px;
+  background:linear-gradient(135deg,var(--verde),var(--verde-claro));
+  border-radius:var(--radius-lg);
+  display:flex; align-items:center; justify-content:center;
+  font-size:32px; box-shadow:0 8px 20px rgba(16,185,129,.4);
+}
+.logo-text h1{font-size:26px; font-weight:900; letter-spacing:-.5px;}
+.logo-text p{font-size:13px; opacity:.85; margin-top:2px;}
+.logo-text .badge-modulo{
+  display:inline-block; background:var(--laranja); color:#fff;
+  padding:2px 8px; border-radius:4px; font-size:10px;
+  font-weight:700; margin-left:8px; vertical-align:middle;
+}
+.header-info{display:flex; align-items:center; gap:12px; flex-wrap:wrap;}
+.header-stat{
+  text-align:center; padding:10px 18px;
+  background:rgba(255,255,255,.1);
+  border-radius:var(--radius-md);
+  backdrop-filter:blur(10px);
+  border:1px solid rgba(255,255,255,.15);
+  min-width:90px;
+}
+.header-stat .label{
+  font-size:10px; opacity:.8; text-transform:uppercase; letter-spacing:.5px;
+}
+.header-stat .valor{
+  font-size:22px; font-weight:800; color:var(--verde-claro); margin-top:3px;
+}
+.header-stat.alerta .valor{color:var(--laranja);}
+.header-stat.critico .valor{color:#fca5a5;}
+.btn-voltar{
+  background:rgba(255,255,255,.15); color:#fff; border:1px solid rgba(255,255,255,.25);
+  padding:10px 16px; border-radius:var(--radius-md); cursor:pointer;
+  font-size:13px; font-weight:600; transition:all .2s;
+}
+.btn-voltar:hover{background:rgba(255,255,255,.25); transform:translateY(-2px);}
+/* MAIN */
+.main{max-width:1700px; margin:0 auto; padding:30px;}
+.welcome{
+  background:linear-gradient(135deg,#fff,var(--cinza-50));
+  border-radius:var(--radius-xl);
+  padding:28px; margin-bottom:28px;
+  box-shadow:var(--sombra-md);
+  border-left:5px solid var(--verde);
+  display:flex; justify-content:space-between;
+  flex-wrap:wrap; gap:20px; align-items:center;
+}
+.welcome h2{font-size:24px; color:var(--azul-ville); margin-bottom:6px;}
+.welcome h2 .icon-prod{color:var(--verde);}
+.welcome p{color:var(--cinza-600); font-size:14px;}
+.welcome-actions{display:flex; gap:10px; flex-wrap:wrap;}
+/* KPIs */
+.kpis-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+  gap:18px;
+  margin-bottom:30px;
+}
+.kpi-card{
+  background:#0f1e36; border-radius:var(--radius-lg); padding:22px;
+  box-shadow:var(--sombra-md); border-left:4px solid var(--verde);
+  transition:all .3s; position:relative; overflow:hidden;
+}
+.kpi-card:hover{transform:translateY(-4px); box-shadow:var(--sombra-xl);}
+.kpi-card.azul{border-left-color:var(--azul-ville);}
+.kpi-card.laranja{border-left-color:var(--laranja);}
+.kpi-card.vermelho{border-left-color:var(--vermelho);}
+.kpi-card.amarelo{border-left-color:var(--amarelo);}
+.kpi-card.roxo{border-left-color:var(--roxo);}
+.kpi-card.ciano{border-left-color:var(--ciano);}
+.kpi-card.rosa{border-left-color:var(--rosa);}
+.kpi-label{
+  font-size:11px; text-transform:uppercase; color:var(--cinza-500);
+  font-weight:700; letter-spacing:.5px; margin-bottom:8px;
+}
+.kpi-valor{
+  font-size:32px; font-weight:800; color:var(--azul-ville);
+  margin-bottom:4px; line-height:1;
+}
+.kpi-sub{font-size:11px; color:var(--cinza-500);}
+.kpi-trend{
+  display:inline-block; font-size:11px; font-weight:700;
+  padding:2px 8px; border-radius:10px; margin-top:6px;
+}
+.kpi-trend.up{background:#d1fae5; color:var(--verde-deep);}
+.kpi-trend.down{background:#fee2e2; color:var(--vermelho);}
+.kpi-trend.warn{background:#fef3c7; color:#92400e;}
+
+.epqs-topbar{background:rgba(10,22,40,.55);border-bottom:1px solid rgba(255,255,255,.12);padding:10px 20px;display:flex;gap:8px;flex-wrap:wrap;align-items:center;position:sticky;top:0;z-index:200;backdrop-filter:blur(6px);}
+.epqs-topbar .epqs-brand{display:flex;align-items:center;gap:8px;font-size:12px;color:#cbd5e1;margin-right:10px;white-space:nowrap;font-weight:600;}
+.epqs-topbar .epqs-brand img{height:20px;}
+.epqs-nav{display:flex;gap:6px;flex-wrap:wrap;overflow-x:auto;}
+.epqs-nav a{padding:7px 12px;border-radius:20px;background:rgba(255,255,255,.08);color:#e5e7eb;text-decoration:none;font-size:12.5px;font-weight:600;border:1px solid rgba(255,255,255,.12);white-space:nowrap;}
+.epqs-nav a:hover{background:rgba(255,255,255,.18);}
+.epqs-nav a.active{background:#1565c0;border-color:#1565c0;color:#fff;}
+.epqs-credit{font-size:11px;color:#64748b;text-align:center;padding:14px;}
+@media print{.epqs-topbar{display:none !important;}}
+</style>
+<style>
+/* SEÇÃO TÍTULO */
+.section-title{
+  font-size:18px; font-weight:800; color:var(--azul-ville);
+  margin:30px 0 16px; padding-left:14px;
+  border-left:5px solid var(--verde);
+  display:flex; align-items:center; gap:10px;
+}
+.section-title .badge-count{
+  background:var(--verde); color:#fff; font-size:12px;
+  padding:3px 10px; border-radius:12px; font-weight:700;
+}
+/* GRID FERRAMENTAS */
+.ferramentas-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(280px,1fr));
+  gap:20px; margin-bottom:30px;
+}
+.ferramenta-card{
+  background:#0f1e36; border-radius:var(--radius-lg); padding:22px;
+  box-shadow:var(--sombra-md); cursor:pointer;
+  transition:all .3s; position:relative; overflow:hidden;
+  border-top:4px solid var(--verde);
+}
+.ferramenta-card::before{
+  content:""; position:absolute; top:0; right:0;
+  width:80px; height:80px;
+  background:radial-gradient(circle,rgba(16,185,129,.1),transparent 70%);
+  border-radius:0 0 0 80px;
+}
+.ferramenta-card:hover{transform:translateY(-6px); box-shadow:var(--sombra-xl);}
+.ferramenta-card.azul{border-top-color:var(--azul-ville);}
+.ferramenta-card.azul::before{background:radial-gradient(circle,rgba(10,37,64,.1),transparent 70%);}
+.ferramenta-card.laranja{border-top-color:var(--laranja);}
+.ferramenta-card.laranja::before{background:radial-gradient(circle,rgba(255,107,53,.12),transparent 70%);}
+.ferramenta-card.vermelho{border-top-color:var(--vermelho);}
+.ferramenta-card.amarelo{border-top-color:var(--amarelo);}
+.ferramenta-card.roxo{border-top-color:var(--roxo);}
+.ferramenta-card.ciano{border-top-color:var(--ciano);}
+.ferramenta-card.rosa{border-top-color:var(--rosa);}
+.ferramenta-icon{
+  width:55px; height:55px; border-radius:var(--radius-md);
+  background:linear-gradient(135deg,var(--verde),var(--verde-claro));
+  display:flex; align-items:center; justify-content:center;
+  font-size:26px; color:#fff; margin-bottom:14px;
+  box-shadow:0 6px 14px rgba(16,185,129,.3);
+}
+.ferramenta-card.azul .ferramenta-icon{background:linear-gradient(135deg,var(--azul-ville),var(--azul-claro)); box-shadow:0 6px 14px rgba(10,37,64,.35);}
+.ferramenta-card.laranja .ferramenta-icon{background:linear-gradient(135deg,var(--laranja),var(--laranja-claro)); box-shadow:0 6px 14px rgba(255,107,53,.35);}
+.ferramenta-card.vermelho .ferramenta-icon{background:linear-gradient(135deg,var(--vermelho),#f87171); box-shadow:0 6px 14px rgba(239,68,68,.35);}
+.ferramenta-card.amarelo .ferramenta-icon{background:linear-gradient(135deg,var(--amarelo),#fbbf24); box-shadow:0 6px 14px rgba(245,158,11,.35);}
+.ferramenta-card.roxo .ferramenta-icon{background:linear-gradient(135deg,var(--roxo),#a78bfa); box-shadow:0 6px 14px rgba(139,92,246,.35);}
+.ferramenta-card.ciano .ferramenta-icon{background:linear-gradient(135deg,var(--ciano),#22d3ee); box-shadow:0 6px 14px rgba(6,182,212,.35);}
+.ferramenta-card.rosa .ferramenta-icon{background:linear-gradient(135deg,var(--rosa),#f472b6); box-shadow:0 6px 14px rgba(236,72,153,.35);}
+.ferramenta-card h3{
+  font-size:16px; font-weight:700; color:var(--azul-ville);
+  margin-bottom:6px;
+}
+.ferramenta-card p{
+  font-size:12px; color:var(--cinza-600); line-height:1.5;
+  margin-bottom:14px;
+}
+.ferramenta-stats{
+  display:flex; justify-content:space-between;
+  padding-top:12px; border-top:1px solid var(--cinza-100);
+}
+.ferramenta-stat{text-align:center;}
+.ferramenta-stat .num{
+  font-size:18px; font-weight:800; color:var(--verde-deep);
+}
+.ferramenta-stat .lbl{
+  font-size:9px; text-transform:uppercase; color:var(--cinza-500);
+  font-weight:600; letter-spacing:.3px;
+}
+.ferramenta-destaque{
+  position:absolute; top:12px; right:12px;
+  background:var(--laranja); color:#fff;
+  padding:3px 8px; border-radius:10px;
+  font-size:9px; font-weight:700; text-transform:uppercase;
+  box-shadow:0 4px 8px rgba(255,107,53,.4);
+  z-index:2;
+}
+/* PAINÉIS GRÁFICOS */
+.charts-grid{
+  display:grid;
+  grid-template-columns:2fr 1fr;
+  gap:20px; margin-bottom:30px;
+}
+@media(max-width:1100px){.charts-grid{grid-template-columns:1fr;}}
+.chart-card{
+  background:#0f1e36; border-radius:var(--radius-lg); padding:22px;
+  box-shadow:var(--sombra-md);
+}
+.chart-card h3{
+  font-size:15px; font-weight:700; color:var(--azul-ville);
+  margin-bottom:14px; display:flex; align-items:center; gap:8px;
+}
+.chart-container{position:relative; height:280px;}
+/* ALERTAS */
+.alertas-card{
+  background:#0f1e36; border-radius:var(--radius-lg); padding:22px;
+  box-shadow:var(--sombra-md);
+}
+.alerta-item{
+  display:flex; align-items:center; gap:12px;
+  padding:12px; margin-bottom:10px;
+  border-radius:var(--radius-md);
+  background:var(--cinza-50);
+  border-left:4px solid var(--verde);
+  transition:all .2s;
+}
+.alerta-item:hover{background:var(--cinza-100);}
+.alerta-item.critico{border-left-color:var(--vermelho); background:#fef2f2;}
+.alerta-item.aviso{border-left-color:var(--amarelo); background:#fffbeb;}
+.alerta-item.info{border-left-color:var(--azul-claro); background:#eff6ff;}
+.alerta-icon{font-size:22px;}
+.alerta-content{flex:1;}
+.alerta-titulo{font-size:13px; font-weight:700; color:var(--azul-ville);}
+.alerta-desc{font-size:11px; color:var(--cinza-600); margin-top:2px;}
+.alerta-hora{font-size:10px; color:var(--cinza-500); margin-top:2px;}
+/* BOTÕES */
+.btn{
+  padding:10px 18px; border:none; border-radius:var(--radius-md);
+  cursor:pointer; font-weight:600; font-size:13px;
+  display:inline-flex; align-items:center; gap:8px;
+  transition:all .2s;
+}
+.btn-primary{background:linear-gradient(135deg,var(--verde),var(--verde-deep)); color:#fff;}
+.btn-primary:hover{transform:translateY(-2px); box-shadow:var(--sombra-lg);}
+.btn-azul{background:linear-gradient(135deg,var(--azul-ville),var(--azul-claro)); color:#fff;}
+.btn-azul:hover{transform:translateY(-2px); box-shadow:var(--sombra-lg);}
+.btn-laranja{background:linear-gradient(135deg,var(--laranja),var(--laranja-claro)); color:#fff;}
+.btn-laranja:hover{transform:translateY(-2px); box-shadow:var(--sombra-lg);}
+.btn-ghost{background:#0f1e36; color:var(--cinza-700); border:1px solid var(--cinza-300);}
+.btn-ghost:hover{background:var(--cinza-50);}
+/* MODAL */
+.modal-overlay{
+  position:fixed; top:0; left:0; right:0; bottom:0;
+  background:rgba(0,0,0,.6); backdrop-filter:blur(4px);
+  display:none; align-items:center; justify-content:center;
+  z-index:1000; padding:20px;
+}
+.modal-overlay.ativo{display:flex; animation:fadeIn .25s ease;}
+.modal{
+  background:#0f1e36; border-radius:var(--radius-xl);
+  max-width:900px; width:100%; max-height:90vh; overflow-y:auto;
+  box-shadow:var(--sombra-xl); animation:slideUp .3s ease;
+}
+.modal-header{
+  background:linear-gradient(135deg,var(--azul-ville),var(--verde-deep));
+  color:#fff; padding:22px 26px;
+  border-radius:var(--radius-xl) var(--radius-xl) 0 0;
+  display:flex; justify-content:space-between; align-items:center;
+}
+.modal-header h2{font-size:20px; font-weight:800;}
+.modal-close{
+  background:rgba(255,255,255,.2); color:#fff; border:none;
+  width:34px; height:34px; border-radius:50%; cursor:pointer;
+  font-size:18px; font-weight:700;
+}
+.modal-body{padding:26px;}
+.form-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:16px;}
+.form-group{display:flex; flex-direction:column; gap:6px;}
+.form-group label{font-size:12px; font-weight:600; color:var(--cinza-700); text-transform:uppercase; letter-spacing:.3px;}
+.form-group input, .form-group select, .form-group textarea{
+  padding:10px 12px; border:1.5px solid var(--cinza-200);
+  border-radius:var(--radius-sm); font-size:13px; font-family:inherit;
+  transition:all .2s;
+}
+.form-group input:focus, .form-group select:focus, .form-group textarea:focus{
+  outline:none; border-color:var(--verde); box-shadow:0 0 0 3px rgba(16,185,129,.15);
+}
+.form-group.full{grid-column:1/-1;}
+.modal-footer{
+  padding:18px 26px; border-top:1px solid var(--cinza-100);
+  display:flex; justify-content:flex-end; gap:10px;
+}
+/* TABELA OPs */
+.tabela-ops{
+  background:#0f1e36; border-radius:var(--radius-lg);
+  padding:22px; box-shadow:var(--sombra-md); margin-bottom:30px;
+  overflow-x:auto;
+}
+.tabela-ops table{width:100%; border-collapse:collapse;}
+.tabela-ops th{
+  text-align:left; padding:12px; font-size:11px;
+  text-transform:uppercase; color:var(--cinza-600); font-weight:700;
+  border-bottom:2px solid var(--cinza-200); letter-spacing:.3px;
+}
+.tabela-ops td{
+  padding:12px; font-size:13px; color:var(--cinza-700);
+  border-bottom:1px solid var(--cinza-100);
+}
+.tabela-ops tr:hover{background:var(--cinza-50);}
+.status-tag{
+  display:inline-block; padding:3px 10px; border-radius:10px;
+  font-size:10px; font-weight:700; text-transform:uppercase;
+}
+.status-tag.aberta{background:#dbeafe; color:#1e40af;}
+.status-tag.producao{background:#fef3c7; color:#92400e;}
+.status-tag.concluida{background:#d1fae5; color:#065f46;}
+.status-tag.atrasada{background:#fee2e2; color:#991b1b;}
+.status-tag.pausada{background:#e5e7eb; color:#374151;}
+.prio-tag{
+  display:inline-block; padding:2px 8px; border-radius:8px;
+  font-size:10px; font-weight:700;
+}
+.prio-tag.alta{background:#fee2e2; color:var(--vermelho);}
+.prio-tag.media{background:#fef3c7; color:#92400e;}
+.prio-tag.baixa{background:#d1fae5; color:var(--verde-deep);}
+.btn-acao{
+  background:none; border:none; cursor:pointer; padding:4px 8px;
+  font-size:14px; transition:all .2s; border-radius:4px;
+}
+.btn-acao:hover{background:var(--cinza-100); transform:scale(1.2);}
+/* TOAST */
+.toast{
+  position:fixed; bottom:30px; right:30px;
+  background:var(--verde-deep); color:#fff;
+  padding:16px 22px; border-radius:var(--radius-md);
+  box-shadow:var(--sombra-xl);
+  display:flex; align-items:center; gap:10px;
+  z-index:2000; transform:translateY(150%);
+  transition:transform .35s cubic-bezier(.34,1.56,.64,1);
+  font-weight:600; font-size:13px;
+}
+.toast.show{transform:translateY(0);}
+.toast.erro{background:var(--vermelho);}
+.toast.aviso{background:var(--amarelo); color:#000;}
+/* FILTROS BARRA */
+.filtros-barra{
+  background:#0f1e36; border-radius:var(--radius-lg);
+  padding:16px 20px; box-shadow:var(--sombra-md);
+  margin-bottom:20px; display:flex; gap:12px;
+  flex-wrap:wrap; align-items:center;
+}
+.filtro-input{
+  padding:9px 14px; border:1.5px solid var(--cinza-200);
+  border-radius:var(--radius-sm); font-size:13px; font-family:inherit;
+  flex:1; min-width:180px;
+}
+.filtro-input:focus{outline:none; border-color:var(--verde);}
+@keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
+@keyframes slideUp{from{transform:translateY(30px); opacity:0;}to{transform:translateY(0); opacity:1;}}
+/* RESPONSIVO */
+@media(max-width:768px){
+  .header{padding:18px;}
+  .logo-text h1{font-size:20px;}
+  .header-stat{padding:6px 12px; min-width:70px;}
+  .header-stat .valor{font-size:18px;}
+  .main{padding:18px;}
+  .welcome{padding:20px;}
+  .welcome h2{font-size:19px;}
+  .kpi-valor{font-size:26px;}
+}
+</style>
+</head>
+<body>
+<div class="epqs-topbar">
+  <div class="epqs-brand"><img src="assets/eqps-logo-horizontal.png" alt="EPQS - Eng Process Quality and Statistics" onerror="this.style.display='none'"> EPQS - Eng Process Quality and Statistics</div>
+  <div class="epqs-nav">
+  <a href="index.html">🏢 EPQS (Início)</a>
+    <a href="estoque.html">📦 Estoque</a>
+    <a href="painel-rh.html">👥 RH</a>
+    <a href="engenharia.html">📐 Engenharia</a>
+    <a href="logistica.html">🚚 Logística</a>
+    <a href="vendas.html">💹 Vendas</a>
+    <a href="painel-producao.html" class="active">🏭 Produção</a>
+    <a href="wm-kpi.html">📈 KPI Manager</a>
+  </div>
+</div>
+
+<!-- HEADER -->
+<header class="header">
+  <div class="header-inner">
+    <div class="logo-area">
+      <div class="logo-icon">🏭</div>
+      <div class="logo-text">
+        <h1>EPQS <span class="badge-modulo">PRODUÇÃO</span></h1>
+        <p>Painel Central de Produção Industrial</p>
+      </div>
+    </div>
+    <div class="header-info">
+      <div class="header-stat">
+        <div class="label">OEE Global</div>
+        <div class="valor" id="hdr-oee">82%</div>
+      </div>
+      <div class="header-stat alerta">
+        <div class="label">OPs Ativas</div>
+        <div class="valor" id="hdr-ops">14</div>
+      </div>
+      <div class="header-stat critico">
+        <div class="label">Atrasadas</div>
+        <div class="valor" id="hdr-atrasadas">2</div>
+      </div>
+      <button class="btn-voltar" onclick="window.history.back()">← Voltar</button>
+    </div>
+  </div>
+</header>
+
+<!-- MAIN -->
+<main class="main">
+  <!-- WELCOME -->
+  <div class="welcome">
+    <div>
+      <h2><span class="icon-prod">🏭</span> Bem-vindo ao Módulo Produção, Marcos!</h2>
+      <p>Gerencie ordens, OEE, manutenção, qualidade e lean em um só lugar — totalmente integrado.</p>
+    </div>
+    <div class="welcome-actions">
+      <button class="btn btn-primary" onclick="abrirModalOP()">➕ Nova OP</button>
+      <button class="btn btn-azul" onclick="exportarCSV()">📥 Exportar</button>
+      <button class="btn btn-ghost" onclick="recarregarKPIs()">🔄 Atualizar</button>
+    </div>
+  </div>
+
+  <!-- KPIs -->
+  <div class="kpis-grid">
+    <div class="kpi-card">
+      <div class="kpi-label">OEE Global</div>
+      <div class="kpi-valor" id="kpi-oee">82%</div>
+      <div class="kpi-sub">Meta: 85%</div>
+      <span class="kpi-trend up">▲ +3%</span>
+    </div>
+    <div class="kpi-card azul">
+      <div class="kpi-label">Ordens Abertas</div>
+      <div class="kpi-valor" id="kpi-ops">14</div>
+      <div class="kpi-sub">3 prioridade alta</div>
+      <span class="kpi-trend warn">● Em andamento</span>
+    </div>
+    <div class="kpi-card laranja">
+      <div class="kpi-label">Produção do Mês</div>
+      <div class="kpi-valor" id="kpi-prod">8.420</div>
+      <div class="kpi-sub">unidades produzidas</div>
+      <span class="kpi-trend up">▲ +12%</span>
+    </div>
+    <div class="kpi-card vermelho">
+      <div class="kpi-label">Taxa Refugo</div>
+      <div class="kpi-valor" id="kpi-refugo">2,4%</div>
+      <div class="kpi-sub">Meta: < 3%</div>
+      <span class="kpi-trend up">▼ -0,3%</span>
+    </div>
+    <div class="kpi-card roxo">
+      <div class="kpi-label">FPY</div>
+      <div class="kpi-valor" id="kpi-fpy">94%</div>
+      <div class="kpi-sub">First Pass Yield</div>
+      <span class="kpi-trend up">▲ +2%</span>
+    </div>
+    <div class="kpi-card amarelo">
+      <div class="kpi-label">MTBF</div>
+      <div class="kpi-valor" id="kpi-mtbf">126h</div>
+      <div class="kpi-sub">Entre falhas</div>
+      <span class="kpi-trend up">▲ +8h</span>
+    </div>
+    <div class="kpi-card ciano">
+      <div class="kpi-label">Estoque MP</div>
+      <div class="kpi-valor" id="kpi-estoque">87%</div>
+      <div class="kpi-sub">Nível ideal</div>
+      <span class="kpi-trend warn">● 3 abaixo do mín</span>
+    </div>
+    <div class="kpi-card rosa">
+      <div class="kpi-label">5S Score</div>
+      <div class="kpi-valor" id="kpi-5s">88%</div>
+      <div class="kpi-sub">Auditoria recente</div>
+      <span class="kpi-trend up">▲ +5%</span>
+    </div>
+  </div>
+
+  <!-- FERRAMENTAS -->
+  <h2 class="section-title">🛠️ Ferramentas do Módulo <span class="badge-count">9</span></h2>
+  <div class="ferramentas-grid">
+    <div class="ferramenta-card azul" onclick="abrirFerramenta('prod-ordens.html')">
+      <span class="ferramenta-destaque">Principal</span>
+      <div class="ferramenta-icon">📋</div>
+      <h3>Ordens de Produção</h3>
+      <p>Gestão completa de OPs: criação, status, prazos e prioridades.</p>
+      <div class="ferramenta-stats">
+        <div class="ferramenta-stat"><div class="num" id="fer-op-total">14</div><div class="lbl">Abertas</div></div>
+        <div class="ferramenta-stat"><div class="num" id="fer-op-prod">8</div><div class="lbl">Produção</div></div>
+        <div class="ferramenta-stat"><div class="num" id="fer-op-atr">2</div><div class="lbl">Atrasadas</div></div>
+      </div>
+    </div>
+
+    <div class="ferramenta-card" onclick="abrirFerramenta('prod-pcp.html')">
+      <div class="ferramenta-icon">📦</div>
+      <h3>Planejamento PCP/MPS</h3>
+      <p>Gestão de demanda, capacidade produtiva e volume mensal.</p>
+      <div class="ferramenta-stats">
+        <div class="ferramenta-stat"><div class="num">42</div><div class="lbl">Demandas</div></div>
+        <div class="ferramenta-stat"><div class="num">78%</div><div class="lbl">Capacidade</div></div>
+        <div class="ferramenta-stat"><div class="num">12</div><div class="lbl">SKUs</div></div>
+      </div>
+    </div>
+
+    <div class="ferramenta-card laranja" onclick="abrirFerramenta('prod-apontamento.html')">
+      <div class="ferramenta-icon">🏭</div>
+      <h3>Apontamento de Produção</h3>
+      <p>Registros por turno, operador e quantidade produzida.</p>
+      <div class="ferramenta-stats">
+        <div class="ferramenta-stat"><div class="num">126</div><div class="lbl">Hoje</div></div>
+        <div class="ferramenta-stat"><div class="num">8.420</div><div class="lbl">Mês</div></div>
+        <div class="ferramenta-stat"><div class="num">3</div><div class="lbl">Turnos</div></div>
+      </div>
+    </div>
+
+    <div class="ferramenta-card roxo" onclick="abrirFerramenta('prod-oee.html')">
+      <div class="ferramenta-icon">⚙️</div>
+      <h3>OEE (Eficiência Geral)</h3>
+      <p>Cálculo de disponibilidade, performance e qualidade.</p>
+      <div class="ferramenta-stats">
+        <div class="ferramenta-stat"><div class="num">82%</div><div class="lbl">OEE</div></div>
+        <div class="ferramenta-stat"><div class="num">91%</div><div class="lbl">Disp</div></div>
+        <div class="ferramenta-stat"><div class="num">95%</div><div class="lbl">Qual</div></div>
+      </div>
+    </div>
+
+    <div class="ferramenta-card amarelo" onclick="abrirFerramenta('prod-manutencao.html')">
+      <div class="ferramenta-icon">🔧</div>
+      <h3>Manutenção (TPM)</h3>
+      <p>Controle de manutenção preventiva e corretiva.</p>
+      <div class="ferramenta-stats">
+        <div class="ferramenta-stat"><div class="num">8</div><div class="lbl">Prevent</div></div>
+        <div class="ferramenta-stat"><div class="num">3</div><div class="lbl">Correct</div></div>
+        <div class="ferramenta-stat"><div class="num">126h</div><div class="lbl">MTBF</div></div>
+      </div>
+    </div>
+
+    <div class="ferramenta-card" onclick="abrirFerramenta('prod-qualidade.html')">
+      <div class="ferramenta-icon">✅</div>
+      <h3>Controle da Qualidade</h3>
+      <p>Inspeções, refugo, retrabalho e First Pass Yield.</p>
+      <div class="ferramenta-stats">
+        <div class="ferramenta-stat"><div class="num">94%</div><div class="lbl">FPY</div></div>
+        <div class="ferramenta-stat"><div class="num">2,4%</div><div class="lbl">Refugo</div></div>
+        <div class="ferramenta-stat"><div class="num">38</div><div class="lbl">Inspec</div></div>
+      </div>
+    </div>
+
+    <div class="ferramenta-card ciano" onclick="abrirFerramenta('prod-estoque.html')">
+      <div class="ferramenta-icon">📊</div>
+      <h3>Estoque MP/PA</h3>
+      <p>Matéria-prima e produtos acabados em tempo real.</p>
+      <div class="ferramenta-stats">
+        <div class="ferramenta-stat"><div class="num">128</div><div class="lbl">SKUs</div></div>
+        <div class="ferramenta-stat"><div class="num">87%</div><div class="lbl">Nível</div></div>
+        <div class="ferramenta-stat"><div class="num">3</div><div class="lbl">Mínimo</div></div>
+      </div>
+    </div>
+
+    <div class="ferramenta-card vermelho" onclick="abrirFerramenta('prod-paradas.html')">
+      <div class="ferramenta-icon">🚨</div>
+      <h3>Paradas & Setup</h3>
+      <p>Downtime, causas raiz e melhorias via SMED.</p>
+      <div class="ferramenta-stats">
+        <div class="ferramenta-stat"><div class="num">12h</div><div class="lbl">Mês</div></div>
+        <div class="ferramenta-stat"><div class="num">4</div><div class="lbl">Causas</div></div>
+        <div class="ferramenta-stat"><div class="num">18min</div><div class="lbl">Setup</div></div>
+      </div>
+    </div>
+
+    <div class="ferramenta-card rosa" onclick="abrirFerramenta('prod-lean.html')">
+      <div class="ferramenta-icon">📈</div>
+      <h3>Lean / Kaizen / 5S</h3>
+      <p>Ideias de melhoria contínua e auditorias 5S.</p>
+      <div class="ferramenta-stats">
+        <div class="ferramenta-stat"><div class="num">23</div><div class="lbl">Ideias</div></div>
+        <div class="ferramenta-stat"><div class="num">88%</div><div class="lbl">5S</div></div>
+        <div class="ferramenta-stat"><div class="num">14</div><div class="lbl">Concl</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TABELA OPs RECENTES -->
+  <h2 class="section-title">📋 Ordens de Produção Recentes <span class="badge-count" id="badge-ops">8</span></h2>
+  <div class="filtros-barra">
+    <input type="text" class="filtro-input" id="filtro-busca" placeholder="🔍 Buscar OP, produto ou cliente..." onkeyup="filtrarOPs()"/>
+    <select class="filtro-input" id="filtro-status" onchange="filtrarOPs()" style="flex:0 0 180px;">
+      <option value="">Todos os status</option>
+      <option value="aberta">Aberta</option>
+      <option value="producao">Em Produção</option>
+      <option value="concluida">Concluída</option>
+      <option value="atrasada">Atrasada</option>
+      <option value="pausada">Pausada</option>
+    </select>
+    <select class="filtro-input" id="filtro-prio" onchange="filtrarOPs()" style="flex:0 0 160px;">
+      <option value="">Todas prioridades</option>
+      <option value="alta">Alta</option>
+      <option value="media">Média</option>
+      <option value="baixa">Baixa</option>
+    </select>
+    <button class="btn btn-primary" onclick="abrirModalOP()">➕ Nova OP</button>
+  </div>
+  <div class="tabela-ops">
+    <table>
+      <thead>
+        <tr>
+          <th>OP</th>
+          <th>Produto</th>
+          <th>Cliente</th>
+          <th>Qtde</th>
+          <th>Início</th>
+          <th>Prazo</th>
+          <th>Status</th>
+          <th>Prioridade</th>
+          <th>Progresso</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody id="tabela-ops-body"></tbody>
+    </table>
+  </div>
+
+  <!-- GRÁFICOS + ALERTAS -->
+  <div class="charts-grid">
+    <div class="chart-card">
+      <h3>📈 Produção dos Últimos 7 Dias</h3>
+      <div class="chart-container"><canvas id="chartProducao"></canvas></div>
+    </div>
+    <div class="alertas-card">
+      <h3 style="font-size:15px;font-weight:700;color:var(--azul-ville);margin-bottom:14px;">🔔 Alertas & Notificações</h3>
+      <div class="alerta-item critico">
+        <div class="alerta-icon">🚨</div>
+        <div class="alerta-content">
+          <div class="alerta-titulo">OP-2024-018 atrasada</div>
+          <div class="alerta-desc">Prazo vencido há 2 dias</div>
+          <div class="alerta-hora">há 2h</div>
+        </div>
+      </div>
+      <div class="alerta-item aviso">
+        <div class="alerta-icon">⚠️</div>
+        <div class="alerta-content">
+          <div class="alerta-titulo">Estoque MP crítico</div>
+          <div class="alerta-desc">3 itens abaixo do mínimo</div>
+          <div class="alerta-hora">há 4h</div>
+        </div>
+      </div>
+      <div class="alerta-item info">
+        <div class="alerta-icon">🔧</div>
+        <div class="alerta-content">
+          <div class="alerta-titulo">Manutenção preventiva</div>
+          <div class="alerta-desc">Linha 02 agendada para amanhã</div>
+          <div class="alerta-hora">há 6h</div>
+        </div>
+      </div>
+      <div class="alerta-item">
+        <div class="alerta-icon">✅</div>
+        <div class="alerta-content">
+          <div class="alerta-titulo">OEE acima da meta</div>
+          <div class="alerta-desc">Linha 01 atingiu 87%</div>
+          <div class="alerta-hora">há 8h</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="charts-grid" style="grid-template-columns:1fr 1fr;">
+    <div class="chart-card">
+      <h3>🎯 OEE por Linha de Produção</h3>
+      <div class="chart-container"><canvas id="chartOEE"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <h3>📊 Status das Ordens</h3>
+      <div class="chart-container"><canvas id="chartStatus"></canvas></div>
+    </div>
+  </div>
+</main>
+<!-- MODAL NOVA OP -->
+<div class="modal-overlay" id="modalOP">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>📋 Nova Ordem de Produção</h2>
+      <button class="modal-close" onclick="fecharModalOP()">✕</button>
+    </div>
+    <div class="modal-body">
+      <form id="formOP" onsubmit="salvarOP(event)">
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Código OP *</label>
+            <input type="text" id="op-codigo" required placeholder="OP-2024-XXX"/>
+          </div>
+          <div class="form-group">
+            <label>Produto *</label>
+            <input type="text" id="op-produto" required placeholder="Ex: Painel Elétrico 220V"/>
+          </div>
+          <div class="form-group">
+            <label>Cliente</label>
+            <input type="text" id="op-cliente" placeholder="Nome do cliente"/>
+          </div>
+          <div class="form-group">
+            <label>Quantidade *</label>
+            <input type="number" id="op-qtde" required min="1" placeholder="100"/>
+          </div>
+          <div class="form-group">
+            <label>Data Início *</label>
+            <input type="date" id="op-inicio" required/>
+          </div>
+          <div class="form-group">
+            <label>Prazo Final *</label>
+            <input type="date" id="op-prazo" required/>
+          </div>
+          <div class="form-group">
+            <label>Status *</label>
+            <select id="op-status" required>
+              <option value="aberta">Aberta</option>
+              <option value="producao">Em Produção</option>
+              <option value="pausada">Pausada</option>
+              <option value="concluida">Concluída</option>
+              <option value="atrasada">Atrasada</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Prioridade *</label>
+            <select id="op-prio" required>
+              <option value="alta">Alta</option>
+              <option value="media" selected>Média</option>
+              <option value="baixa">Baixa</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Linha de Produção</label>
+            <select id="op-linha">
+              <option value="L1">Linha 01</option>
+              <option value="L2">Linha 02</option>
+              <option value="L3">Linha 03</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Progresso (%)</label>
+            <input type="number" id="op-progresso" min="0" max="100" value="0"/>
+          </div>
+          <div class="form-group full">
+            <label>Observações</label>
+            <textarea id="op-obs" rows="2" placeholder="Notas adicionais..."></textarea>
+          </div>
+        </div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="fecharModalOP()">Cancelar</button>
+      <button class="btn btn-primary" onclick="salvarOP(event)">💾 Salvar OP</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast">
+  <span id="toast-icon">✅</span>
+  <span id="toast-msg">Operação realizada com sucesso!</span>
+</div>
+<script>
+// ===== STORAGE KEYS =====
+const STORAGE_OPS='eqps_prod_ops';
+
+// ===== DADOS DEMO =====
+const opsDemo=[
+  {id:1,codigo:'OP-2024-018',produto:'Painel Elétrico 220V',cliente:'Indústria Alfa',qtde:50,inicio:'2026-05-10',prazo:'2026-05-22',status:'atrasada',prio:'alta',linha:'L1',progresso:75,obs:''},
+  {id:2,codigo:'OP-2024-019',produto:'Quadro de Comando',cliente:'Metalúrgica Beta',qtde:30,inicio:'2026-05-18',prazo:'2026-05-30',status:'producao',prio:'alta',linha:'L2',progresso:60,obs:''},
+  {id:3,codigo:'OP-2024-020',produto:'Inversor de Frequência',cliente:'Auto Parts Ltda',qtde:120,inicio:'2026-05-20',prazo:'2026-06-05',status:'producao',prio:'media',linha:'L1',progresso:40,obs:''},
+  {id:4,codigo:'OP-2024-021',produto:'CLP Industrial',cliente:'Tech Solutions',qtde:25,inicio:'2026-05-22',prazo:'2026-06-10',status:'aberta',prio:'media',linha:'L3',progresso:0,obs:''},
+  {id:5,codigo:'OP-2024-022',produto:'Sensor Capacitivo',cliente:'Embalagens SP',qtde:200,inicio:'2026-05-15',prazo:'2026-05-28',status:'producao',prio:'baixa',linha:'L2',progresso:85,obs:''},
+  {id:6,codigo:'OP-2024-023',produto:'Cabo Blindado 10m',cliente:'Construtora XYZ',qtde:80,inicio:'2026-05-25',prazo:'2026-06-08',status:'aberta',prio:'baixa',linha:'L1',progresso:0,obs:''},
+  {id:7,codigo:'OP-2024-024',produto:'Disjuntor Tripolar',cliente:'Elétrica Sul',qtde:150,inicio:'2026-05-23',prazo:'2026-06-01',status:'producao',prio:'alta',linha:'L3',progresso:55,obs:''},
+  {id:8,codigo:'OP-2024-025',produto:'Motor Trifásico 5cv',cliente:'Bombas Hidro',qtde:15,inicio:'2026-05-12',prazo:'2026-05-26',status:'concluida',prio:'media',linha:'L2',progresso:100,obs:''}
+];
+
+// ===== INIT =====
+let ops=[];
+function init(){
+  const dados=localStorage.getItem(STORAGE_OPS);
+  ops=dados?JSON.parse(dados):opsDemo;
+  if(!dados)salvarStorage();
+  renderTabela();
+  atualizarKPIs();
+  renderGraficos();
+}
+function salvarStorage(){
+  localStorage.setItem(STORAGE_OPS,JSON.stringify(ops));
+}
+
+// ===== RENDER TABELA =====
+function renderTabela(){
+  const busca=document.getElementById('filtro-busca').value.toLowerCase();
+  const fStatus=document.getElementById('filtro-status').value;
+  const fPrio=document.getElementById('filtro-prio').value;
+  
+  const filtradas=ops.filter(o=>{
+    const matchBusca=!busca||o.codigo.toLowerCase().includes(busca)||o.produto.toLowerCase().includes(busca)||(o.cliente||'').toLowerCase().includes(busca);
+    const matchStatus=!fStatus||o.status===fStatus;
+    const matchPrio=!fPrio||o.prio===fPrio;
+    return matchBusca&&matchStatus&&matchPrio;
+  });
+  
+  document.getElementById('badge-ops').textContent=filtradas.length;
+  
+  const tbody=document.getElementById('tabela-ops-body');
+  if(filtradas.length===0){
+    tbody.innerHTML='<tr><td colspan="10" style="text-align:center;padding:30px;color:var(--cinza-500);">Nenhuma OP encontrada</td></tr>';
+    return;
+  }
+  
+  tbody.innerHTML=filtradas.map(o=>`
+    <tr>
+      <td><strong>${o.codigo}</strong></td>
+      <td>${o.produto}</td>
+      <td>${o.cliente||'—'}</td>
+      <td>${o.qtde}</td>
+      <td>${formatarData(o.inicio)}</td>
+      <td>${formatarData(o.prazo)}</td>
+      <td><span class="status-tag ${o.status}">${labelStatus(o.status)}</span></td>
+      <td><span class="prio-tag ${o.prio}">${o.prio.toUpperCase()}</span></td>
+      <td>
+        <div style="background:var(--cinza-100);border-radius:10px;height:8px;overflow:hidden;width:80px;">
+          <div style="background:linear-gradient(90deg,var(--verde),var(--verde-claro));height:100%;width:${o.progresso}%;"></div>
+        </div>
+        <small style="color:var(--cinza-500);">${o.progresso}%</small>
+      </td>
+      <td>
+        <button class="btn-acao" onclick="editarOP(${o.id})" title="Editar">✏️</button>
+        <button class="btn-acao" onclick="excluirOP(${o.id})" title="Excluir">🗑️</button>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function filtrarOPs(){renderTabela();}
+
+function formatarData(d){
+  if(!d)return'—';
+  const[a,m,di]=d.split('-');
+  return`${di}/${m}/${a}`;
+}
+function labelStatus(s){
+  const map={aberta:'Aberta',producao:'Em Produção',concluida:'Concluída',atrasada:'Atrasada',pausada:'Pausada'};
+  return map[s]||s;
+}
+
+// ===== MODAL =====
+function abrirModalOP(id){
+  const m=document.getElementById('modalOP');
+  document.getElementById('formOP').reset();
+  document.getElementById('op-progresso').value=0;
+  
+  if(id){
+    const op=ops.find(o=>o.id===id);
+    if(op){
+      document.getElementById('op-codigo').value=op.codigo;
+      document.getElementById('op-produto').value=op.produto;
+      document.getElementById('op-cliente').value=op.cliente||'';
+      document.getElementById('op-qtde').value=op.qtde;
+      document.getElementById('op-inicio').value=op.inicio;
+      document.getElementById('op-prazo').value=op.prazo;
+      document.getElementById('op-status').value=op.status;
+      document.getElementById('op-prio').value=op.prio;
+      document.getElementById('op-linha').value=op.linha||'L1';
+      document.getElementById('op-progresso').value=op.progresso;
+      document.getElementById('op-obs').value=op.obs||'';
+      m.dataset.editId=id;
+    }
+  }else{
+    delete m.dataset.editId;
+    document.getElementById('op-codigo').value=`OP-2024-${String(Math.max(...ops.map(o=>parseInt(o.codigo.split('-')[2])||0),0)+1).padStart(3,'0')}`;
+  }
+  m.classList.add('ativo');
+}
+function fecharModalOP(){
+  document.getElementById('modalOP').classList.remove('ativo');
+}
+function editarOP(id){abrirModalOP(id);}
+
+function salvarOP(e){
+  if(e)e.preventDefault();
+  const m=document.getElementById('modalOP');
+  const editId=m.dataset.editId?parseInt(m.dataset.editId):null;
+  
+  const dados={
+    codigo:document.getElementById('op-codigo').value.trim(),
+    produto:document.getElementById('op-produto').value.trim(),
+    cliente:document.getElementById('op-cliente').value.trim(),
+    qtde:parseInt(document.getElementById('op-qtde').value),
+    inicio:document.getElementById('op-inicio').value,
+    prazo:document.getElementById('op-prazo').value,
+    status:document.getElementById('op-status').value,
+    prio:document.getElementById('op-prio').value,
+    linha:document.getElementById('op-linha').value,
+    progresso:parseInt(document.getElementById('op-progresso').value)||0,
+    obs:document.getElementById('op-obs').value.trim()
+  };
+  
+  if(!dados.codigo||!dados.produto||!dados.qtde||!dados.inicio||!dados.prazo){
+    toast('Preencha todos os campos obrigatórios','erro');
+    return;
+  }
+  
+  if(editId){
+    const idx=ops.findIndex(o=>o.id===editId);
+    if(idx>=0){ops[idx]={...ops[idx],...dados};toast('OP atualizada com sucesso!');}
+  }else{
+    const newId=Math.max(...ops.map(o=>o.id),0)+1;
+    ops.push({id:newId,...dados});
+    toast('Nova OP criada com sucesso!');
+  }
+  
+  salvarStorage();
+  renderTabela();
+  atualizarKPIs();
+  renderGraficos();
+  fecharModalOP();
+}
+
+function excluirOP(id){
+  if(!confirm('Deseja realmente excluir esta OP?'))return;
+  ops=ops.filter(o=>o.id!==id);
+  salvarStorage();
+  renderTabela();
+  atualizarKPIs();
+  renderGraficos();
+  toast('OP excluída','aviso');
+}
+
+// ===== KPIs =====
+function atualizarKPIs(){
+  const abertas=ops.filter(o=>o.status!=='concluida').length;
+  const atrasadas=ops.filter(o=>o.status==='atrasada').length;
+  const producao=ops.reduce((s,o)=>s+(o.status==='concluida'?o.qtde:Math.floor(o.qtde*o.progresso/100)),0);
+  
+  document.getElementById('hdr-ops').textContent=abertas;
+  document.getElementById('hdr-atrasadas').textContent=atrasadas;
+  document.getElementById('kpi-ops').textContent=abertas;
+  document.getElementById('kpi-prod').textContent=producao.toLocaleString('pt-BR');
+  
+  document.getElementById('fer-op-total').textContent=abertas;
+  document.getElementById('fer-op-prod').textContent=ops.filter(o=>o.status==='producao').length;
+  document.getElementById('fer-op-atr').textContent=atrasadas;
+}
+
+function recarregarKPIs(){
+  atualizarKPIs();
+  renderGraficos();
+  toast('Painel atualizado!');
+}
+
+// ===== EXPORTAR CSV =====
+function exportarCSV(){
+  if(ops.length===0){toast('Sem dados para exportar','aviso');return;}
+  const headers=['Código','Produto','Cliente','Quantidade','Início','Prazo','Status','Prioridade','Linha','Progresso(%)','Observações'];
+  const rows=ops.map(o=>[o.codigo,o.produto,o.cliente||'',o.qtde,o.inicio,o.prazo,labelStatus(o.status),o.prio,o.linha||'',o.progresso,o.obs||''].map(v=>`"${String(v).replace(/"/g,'""')}"`).join(','));
+  const csv=[headers.join(','),...rows].join('\n');
+  const blob=new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8;'});
+  const link=document.createElement('a');
+  link.href=URL.createObjectURL(blob);
+  link.download=`ordens_producao_${new Date().toISOString().slice(0,10)}.csv`;
+  link.click();
+  toast('CSV exportado com sucesso!');
+}
+
+// ===== GRÁFICOS =====
+let chartProd,chartOEE,chartStatus;
+function renderGraficos(){
+  if(chartProd)chartProd.destroy();
+  if(chartOEE)chartOEE.destroy();
+  if(chartStatus)chartStatus.destroy();
+  
+  // Produção 7 dias
+  chartProd=new Chart(document.getElementById('chartProducao'),{
+    type:'line',
+    data:{
+      labels:['Seg','Ter','Qua','Qui','Sex','Sáb','Dom'],
+      datasets:[{
+        label:'Unidades produzidas',
+        data:[1180,1320,1280,1410,1380,890,420],
+        borderColor:'#10b981',
+        backgroundColor:'rgba(16,185,129,.15)',
+        fill:true,tension:.4,borderWidth:3,
+        pointBackgroundColor:'#10b981',pointRadius:5
+      }]
+    },
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true}}}
+  });
+  
+  // OEE por linha
+  chartOEE=new Chart(document.getElementById('chartOEE'),{
+    type:'bar',
+    data:{
+      labels:['Linha 01','Linha 02','Linha 03'],
+      datasets:[
+        {label:'Disponibilidade',data:[91,88,85],backgroundColor:'#0a2540'},
+        {label:'Performance',data:[89,86,84],backgroundColor:'#ff6b35'},
+        {label:'Qualidade',data:[95,93,96],backgroundColor:'#10b981'}
+      ]
+    },
+    options:{responsive:true,maintainAspectRatio:false,scales:{y:{beginAtZero:true,max:100}}}
+  });
+  
+  // Status OPs
+  const cont={aberta:0,producao:0,concluida:0,atrasada:0,pausada:0};
+  ops.forEach(o=>cont[o.status]++);
+  chartStatus=new Chart(document.getElementById('chartStatus'),{
+    type:'doughnut',
+    data:{
+      labels:['Aberta','Em Produção','Concluída','Atrasada','Pausada'],
+      datasets:[{
+        data:[cont.aberta,cont.producao,cont.concluida,cont.atrasada,cont.pausada],
+        backgroundColor:['#1e40af','#f59e0b','#10b981','#ef4444','#64748b'],
+        borderWidth:0
+      }]
+    },
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom'}}}
+  });
+}
+
+// ===== NAVEGAÇÃO =====
+function abrirFerramenta(arq){
+  toast(`Abrindo ${arq}...`);
+  setTimeout(()=>{window.location.href=arq;},600);
+}
+
+// ===== TOAST =====
+function toast(msg,tipo='sucesso'){
+  const t=document.getElementById('toast');
+  const i=document.getElementById('toast-icon');
+  const m=document.getElementById('toast-msg');
+  t.className='toast show';
+  if(tipo==='erro'){t.classList.add('erro');i.textContent='❌';}
+  else if(tipo==='aviso'){t.classList.add('aviso');i.textContent='⚠️';}
+  else{i.textContent='✅';}
+  m.textContent=msg;
+  setTimeout(()=>t.classList.remove('show'),3000);
+}
+
+// ===== START =====
+init();
+</script>
+<p class="epqs-credit">EPQS - Eng Process Quality and Statistics · Sistema Integrado de Ferramentas · Desenvolvido por Marcos Garçon</p>
+</body>
+</html>

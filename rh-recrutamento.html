@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>EPQS - Eng Process Quality and Statistics · Recrutamento & Seleção</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+:root {
+  --azul-ville:#0a2540; --azul-deep:#061a30; --azul-claro:#1e40af;
+  --laranja:#ff6b35; --laranja-claro:#ff8c5a;
+  --verde:#10b981; --vermelho:#ef4444; --amarelo:#f59e0b; --roxo:#8b5cf6;
+  --cinza-50:#f8fafc; --cinza-100:#f1f5f9; --cinza-200:#e2e8f0;
+  --cinza-300:#cbd5e1; --cinza-500:#64748b; --cinza-600:#475569;
+  --cinza-700:#334155; --cinza-800:#1e293b;
+  --sombra-md:0 4px 6px -1px rgba(0,0,0,.1);
+  --sombra-lg:0 10px 15px -3px rgba(0,0,0,.1);
+  --radius-md:10px; --radius-lg:14px;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--cinza-800);min-height:100vh;}
+.header{background:linear-gradient(135deg,var(--azul-deep),var(--azul-ville));color:#fff;padding:20px 30px;box-shadow:var(--sombra-lg);position:sticky;top:0;z-index:100;}
+.header-inner{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:20px;max-width:1600px;margin:0 auto;}
+.logo-area{display:flex;align-items:center;gap:15px;}
+.logo-icon{width:55px;height:55px;background:linear-gradient(135deg,var(--laranja),var(--laranja-claro));border-radius:var(--radius-md);display:flex;align-items:center;justify-content:center;font-size:28px;}
+.logo-text h1{font-size:22px;font-weight:800;}
+.logo-text p{font-size:13px;opacity:.85;}
+.header-info{display:flex;align-items:center;gap:15px;flex-wrap:wrap;}
+.header-stat{text-align:center;padding:8px 16px;background:rgba(255,255,255,.1);border-radius:var(--radius-md);}
+.header-stat .label{font-size:11px;opacity:.8;text-transform:uppercase;}
+.header-stat .valor{font-size:20px;font-weight:700;color:var(--laranja-claro);}
+.btn-voltar{padding:10px 18px;background:var(--laranja);color:#fff;border:none;border-radius:var(--radius-md);font-weight:600;cursor:pointer;font-family:inherit;}
+.btn-voltar:hover{background:var(--laranja-claro);}
+.main{max-width:1600px;margin:0 auto;padding:30px;}
+.section-title{font-size:24px;font-weight:700;color:var(--azul-ville);margin-bottom:20px;display:flex;align-items:center;gap:10px;}
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:20px;margin-bottom:30px;}
+.kpi-card{background:var(--panel);border-radius:var(--radius-lg);padding:22px;box-shadow:var(--sombra-md);border-left:4px solid var(--azul-ville);transition:transform .2s;}
+.kpi-card:hover{transform:translateY(-3px);}
+.kpi-card.verde{border-left-color:var(--verde);}
+.kpi-card.laranja{border-left-color:var(--laranja);}
+.kpi-card.vermelho{border-left-color:var(--vermelho);}
+.kpi-card.amarelo{border-left-color:var(--amarelo);}
+.kpi-card.roxo{border-left-color:var(--roxo);}
+.kpi-label{font-size:12px;text-transform:uppercase;color:var(--cinza-500);font-weight:600;letter-spacing:.5px;margin-bottom:8px;}
+.kpi-valor{font-size:32px;font-weight:800;color:var(--azul-ville);margin-bottom:5px;}
+.kpi-sub{font-size:12px;color:var(--cinza-500);}
+.card{background:var(--panel);border-radius:var(--radius-lg);padding:22px;box-shadow:var(--sombra-md);margin-bottom:20px;}
+.card-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;padding-bottom:12px;border-bottom:2px solid var(--cinza-100);flex-wrap:wrap;gap:10px;}
+.card-title{font-size:16px;font-weight:700;color:var(--azul-ville);display:flex;align-items:center;gap:8px;}
+.btn{padding:10px 18px;border:none;border-radius:var(--radius-md);font-weight:600;cursor:pointer;font-size:13px;font-family:inherit;display:inline-flex;align-items:center;gap:6px;transition:all .2s;}
+.btn-primary{background:linear-gradient(135deg,var(--azul-ville),var(--azul-claro));color:#fff;}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:var(--sombra-md);}
+.btn-success{background:linear-gradient(135deg,var(--verde),#059669);color:#fff;}
+.btn-warning{background:linear-gradient(135deg,var(--amarelo),#d97706);color:#fff;}
+.btn-danger{background:linear-gradient(135deg,var(--vermelho),#dc2626);color:#fff;}
+.btn-secondary{background:var(--cinza-200);color:var(--cinza-700);}
+.btn-small{padding:6px 12px;font-size:12px;}
+.tabela{width:100%;border-collapse:collapse;}
+.tabela th{background:var(--cinza-50);padding:12px;text-align:left;font-size:12px;text-transform:uppercase;color:var(--cinza-600);font-weight:600;border-bottom:2px solid var(--cinza-200);}
+.tabela td{padding:12px;border-bottom:1px solid var(--cinza-100);font-size:13px;}
+.tabela tr:hover{background:var(--cinza-50);}
+.badge{padding:4px 10px;border-radius:50px;font-size:11px;font-weight:600;display:inline-block;}
+.badge-verde{background:#d1fae5;color:#065f46;}
+.badge-vermelho{background:#fee2e2;color:#991b1b;}
+.badge-amarelo{background:#fef3c7;color:#92400e;}
+.badge-azul{background:#dbeafe;color:#1e40af;}
+.badge-roxo{background:#ede9fe;color:#5b21b6;}
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:1000;align-items:center;justify-content:center;padding:20px;}
+.modal-overlay.active{display:flex;}
+.modal{background:var(--panel);border-radius:20px;max-width:700px;width:100%;max-height:90vh;overflow-y:auto;}
+.modal-header{padding:22px;border-bottom:1px solid var(--cinza-200);display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;background:var(--panel);}
+.modal-header h2{color:var(--azul-ville);font-size:20px;}
+.modal-close{background:var(--cinza-100);border:none;width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:16px;}
+.modal-close:hover{background:var(--vermelho);color:#fff;}
+.modal-body{padding:22px;}
+.form-group{margin-bottom:15px;}
+.form-group label{display:block;margin-bottom:6px;font-weight:600;font-size:13px;color:var(--cinza-700);}
+.form-group input,.form-group select,.form-group textarea{width:100%;padding:10px;border:1px solid var(--cinza-300);border-radius:var(--radius-md);font-family:inherit;font-size:13px;background:var(--cinza-50);color:var(--cinza-800)}
+.form-group input:focus,.form-group select:focus,.form-group textarea:focus{outline:none;border-color:var(--azul-claro);box-shadow:0 0 0 3px rgba(30,64,175,.1);}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:15px;}
+#toast-container{position:fixed;top:20px;right:20px;z-index:2000;display:flex;flex-direction:column;gap:10px;}
+.toast{padding:14px 20px;border-radius:var(--radius-md);color:#fff;font-weight:600;font-size:13px;box-shadow:var(--sombra-lg);min-width:280px;animation:slideIn .3s;}
+.toast.success{background:linear-gradient(135deg,var(--verde),#059669);}
+.toast.error{background:linear-gradient(135deg,var(--vermelho),#dc2626);}
+.toast.warning{background:linear-gradient(135deg,var(--amarelo),#d97706);}
+.toast.info{background:linear-gradient(135deg,var(--azul-claro),#2563eb);}
+@keyframes slideIn{from{transform:translateX(100%);opacity:0;}to{transform:translateX(0);opacity:1;}}
+.search-bar{display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap;}
+.search-bar input,.search-bar select{padding:10px 14px;border:1px solid var(--cinza-300);border-radius:var(--radius-md);font-size:13px;font-family:inherit;background:var(--cinza-50);color:var(--cinza-800)}
+.empty-state{text-align:center;padding:40px;color:var(--cinza-500);}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+@media(max-width:900px){.grid-2,.form-row{grid-template-columns:1fr;}}
+.chart-container{position:relative;height:280px;}
+
+.epqs-topbar{background:var(--panel);border-bottom:1px solid #2a3a55;padding:10px 20px;display:flex;gap:8px;flex-wrap:wrap;align-items:center;position:sticky;top:0;z-index:99;}
+.epqs-topbar .epqs-brand{display:flex;align-items:center;gap:8px;font-size:12px;color:#94a3b8;margin-right:10px;white-space:nowrap;}
+.epqs-topbar .epqs-brand img{height:20px;}
+.epqs-nav{display:flex;gap:6px;flex-wrap:wrap;overflow-x:auto;}
+.epqs-nav a{padding:7px 12px;border-radius:20px;background:var(--muted);color:var(--text);text-decoration:none;font-size:12.5px;font-weight:600;border:1px solid #2a3a55;white-space:nowrap;}
+.epqs-nav a:hover{background:#28406b;}
+.epqs-nav a.active{background:var(--accent);border-color:var(--accent);color:#fff;}
+.epqs-actions{display:flex;gap:8px;margin-left:auto;flex-wrap:wrap;}
+.epqs-actions button{padding:7px 12px;border-radius:8px;border:1px solid #2a3a55;background:var(--muted);color:var(--text);font-weight:600;font-size:12.5px;cursor:pointer;font-family:inherit;}
+.epqs-actions button:hover{background:#28406b;}
+.epqs-actions button.epqs-pdf{background:var(--accent);border-color:var(--accent);color:#fff;}
+.epqs-credit{font-size:11px;color:#64748b;text-align:center;padding:14px;}
+@media print{.epqs-topbar,.btn-voltar{display:none !important;}}
+@media(max-width:700px){.epqs-topbar{flex-direction:column;align-items:stretch;}.epqs-actions{margin-left:0;}}
+</style>
+</head>
+<body>
+<div class="epqs-topbar">
+    <div class="epqs-brand"><img src="assets/eqps-logo-horizontal.png" alt="EPQS" onerror="this.style.display='none'"> EPQS - Eng Process Quality and Statistics</div>
+    <div class="epqs-nav">
+    <a href="painel-rh.html">🏠 Painel RH</a>
+    <a href="index.html">🏢 EPQS</a>
+    <a href="rh-avaliacoes.html">📊 Avaliação de Desempenho</a>
+    <a href="rh-clima.html">🤝 Clima Organizacional</a>
+    <a href="rh-ferias.html">🏖️ Controle de Férias</a>
+    <a href="rh-folha.html">💰 Folha de Pagamento</a>
+    <a href="rh-okr.html">🎯 OKR</a>
+    <a href="rh-ponto.html">⏰ Ponto Eletrônico</a>
+    <a href="rh-recrutamento.html" class="active">📋 Recrutamento</a>
+    <a href="rh-saude.html">🏥 Saúde Ocupacional</a>
+    <a href="rh-treinamentos.html">🎓 Treinamentos</a>
+    </div>
+    <div class="epqs-actions">
+      <button onclick="epqsRestore()">⬆ Restaurar</button>
+      <button onclick="epqsBackup()">⬇ Backup</button>
+      <button class="epqs-pdf" onclick="window.print()">🖨 PDF</button>
+    </div>
+  </div>
+
+
+<header class="header">
+  <div class="header-inner">
+    <div class="logo-area">
+      <div class="logo-icon">📋</div>
+      <div class="logo-text">
+        <h1>Recrutamento & Seleção</h1>
+        <p>Gestão de Vagas e Candidatos · EPQS</p>
+      </div>
+    </div>
+    <div class="header-info">
+      <div class="header-stat">
+        <div class="label">Vagas Abertas</div>
+        <div class="valor" id="h-abertas">0</div>
+      </div>
+      <div class="header-stat">
+        <div class="label">Candidatos</div>
+        <div class="valor" id="h-cand">0</div>
+      </div>
+      <button class="btn-voltar" onclick="voltarPainel()">← Painel RH</button>
+    </div>
+  </div>
+</header>
+
+<main class="main">
+  <h2 class="section-title">📋 Painel de Recrutamento</h2>
+
+  <div class="kpi-grid" id="kpi-grid"></div>
+
+  <div class="grid-2" style="margin-bottom:20px;">
+    <div class="card">
+      <div class="card-header"><div class="card-title">📊 Vagas por Setor</div></div>
+      <div class="chart-container"><canvas id="chart-setor"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-header"><div class="card-title">📈 Status das Vagas</div></div>
+      <div class="chart-container"><canvas id="chart-status"></canvas></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title">📑 Vagas Cadastradas</div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;">
+        <button class="btn btn-primary" onclick="novaVaga()">➕ Nova Vaga</button>
+        <button class="btn btn-success" onclick="exportarCSV()">📥 Exportar CSV</button>
+        <button class="btn btn-warning" onclick="importarCSV()">📤 Importar CSV</button>
+      </div>
+    </div>
+    <div class="search-bar">
+      <input type="text" id="busca" placeholder="🔍 Buscar por cargo ou setor..." style="flex:1;min-width:200px;"/>
+      <select id="filtro-status">
+        <option value="">Todos status</option>
+        <option>Aberta</option>
+        <option>Em entrevista</option>
+        <option>Encerrada</option>
+      </select>
+      <select id="filtro-setor">
+        <option value="">Todos setores</option>
+        <option>Operacional</option>
+        <option>Administrativo</option>
+        <option>Manutenção</option>
+        <option>Comercial</option>
+        <option>RH</option>
+      </select>
+    </div>
+    <div style="overflow-x:auto;">
+      <table class="tabela">
+        <thead>
+          <tr>
+            <th>Cargo</th><th>Setor</th><th>Candidatos</th>
+            <th>Abertura</th><th>Status</th><th>Ações</th>
+          </tr>
+        </thead>
+        <tbody id="tbody-vagas"></tbody>
+      </table>
+    </div>
+  </div>
+</main>
+
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 id="modal-titulo">Título</h2>
+      <button class="modal-close" onclick="fecharModal()">✕</button>
+    </div>
+    <div class="modal-body" id="modal-corpo"></div>
+  </div>
+</div>
+<div id="toast-container"></div>
+
+<script>
+const STORAGE_KEY = 'rh_recrutamento_v1';
+
+const dadosIniciais = [
+  {id:1, titulo:'Operador de Produção', setor:'Operacional', candidatos:12, status:'Aberta', abertura:'2025-05-01', salario:2800, descricao:'Operação de máquinas industriais.'},
+  {id:2, titulo:'Analista Fiscal', setor:'Administrativo', candidatos:8, status:'Em entrevista', abertura:'2025-05-10', salario:4500, descricao:'Apuração de impostos.'},
+  {id:3, titulo:'Mecânico Industrial', setor:'Manutenção', candidatos:5, status:'Aberta', abertura:'2025-05-15', salario:3800, descricao:'Manutenção preventiva e corretiva.'},
+  {id:4, titulo:'Vendedor Externo', setor:'Comercial', candidatos:15, status:'Aberta', abertura:'2025-04-20', salario:3200, descricao:'Visitas comerciais B2B.'},
+  {id:5, titulo:'Auxiliar Administrativo', setor:'Administrativo', candidatos:22, status:'Encerrada', abertura:'2025-03-05', salario:2400, descricao:'Rotinas administrativas.'}
+];
+
+let dados = carregar();
+let chartSetor = null;
+let chartStatus = null;
+
+function carregar() {
+  try {
+    const s = localStorage.getItem(STORAGE_KEY);
+    if (s) return JSON.parse(s);
+  } catch(e) {}
+  return JSON.parse(JSON.stringify(dadosIniciais));
+}
+
+function salvar() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(dados));
+}
+
+function toast(msg, tipo='success') {
+  const c = document.getElementById('toast-container');
+  const t = document.createElement('div');
+  t.className = 'toast ' + tipo;
+  t.textContent = msg;
+  c.appendChild(t);
+  setTimeout(() => t.remove(), 3500);
+}
+
+function fecharModal() {
+  document.getElementById('modal').classList.remove('active');
+}
+
+function abrirModal(titulo, corpo) {
+  document.getElementById('modal-titulo').innerHTML = titulo;
+  document.getElementById('modal-corpo').innerHTML = corpo;
+  document.getElementById('modal').classList.add('active');
+}
+
+function voltarPainel() {
+  if (confirm('Voltar ao Painel RH?')) {
+    window.location.href = 'painel-rh.html';
+  }
+}
+
+function renderKPIs() {
+  const total = dados.length;
+  const abertas = dados.filter(v => v.status === 'Aberta').length;
+  const entrevista = dados.filter(v => v.status === 'Em entrevista').length;
+  const encerradas = dados.filter(v => v.status === 'Encerrada').length;
+  const totalCand = dados.reduce((s,v) => s+v.candidatos, 0);
+  const mediaCand = total ? Math.round(totalCand/total) : 0;
+
+  document.getElementById('h-abertas').textContent = abertas;
+  document.getElementById('h-cand').textContent = totalCand;
+
+  document.getElementById('kpi-grid').innerHTML = `
+    <div class="kpi-card"><div class="kpi-label">Total de Vagas</div><div class="kpi-valor">${total}</div><div class="kpi-sub">Cadastradas</div></div>
+    <div class="kpi-card verde"><div class="kpi-label">Vagas Abertas</div><div class="kpi-valor">${abertas}</div><div class="kpi-sub">Em recrutamento</div></div>
+    <div class="kpi-card amarelo"><div class="kpi-label">Em Entrevista</div><div class="kpi-valor">${entrevista}</div><div class="kpi-sub">Processo seletivo</div></div>
+    <div class="kpi-card laranja"><div class="kpi-label">Total Candidatos</div><div class="kpi-valor">${totalCand}</div><div class="kpi-sub">Inscritos</div></div>
+    <div class="kpi-card roxo"><div class="kpi-label">Média por Vaga</div><div class="kpi-valor">${mediaCand}</div><div class="kpi-sub">Candidatos/vaga</div></div>
+    <div class="kpi-card vermelho"><div class="kpi-label">Encerradas</div><div class="kpi-valor">${encerradas}</div><div class="kpi-sub">Finalizadas</div></div>
+  `;
+}
+
+function renderGraficos() {
+  // Por setor
+  const setores = {};
+  dados.forEach(v => { setores[v.setor] = (setores[v.setor]||0) + 1; });
+
+  if (chartSetor) chartSetor.destroy();
+  chartSetor = new Chart(document.getElementById('chart-setor'), {
+    type:'bar',
+    data:{
+      labels:Object.keys(setores),
+      datasets:[{
+        label:'Vagas',
+        data:Object.values(setores),
+        backgroundColor:['#0a2540','#ff6b35','#10b981','#8b5cf6','#06b6d4'],
+        borderRadius:8
+      }]
+    },
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}}}
+  });
+
+  // Por status
+  const status = {};
+  dados.forEach(v => { status[v.status] = (status[v.status]||0) + 1; });
+
+  if (chartStatus) chartStatus.destroy();
+  chartStatus = new Chart(document.getElementById('chart-status'), {
+    type:'doughnut',
+    data:{
+      labels:Object.keys(status),
+      datasets:[{
+        data:Object.values(status),
+        backgroundColor:['#10b981','#f59e0b','#ef4444']
+      }]
+    },
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom'}}}
+  });
+}
+
+function renderTabela() {
+  const busca = document.getElementById('busca').value.toLowerCase();
+  const fStatus = document.getElementById('filtro-status').value;
+  const fSetor = document.getElementById('filtro-setor').value;
+
+  const filtrados = dados.filter(v => {
+    const mB = !busca || v.titulo.toLowerCase().includes(busca) || v.setor.toLowerCase().includes(busca);
+    const mS = !fStatus || v.status === fStatus;
+    const mSet = !fSetor || v.setor === fSetor;
+    return mB && mS && mSet;
+  });
+
+  const tbody = document.getElementById('tbody-vagas');
+  if (filtrados.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="6"><div class="empty-state">🔍 Nenhuma vaga encontrada</div></td></tr>`;
+    return;
+  }
+  tbody.innerHTML = filtrados.map(v => `
+    <tr>
+      <td><strong>${v.titulo}</strong><br><small style="color:var(--cinza-500);">R$ ${(v.salario||0).toLocaleString('pt-BR')}</small></td>
+      <td><span class="badge badge-azul">${v.setor}</span></td>
+      <td><strong>${v.candidatos}</strong></td>
+      <td>${new Date(v.abertura).toLocaleDateString('pt-BR')}</td>
+      <td><span class="badge ${v.status==='Aberta'?'badge-verde':v.status==='Em entrevista'?'badge-amarelo':'badge-vermelho'}">${v.status}</span></td>
+      <td>
+        <button class="btn btn-small btn-primary" onclick="verVaga(${v.id})">👁️</button>
+        <button class="btn btn-small btn-warning" onclick="editarVaga(${v.id})">✏️</button>
+        <button class="btn btn-small btn-danger" onclick="excluirVaga(${v.id})">🗑️</button>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function novaVaga() {
+  abrirModal('➕ Nova Vaga', `
+    <div class="form-row">
+      <div class="form-group"><label>Cargo</label><input id="f-titulo" type="text" placeholder="Ex: Analista Contábil"/></div>
+      <div class="form-group"><label>Setor</label>
+        <select id="f-setor">
+          <option>Operacional</option><option>Administrativo</option>
+          <option>Manutenção</option><option>Comercial</option><option>RH</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>Salário (R$)</label><input id="f-salario" type="number" value="3000"/></div>
+      <div class="form-group"><label>Candidatos Iniciais</label><input id="f-cand" type="number" value="0"/></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>Data de Abertura</label><input id="f-data" type="date" value="${new Date().toISOString().slice(0,10)}"/></div>
+      <div class="form-group"><label>Status</label>
+        <select id="f-status"><option>Aberta</option><option>Em entrevista</option><option>Encerrada</option></select>
+      </div>
+    </div>
+    <div class="form-group"><label>Descrição</label><textarea id="f-desc" rows="3" placeholder="Atividades, requisitos..."></textarea></div>
+    <button class="btn btn-success" onclick="salvarVaga()">💾 Salvar</button>
+    <button class="btn btn-secondary" onclick="fecharModal()">Cancelar</button>
+  `);
+}
+
+function salvarVaga() {
+  const titulo = document.getElementById('f-titulo').value.trim();
+  if (!titulo) { toast('Informe o cargo!', 'error'); return; }
+  const novoId = Math.max(0, ...dados.map(v => v.id)) + 1;
+  dados.push({
+    id:novoId, titulo,
+    setor:document.getElementById('f-setor').value,
+    salario:parseFloat(document.getElementById('f-salario').value) || 0,
+    candidatos:parseInt(document.getElementById('f-cand').value) || 0,
+    abertura:document.getElementById('f-data').value,
+    status:document.getElementById('f-status').value,
+    descricao:document.getElementById('f-desc').value
+  });
+  salvar();
+  fecharModal();
+  toast('Vaga criada!', 'success');
+  renderTudo();
+}
+
+function verVaga(id) {
+  const v = dados.find(x => x.id === id);
+  abrirModal('👁️ ' + v.titulo, `
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:15px;margin-bottom:15px;">
+      <div><strong>Setor:</strong><br><span class="badge badge-azul">${v.setor}</span></div>
+      <div><strong>Status:</strong><br><span class="badge ${v.status==='Aberta'?'badge-verde':v.status==='Em entrevista'?'badge-amarelo':'badge-vermelho'}">${v.status}</span></div>
+      <div><strong>Salário:</strong><br>R$ ${(v.salario||0).toLocaleString('pt-BR')}</div>
+      <div><strong>Candidatos:</strong><br>${v.candidatos}</div>
+      <div><strong>Abertura:</strong><br>${new Date(v.abertura).toLocaleDateString('pt-BR')}</div>
+    </div>
+    <div style="background:var(--cinza-50);padding:15px;border-radius:10px;">
+      <strong>📝 Descrição:</strong><br>
+      <div style="margin-top:8px;color:var(--cinza-700);">${v.descricao||'Sem descrição.'}</div>
+    </div>
+    <button class="btn btn-primary" style="margin-top:15px;" onclick="fecharModal()">Fechar</button>
+  `);
+}
+
+function editarVaga(id) {
+  const v = dados.find(x => x.id === id);
+  abrirModal('✏️ Editar Vaga', `
+    <div class="form-row">
+      <div class="form-group"><label>Cargo</label><input id="e-titulo" type="text" value="${v.titulo}"/></div>
+      <div class="form-group"><label>Setor</label>
+        <select id="e-setor">
+          ${['Operacional','Administrativo','Manutenção','Comercial','RH'].map(s => `<option ${s===v.setor?'selected':''}>${s}</option>`).join('')}
+        </select>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>Salário</label><input id="e-salario" type="number" value="${v.salario||0}"/></div>
+      <div class="form-group"><label>Candidatos</label><input id="e-cand" type="number" value="${v.candidatos}"/></div>
+    </div>
+    <div class="form-group"><label>Status</label>
+      <select id="e-status">
+        ${['Aberta','Em entrevista','Encerrada'].map(s => `<option ${s===v.status?'selected':''}>${s}</option>`).join('')}
+      </select>
+    </div>
+    <div class="form-group"><label>Descrição</label><textarea id="e-desc" rows="3">${v.descricao||''}</textarea></div>
+    <button class="btn btn-success" onclick="salvarEdicao(${id})">💾 Salvar</button>
+    <button class="btn btn-secondary" onclick="fecharModal()">Cancelar</button>
+  `);
+}
+
+function salvarEdicao(id) {
+  const v = dados.find(x => x.id === id);
+  v.titulo = document.getElementById('e-titulo').value;
+  v.setor = document.getElementById('e-setor').value;
+  v.salario = parseFloat(document.getElementById('e-salario').value) || 0;
+  v.candidatos = parseInt(document.getElementById('e-cand').value) || 0;
+  v.status = document.getElementById('e-status').value;
+  v.descricao = document.getElementById('e-desc').value;
+  salvar();
+  fecharModal();
+  toast('Vaga atualizada!', 'success');
+  renderTudo();
+}
+
+function excluirVaga(id) {
+  if (!confirm('Excluir esta vaga?')) return;
+  dados = dados.filter(v => v.id !== id);
+  salvar();
+  toast('Vaga excluída', 'warning');
+  renderTudo();
+}
+
+function exportarCSV() {
+  const cab = 'ID,Cargo,Setor,Salário,Candidatos,Abertura,Status,Descrição';
+  const linhas = dados.map(v => `${v.id},"${v.titulo}",${v.setor},${v.salario},${v.candidatos},${v.abertura},${v.status},"${(v.descricao||'').replace(/"/g,'""')}"`);
+  const csv = cab + '\n' + linhas.join('\n');
+  const blob = new Blob(['\ufeff'+csv], {type:'text/csv;charset=utf-8;'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `recrutamento-${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+  toast('CSV exportado!', 'success');
+}
+
+function importarCSV() {
+  const inp = document.createElement('input');
+  inp.type = 'file';
+  inp.accept = '.csv';
+  inp.onchange = e => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = ev => {
+      try {
+        const linhas = ev.target.result.split('\n').slice(1).filter(l => l.trim());
+        const novos = linhas.map((l, i) => {
+          const c = l.split(',');
+          return {
+            id: Math.max(0,...dados.map(v=>v.id)) + i + 1,
+            titulo:(c[1]||'').replace(/"/g,''),
+            setor:c[2]||'Operacional',
+            salario:parseFloat(c[3])||0,
+            candidatos:parseInt(c[4])||0,
+            abertura:c[5]||new Date().toISOString().slice(0,10),
+            status:c[6]||'Aberta',
+            descricao:(c[7]||'').replace(/"/g,'')
+          };
+        });
+        dados = [...dados, ...novos];
+        salvar();
+        toast(`${novos.length} vagas importadas!`, 'success');
+        renderTudo();
+      } catch { toast('Erro ao importar', 'error'); }
+    };
+    reader.readAsText(file);
+  };
+  inp.click();
+}
+
+function renderTudo() {
+  renderKPIs();
+  renderTabela();
+  setTimeout(renderGraficos, 50);
+}
+
+document.getElementById('busca').addEventListener('input', renderTabela);
+document.getElementById('filtro-status').addEventListener('change', renderTabela);
+document.getElementById('filtro-setor').addEventListener('change', renderTabela);
+document.getElementById('modal').addEventListener('click', e => {
+  if (e.target.id === 'modal') fecharModal();
+});
+
+renderTudo();
+console.log('%c✅ Recrutamento & Seleção carregado!','background:#0a2540;color:#ff6b35;font-size:14px;font-weight:bold;padding:6px 12px;border-radius:6px;');
+</script>
+<script>
+function epqsBackup(){try{const data=localStorage.getItem('rh_recrutamento_v1');const blob=new Blob([data||'{}'],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='EPQS_rh_recrutamento_v1_'+new Date().toISOString().slice(0,10)+'.json';a.click();URL.revokeObjectURL(url);}catch(e){alert('Erro ao gerar backup.');}}
+function epqsRestore(){const inp=document.createElement('input');inp.type='file';inp.accept='.json';inp.onchange=function(e){const file=e.target.files[0];if(!file)return;const reader=new FileReader();reader.onload=function(ev){try{JSON.parse(ev.target.result);localStorage.setItem('rh_recrutamento_v1',ev.target.result);alert('Backup restaurado! A página será recarregada.');location.reload();}catch(err){alert('Arquivo inválido.');}};reader.readAsText(file);};inp.click();}
+</script>
+<p class="epqs-credit">EPQS - Eng Process Quality and Statistics · Sistema Integrado de Ferramentas · Desenvolvido por Marcos Garçon</p>
+</body>
+</html>

@@ -1,0 +1,879 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>EPQS - Eng Process Quality and Statistics · Painel RH/HCM</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+:root{--azul-ville:#1565c0;--azul-deep:#0d47a1;--azul-claro:#4a90d9;--laranja:#4a90d9;--laranja-claro:#7fb3e8;--verde:#22c55e;--verde-deep:#16a34a;--verde-claro:#4ade80;--vermelho:#ef4444;--amarelo:#f59e0b;--roxo:#a78bfa;--rosa:#f472b6;--ciano:#22d3ee;--indigo:#818cf8;--cinza-50:#0f1e36;--cinza-100:#1a2942;--cinza-200:#2a3a55;--cinza-300:#2a3a55;--cinza-500:#94a3b8;--cinza-600:#94a3b8;--cinza-700:#cbd5e1;--cinza-800:#e5e7eb;--sombra-sm:0 2px 6px rgba(0,0,0,.3);--sombra-md:0 4px 12px rgba(0,0,0,.35);--sombra-lg:0 10px 30px rgba(0,0,0,.45);--sombra-xl:0 20px 45px rgba(0,0,0,.55);--radius-sm:6px;--radius-md:10px;--radius-lg:14px;--radius-xl:20px;}
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{
+  font-family:'Inter',-apple-system,sans-serif;
+  background:var(--azul-deep-bg,#0a1628);
+  color:var(--cinza-800);
+  min-height:100vh;
+}
+
+/* ====== HEADER ====== */
+.header{
+  background:linear-gradient(135deg,var(--azul-deep) 0%,var(--azul-ville) 50%,var(--azul-claro) 100%);
+  color:#fff;
+  padding:25px 30px;
+  box-shadow:var(--sombra-xl);
+  position:sticky;
+  top:0;
+  z-index:100;
+}
+.header-inner{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  flex-wrap:wrap;
+  gap:20px;
+  max-width:1700px;
+  margin:0 auto;
+}
+.logo-area{display:flex;align-items:center;gap:18px;}
+.logo-icon{
+  width:65px;height:65px;
+  background:linear-gradient(135deg,var(--laranja),var(--laranja-claro));
+  border-radius:var(--radius-lg);
+  display:flex;align-items:center;justify-content:center;
+  font-size:32px;
+  box-shadow:0 8px 20px rgba(255,107,53,.4);
+}
+.logo-text h1{font-size:26px;font-weight:900;letter-spacing:-.5px;}
+.logo-text p{font-size:13px;opacity:.85;margin-top:2px;}
+.header-info{display:flex;align-items:center;gap:15px;flex-wrap:wrap;}
+.header-stat{
+  text-align:center;
+  padding:10px 20px;
+  background:rgba(255,255,255,.1);
+  border-radius:var(--radius-md);
+  backdrop-filter:blur(10px);
+  border:1px solid rgba(255,255,255,.15);
+}
+.header-stat .label{font-size:10px;opacity:.8;text-transform:uppercase;letter-spacing:.5px;}
+.header-stat .valor{font-size:22px;font-weight:800;color:var(--laranja-claro);margin-top:3px;}
+.user-badge{
+  display:flex;align-items:center;gap:10px;
+  padding:8px 16px;
+  background:rgba(255,255,255,.15);
+  border-radius:50px;
+  border:1px solid rgba(255,255,255,.2);
+}
+.user-avatar{
+  width:36px;height:36px;
+  background:linear-gradient(135deg,var(--laranja),var(--laranja-claro));
+  border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-weight:800;font-size:13px;
+}
+
+/* ====== MAIN ====== */
+.main{
+  max-width:1700px;
+  margin:0 auto;
+  padding:30px;
+}
+.welcome{
+  background:linear-gradient(135deg,#fff,var(--cinza-50));
+  border-radius:var(--radius-xl);
+  padding:30px;
+  margin-bottom:30px;
+  box-shadow:var(--sombra-md);
+  border-left:5px solid var(--laranja);
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  flex-wrap:wrap;
+  gap:20px;
+}
+.welcome h2{font-size:24px;color:var(--azul-ville);margin-bottom:6px;}
+.welcome p{color:var(--cinza-600);font-size:14px;}
+.welcome-actions{display:flex;gap:10px;flex-wrap:wrap;}
+/* ====== KPIs GERAIS ====== */
+.kpis-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+  gap:20px;
+  margin-bottom:30px;
+}
+.kpi-card{
+  background:#0f1e36;
+  border-radius:var(--radius-lg);
+  padding:24px;
+  box-shadow:var(--sombra-md);
+  border-left:4px solid var(--azul-ville);
+  transition:all .3s;
+  position:relative;
+  overflow:hidden;
+}
+.kpi-card::before{
+  content:'';position:absolute;top:0;right:0;
+  width:80px;height:80px;
+  background:radial-gradient(circle,rgba(10,37,64,.05),transparent);
+  border-radius:50%;
+}
+.kpi-card:hover{transform:translateY(-4px);box-shadow:var(--sombra-xl);}
+.kpi-card.laranja{border-left-color:var(--laranja);}
+.kpi-card.verde{border-left-color:var(--verde);}
+.kpi-card.vermelho{border-left-color:var(--vermelho);}
+.kpi-card.amarelo{border-left-color:var(--amarelo);}
+.kpi-card.roxo{border-left-color:var(--roxo);}
+.kpi-card.ciano{border-left-color:var(--ciano);}
+.kpi-label{
+  font-size:12px;
+  text-transform:uppercase;
+  color:var(--cinza-500);
+  font-weight:600;
+  letter-spacing:.5px;
+  margin-bottom:8px;
+}
+.kpi-valor{
+  font-size:36px;
+  font-weight:800;
+  color:var(--azul-ville);
+  margin-bottom:5px;
+  line-height:1;
+}
+.kpi-sub{font-size:12px;color:var(--cinza-500);}
+.kpi-trend{
+  display:inline-flex;
+  align-items:center;
+  gap:4px;
+  padding:3px 8px;
+  border-radius:50px;
+  font-size:11px;
+  font-weight:600;
+  margin-top:6px;
+}
+.kpi-trend.up{background:#d1fae5;color:#065f46;}
+.kpi-trend.down{background:#fee2e2;color:#991b1b;}
+
+/* ====== SECTION TITLE ====== */
+.section-title{
+  font-size:22px;
+  font-weight:800;
+  color:var(--azul-ville);
+  margin-bottom:20px;
+  display:flex;
+  align-items:center;
+  gap:12px;
+  padding-bottom:12px;
+  border-bottom:3px solid var(--laranja);
+}
+.section-title .icon{
+  font-size:28px;
+  filter:drop-shadow(0 2px 4px rgba(0,0,0,.1));
+}
+
+/* ====== CARDS DE FERRAMENTAS ====== */
+.ferramentas-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
+  gap:20px;
+  margin-bottom:30px;
+}
+.ferramenta-card{
+  background:#0f1e36;
+  border-radius:var(--radius-xl);
+  padding:25px;
+  box-shadow:var(--sombra-md);
+  cursor:pointer;
+  transition:all .35s cubic-bezier(.4,0,.2,1);
+  position:relative;
+  overflow:hidden;
+  border:2px solid transparent;
+}
+.ferramenta-card::before{
+  content:'';
+  position:absolute;
+  top:0;left:0;right:0;
+  height:5px;
+  background:linear-gradient(90deg,var(--cor-tema,var(--azul-ville)),var(--cor-tema-light,var(--azul-claro)));
+}
+.ferramenta-card:hover{
+  transform:translateY(-8px) scale(1.02);
+  box-shadow:0 25px 40px -5px rgba(10,37,64,.25);
+  border-color:var(--cor-tema,var(--azul-ville));
+}
+.ferramenta-icon{
+  width:60px;height:60px;
+  border-radius:var(--radius-lg);
+  display:flex;align-items:center;justify-content:center;
+  font-size:30px;
+  margin-bottom:16px;
+  background:linear-gradient(135deg,var(--cor-tema,var(--azul-ville)),var(--cor-tema-light,var(--azul-claro)));
+  color:#fff;
+  box-shadow:0 8px 16px rgba(0,0,0,.15);
+}
+.ferramenta-titulo{
+  font-size:18px;
+  font-weight:800;
+  color:var(--azul-ville);
+  margin-bottom:6px;
+}
+.ferramenta-desc{
+  font-size:13px;
+  color:var(--cinza-600);
+  margin-bottom:16px;
+  line-height:1.5;
+}
+.ferramenta-meta{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding-top:14px;
+  border-top:1px solid var(--cinza-100);
+}
+.ferramenta-stat{
+  font-size:11px;
+  color:var(--cinza-500);
+  text-transform:uppercase;
+  font-weight:600;
+}
+.ferramenta-stat strong{
+  display:block;
+  color:var(--azul-ville);
+  font-size:18px;
+  margin-top:2px;
+}
+.ferramenta-arrow{
+  font-size:20px;
+  color:var(--cor-tema,var(--azul-ville));
+  transition:transform .3s;
+}
+.ferramenta-card:hover .ferramenta-arrow{transform:translateX(5px);}
+
+/* Cores temáticas por ferramenta */
+.tema-recrut{--cor-tema:#0a2540;--cor-tema-light:#1e40af;}
+.tema-folha{--cor-tema:#10b981;--cor-tema-light:#34d399;}
+.tema-ferias{--cor-tema:#06b6d4;--cor-tema-light:#22d3ee;}
+.tema-avalia{--cor-tema:#8b5cf6;--cor-tema-light:#a78bfa;}
+.tema-okr{--cor-tema:#ff6b35;--cor-tema-light:#ff8c5a;}
+.tema-saude{--cor-tema:#ef4444;--cor-tema-light:#f87171;}
+.tema-ponto{--cor-tema:#f59e0b;--cor-tema-light:#fbbf24;}
+.tema-trein{--cor-tema:#ec4899;--cor-tema-light:#f472b6;}
+.tema-clima{--cor-tema:#14b8a6;--cor-tema-light:#2dd4bf;}
+
+/* ====== GRÁFICOS ====== */
+.charts-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(450px,1fr));
+  gap:20px;
+  margin-bottom:30px;
+}
+.chart-card{
+  background:#0f1e36;
+  border-radius:var(--radius-lg);
+  padding:24px;
+  box-shadow:var(--sombra-md);
+}
+.chart-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:18px;
+  padding-bottom:12px;
+  border-bottom:2px solid var(--cinza-100);
+}
+.chart-title{font-size:16px;font-weight:700;color:var(--azul-ville);}
+.chart-container{position:relative;height:300px;}
+/* ====== BOTÕES ====== */
+.btn{
+  padding:11px 20px;
+  border:none;
+  border-radius:var(--radius-md);
+  font-weight:600;
+  cursor:pointer;
+  font-size:13px;
+  font-family:inherit;
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  transition:all .2s;
+}
+.btn:hover{transform:translateY(-2px);box-shadow:var(--sombra-md);}
+.btn-primary{background:linear-gradient(135deg,var(--azul-ville),var(--azul-claro));color:#fff;}
+.btn-laranja{background:linear-gradient(135deg,var(--laranja),var(--laranja-claro));color:#fff;}
+.btn-success{background:linear-gradient(135deg,var(--verde),#059669);color:#fff;}
+.btn-secondary{background:var(--cinza-200);color:var(--cinza-700);}
+
+/* ====== MODAL ====== */
+.modal-overlay{
+  display:none;
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.6);
+  z-index:1000;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+  backdrop-filter:blur(4px);
+}
+.modal-overlay.active{display:flex;}
+.modal{
+  background:#0f1e36;
+  border-radius:var(--radius-xl);
+  max-width:600px;
+  width:100%;
+  max-height:90vh;
+  overflow-y:auto;
+  animation:slideUp .3s;
+}
+@keyframes slideUp{from{transform:translateY(30px);opacity:0;}to{transform:translateY(0);opacity:1;}}
+.modal-header{
+  padding:22px 26px;
+  border-bottom:1px solid var(--cinza-200);
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  position:sticky;top:0;background:#0f1e36;border-radius:var(--radius-xl) var(--radius-xl) 0 0;
+}
+.modal-header h2{color:var(--azul-ville);font-size:20px;}
+.modal-close{
+  background:var(--cinza-100);
+  border:none;
+  width:34px;height:34px;
+  border-radius:50%;
+  cursor:pointer;
+  font-size:16px;
+}
+.modal-close:hover{background:var(--vermelho);color:#fff;}
+.modal-body{padding:24px;}
+
+/* ====== TOAST ====== */
+#toast-container{
+  position:fixed;top:20px;right:20px;z-index:2000;
+  display:flex;flex-direction:column;gap:10px;
+}
+.toast{
+  padding:14px 22px;
+  border-radius:var(--radius-md);
+  color:#fff;
+  font-weight:600;
+  font-size:13px;
+  box-shadow:var(--sombra-xl);
+  min-width:280px;
+  animation:slideIn .3s;
+}
+.toast.success{background:linear-gradient(135deg,var(--verde),#059669);}
+.toast.error{background:linear-gradient(135deg,var(--vermelho),#dc2626);}
+.toast.warning{background:linear-gradient(135deg,var(--amarelo),#d97706);}
+.toast.info{background:linear-gradient(135deg,var(--azul-claro),var(--azul-ville));}
+@keyframes slideIn{from{transform:translateX(100%);opacity:0;}to{transform:translateX(0);opacity:1;}}
+
+/* ====== ALERTAS ====== */
+.alertas-area{
+  background:#0f1e36;
+  border-radius:var(--radius-lg);
+  padding:20px;
+  box-shadow:var(--sombra-md);
+  margin-bottom:25px;
+}
+.alerta-item{
+  display:flex;
+  align-items:center;
+  gap:14px;
+  padding:14px;
+  border-radius:var(--radius-md);
+  margin-bottom:10px;
+  border-left:4px solid var(--amarelo);
+  background:#fffbeb;
+}
+.alerta-item.danger{border-left-color:var(--vermelho);background:#fef2f2;}
+.alerta-item.info{border-left-color:var(--azul-claro);background:#eff6ff;}
+.alerta-item:last-child{margin-bottom:0;}
+.alerta-icon{font-size:24px;}
+.alerta-content{flex:1;}
+.alerta-titulo{font-weight:700;font-size:14px;color:var(--cinza-800);}
+.alerta-desc{font-size:12px;color:var(--cinza-600);margin-top:2px;}
+
+/* ====== RESPONSIVO ====== */
+@media(max-width:768px){
+  .header{padding:18px 16px;}
+  .logo-text h1{font-size:20px;}
+  .main{padding:16px;}
+  .welcome{padding:20px;}
+  .ferramentas-grid{grid-template-columns:1fr;}
+  .charts-grid{grid-template-columns:1fr;}
+}
+
+.epqs-topbar{background:rgba(10,22,40,.55);border-bottom:1px solid rgba(255,255,255,.12);padding:10px 20px;display:flex;gap:8px;flex-wrap:wrap;align-items:center;position:sticky;top:0;z-index:200;backdrop-filter:blur(6px);}
+.epqs-topbar .epqs-brand{display:flex;align-items:center;gap:8px;font-size:12px;color:#cbd5e1;margin-right:10px;white-space:nowrap;font-weight:600;}
+.epqs-topbar .epqs-brand img{height:20px;}
+.epqs-nav{display:flex;gap:6px;flex-wrap:wrap;overflow-x:auto;}
+.epqs-nav a{padding:7px 12px;border-radius:20px;background:rgba(255,255,255,.08);color:#e5e7eb;text-decoration:none;font-size:12.5px;font-weight:600;border:1px solid rgba(255,255,255,.12);white-space:nowrap;}
+.epqs-nav a:hover{background:rgba(255,255,255,.18);}
+.epqs-nav a.active{background:#1565c0;border-color:#1565c0;color:#fff;}
+.epqs-credit{font-size:11px;color:#64748b;text-align:center;padding:14px;}
+@media print{.epqs-topbar{display:none !important;}}
+</style>
+</head>
+<body>
+<div class="epqs-topbar">
+  <div class="epqs-brand"><img src="assets/eqps-logo-horizontal.png" alt="EPQS - Eng Process Quality and Statistics" onerror="this.style.display='none'"> EPQS - Eng Process Quality and Statistics</div>
+  <div class="epqs-nav">
+  <a href="index.html">🏢 EPQS (Início)</a>
+    <a href="estoque.html">📦 Estoque</a>
+    <a href="painel-rh.html" class="active">👥 RH</a>
+    <a href="engenharia.html">📐 Engenharia</a>
+    <a href="logistica.html">🚚 Logística</a>
+    <a href="vendas.html">💹 Vendas</a>
+    <a href="painel-producao.html">🏭 Produção</a>
+    <a href="wm-kpi.html">📈 KPI Manager</a>
+  </div>
+</div>
+
+
+<!-- ============ HEADER ============ -->
+<header class="header">
+  <div class="header-inner">
+    <div class="logo-area">
+      <div class="logo-icon">👥</div>
+      <div class="logo-text">
+        <h1>Painel RH/HCM</h1>
+        <p>Gestão Estratégica de Pessoas — EPQS</p>
+      </div>
+    </div>
+    <div class="header-info">
+      <div class="header-stat">
+        <div class="label">Headcount</div>
+        <div class="valor" id="h-headcount">0</div>
+      </div>
+      <div class="header-stat">
+        <div class="label">Vagas Abertas</div>
+        <div class="valor" id="h-vagas">0</div>
+      </div>
+      <div class="header-stat">
+        <div class="label">Alertas</div>
+        <div class="valor" id="h-alertas" style="color:var(--amarelo);">0</div>
+      </div>
+      <div class="user-badge">
+        <div class="user-avatar">MG</div>
+        <span style="font-size:13px;font-weight:600;">Marcos Garçon</span>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- ============ MAIN ============ -->
+<main class="main">
+
+  <!-- Boas-vindas -->
+  <div class="welcome">
+    <div>
+      <h2>👋 Bem-vindo, Marcos!</h2>
+      <p>Visão consolidada do RH/HCM da EPQS. Acesse cada ferramenta abaixo.</p>
+    </div>
+    <div class="welcome-actions">
+      <button class="btn btn-laranja" onclick="exportarPainel()">📊 Exportar Painel</button>
+      <button class="btn btn-primary" onclick="abrirAlertas()">🔔 Ver Alertas</button>
+    </div>
+  </div>
+
+  <!-- KPIs Gerais -->
+  <h3 class="section-title"><span class="icon">📊</span> Indicadores Consolidados</h3>
+  <div class="kpis-grid" id="kpis-grid"></div>
+
+  <!-- Alertas -->
+  <div class="alertas-area" id="alertas-area"></div>
+
+  <!-- Ferramentas -->
+  <h3 class="section-title"><span class="icon">🧰</span> Ferramentas do HCM</h3>
+  <div class="ferramentas-grid" id="ferramentas-grid"></div>
+
+  <!-- Gráficos -->
+  <h3 class="section-title"><span class="icon">📈</span> Análises Visuais</h3>
+  <div class="charts-grid">
+    <div class="chart-card">
+      <div class="chart-header"><div class="chart-title">📊 Distribuição por Setor</div></div>
+      <div class="chart-container"><canvas id="chart-setor"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-header"><div class="chart-title">📈 Indicadores-chave</div></div>
+      <div class="chart-container"><canvas id="chart-kpi"></canvas></div>
+    </div>
+  </div>
+
+</main>
+
+<!-- Modal -->
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 id="modal-titulo">Título</h2>
+      <button class="modal-close" onclick="fecharModal()">✕</button>
+    </div>
+    <div class="modal-body" id="modal-corpo"></div>
+  </div>
+</div>
+
+<div id="toast-container"></div>
+<script>
+// ============================================
+// CONFIGURAÇÃO DAS FERRAMENTAS
+// ============================================
+const FERRAMENTAS = [
+  {id:'recrut',titulo:'Recrutamento & Seleção',desc:'Vagas, candidatos e processos seletivos',icon:'📋',tema:'tema-recrut',arquivo:'rh-recrutamento.html',storage:'rh_recrutamento_v1',statLabel:'Vagas Abertas'},
+  {id:'folha',titulo:'Folha de Pagamento',desc:'Salários, benefícios e descontos',icon:'💰',tema:'tema-folha',arquivo:'rh-folha.html',storage:'rh_folha_v1',statLabel:'Colaboradores'},
+  {id:'ferias',titulo:'Controle de Férias',desc:'Solicitações e gestão de afastamentos',icon:'🏖️',tema:'tema-ferias',arquivo:'rh-ferias.html',storage:'rh_ferias_v1',statLabel:'Pendentes'},
+  {id:'avalia',titulo:'Avaliação de Desempenho',desc:'Performance, feedback e PDI',icon:'📊',tema:'tema-avalia',arquivo:'rh-avaliacoes.html',storage:'rh_avaliacoes_v1',statLabel:'Avaliações'},
+  {id:'okr',titulo:'Gestão de Metas (OKR)',desc:'Objetivos e Key Results',icon:'🎯',tema:'tema-okr',arquivo:'rh-okr.html',storage:'rh_okr_v1',statLabel:'OKRs Ativos'},
+  {id:'saude',titulo:'Saúde Ocupacional',desc:'ASOs, exames e medicina do trabalho',icon:'🏥',tema:'tema-saude',arquivo:'rh-saude.html',storage:'rh_saude_v1',statLabel:'ASOs Válidos'},
+  {id:'ponto',titulo:'Ponto Eletrônico',desc:'Banco de horas e frequência',icon:'⏰',tema:'tema-ponto',arquivo:'rh-ponto.html',storage:'rh_ponto_v1',statLabel:'Registros'},
+  {id:'trein',titulo:'Treinamentos',desc:'Capacitação e desenvolvimento',icon:'🎓',tema:'tema-trein',arquivo:'rh-treinamentos.html',storage:'rh_treinamentos_v1',statLabel:'Treinamentos'},
+  {id:'clima',titulo:'Clima Organizacional',desc:'Pesquisas, eNPS e engajamento',icon:'🤝',tema:'tema-clima',arquivo:'rh-clima.html',storage:'rh_clima_v1',statLabel:'Pesquisas'}
+];
+
+// ============================================
+// HELPERS
+// ============================================
+function lerStorage(key){
+  try{const s=localStorage.getItem(key);return s?JSON.parse(s):[];}
+  catch(e){return [];}
+}
+function toast(msg,tipo='success'){
+  const c=document.getElementById('toast-container');
+  const t=document.createElement('div');
+  t.className='toast '+tipo;t.textContent=msg;
+  c.appendChild(t);setTimeout(()=>t.remove(),3500);
+}
+function fecharModal(){document.getElementById('modal').classList.remove('active');}
+function abrirModal(titulo,corpo){
+  document.getElementById('modal-titulo').innerHTML=titulo;
+  document.getElementById('modal-corpo').innerHTML=corpo;
+  document.getElementById('modal').classList.add('active');
+}
+function navegarFerramenta(arquivo){
+  toast('Abrindo '+arquivo,'info');
+  setTimeout(()=>{window.location.href=arquivo;},400);
+}
+
+// ============================================
+// COLETA DE DADOS CONSOLIDADOS
+// ============================================
+function coletarDados(){
+  const dados={};
+  FERRAMENTAS.forEach(f=>{
+    dados[f.id]=lerStorage(f.storage);
+  });
+  return dados;
+}
+
+function calcularKPIs(d){
+  const folha=d.folha||[];
+  const recrut=d.recrut||[];
+  const ferias=d.ferias||[];
+  const okr=d.okr||[];
+  const saude=d.saude||[];
+  const clima=d.clima||[];
+  const avalia=d.avalia||[];
+  const trein=d.trein||[];
+  const ponto=d.ponto||[];
+
+  const headcount=folha.length;
+  const vagasAbertas=recrut.filter(v=>v.status==='Aberta'||v.status==='Em entrevista').length;
+  const feriasPend=ferias.filter(f=>f.status==='Pendente').length;
+  const okrAtivos=okr.filter(o=>o.status==='Em Andamento').length;
+
+  const hoje=new Date();
+  const asoVencer=saude.filter(s=>{const d=(new Date(s.validade)-hoje)/86400000;return d>0&&d<60;}).length;
+
+  const folhaBruta=folha.reduce((s,f)=>s+(f.salario||0)+(f.beneficios||0),0);
+  const folhaLiquida=folha.reduce((s,f)=>s+(f.liquido||0),0);
+
+  const ultimaClima=clima.sort((a,b)=>new Date(b.data)-new Date(a.data))[0];
+  const enps=ultimaClima?ultimaClima.enps:0;
+  const satisfacao=ultimaClima?ultimaClima.satisfacao:0;
+
+  const mediaAvalia=avalia.length?Math.round(avalia.reduce((s,a)=>s+a.nota,0)/avalia.length):0;
+  const totalTrein=trein.length;
+  const horasExtras=ponto.reduce((s,p)=>s+(p.extras||0),0);
+
+  return {headcount,vagasAbertas,feriasPend,okrAtivos,asoVencer,folhaBruta,folhaLiquida,enps,satisfacao,mediaAvalia,totalTrein,horasExtras};
+}
+
+// ============================================
+// RENDER KPIs
+// ============================================
+function renderKPIs(){
+  const dados=coletarDados();
+  const k=calcularKPIs(dados);
+
+  // Header
+  document.getElementById('h-headcount').textContent=k.headcount;
+  document.getElementById('h-vagas').textContent=k.vagasAbertas;
+  const alertas=k.feriasPend+k.asoVencer;
+  document.getElementById('h-alertas').textContent=alertas;
+
+  const fmt=v=>'R$ '+(v||0).toLocaleString('pt-BR',{minimumFractionDigits:0,maximumFractionDigits:0});
+
+  document.getElementById('kpis-grid').innerHTML=`
+    <div class="kpi-card">
+      <div class="kpi-label">Headcount Total</div>
+      <div class="kpi-valor">${k.headcount}</div>
+      <div class="kpi-sub">Colaboradores ativos</div>
+    </div>
+    <div class="kpi-card verde">
+      <div class="kpi-label">Folha Bruta</div>
+      <div class="kpi-valor" style="font-size:24px;">${fmt(k.folhaBruta)}</div>
+      <div class="kpi-sub">Líquido: ${fmt(k.folhaLiquida)}</div>
+    </div>
+    <div class="kpi-card laranja">
+      <div class="kpi-label">Vagas Abertas</div>
+      <div class="kpi-valor">${k.vagasAbertas}</div>
+      <div class="kpi-sub">Em processo seletivo</div>
+    </div>
+    <div class="kpi-card amarelo">
+      <div class="kpi-label">Férias Pendentes</div>
+      <div class="kpi-valor">${k.feriasPend}</div>
+      <div class="kpi-sub">Aguardando aprovação</div>
+    </div>
+    <div class="kpi-card vermelho">
+      <div class="kpi-label">ASOs a Vencer</div>
+      <div class="kpi-valor">${k.asoVencer}</div>
+      <div class="kpi-sub">Próximos 60 dias</div>
+    </div>
+    <div class="kpi-card roxo">
+      <div class="kpi-label">OKRs Ativos</div>
+      <div class="kpi-valor">${k.okrAtivos}</div>
+      <div class="kpi-sub">Em andamento</div>
+    </div>
+    <div class="kpi-card ciano">
+      <div class="kpi-label">eNPS</div>
+      <div class="kpi-valor">${k.enps}</div>
+      <div class="kpi-sub">${k.enps>=50?'Zona Encantamento':k.enps>=30?'Zona Qualidade':'A melhorar'}</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Nota Média Avaliações</div>
+      <div class="kpi-valor">${k.mediaAvalia}%</div>
+      <div class="kpi-sub">${k.mediaAvalia>=85?'Excelente':k.mediaAvalia>=70?'Bom':'A melhorar'}</div>
+    </div>
+  `;
+}
+
+// ============================================
+// RENDER CARDS DE FERRAMENTAS
+// ============================================
+function renderFerramentas(){
+  const dados=coletarDados();
+  const grid=document.getElementById('ferramentas-grid');
+  grid.innerHTML=FERRAMENTAS.map(f=>{
+    const registros=dados[f.id]||[];
+    let stat=registros.length;
+    if(f.id==='recrut')stat=registros.filter(v=>v.status==='Aberta'||v.status==='Em entrevista').length;
+    if(f.id==='ferias')stat=registros.filter(v=>v.status==='Pendente').length;
+    if(f.id==='okr')stat=registros.filter(v=>v.status==='Em Andamento').length;
+    if(f.id==='saude'){const h=new Date();stat=registros.filter(s=>new Date(s.validade)>h).length;}
+
+    return `
+      <div class="ferramenta-card ${f.tema}" onclick="navegarFerramenta('${f.arquivo}')">
+        <div class="ferramenta-icon">${f.icon}</div>
+        <div class="ferramenta-titulo">${f.titulo}</div>
+        <div class="ferramenta-desc">${f.desc}</div>
+        <div class="ferramenta-meta">
+          <div class="ferramenta-stat">
+            ${f.statLabel}
+            <strong>${stat}</strong>
+          </div>
+          <div class="ferramenta-arrow">→</div>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+// ============================================
+// RENDER ALERTAS
+// ============================================
+function renderAlertas(){
+  const dados=coletarDados();
+  const hoje=new Date();
+  const alertas=[];
+
+  // ASOs a vencer
+  const asoVencer=(dados.saude||[]).filter(s=>{const d=(new Date(s.validade)-hoje)/86400000;return d>0&&d<60;});
+  if(asoVencer.length>0){
+    alertas.push({tipo:'',icon:'⚠️',titulo:`${asoVencer.length} ASO(s) vencem em 60 dias`,desc:'Acesse Saúde Ocupacional para agendar renovações.'});
+  }
+
+  // Férias Pendentes
+  const fPend=(dados.ferias||[]).filter(f=>f.status==='Pendente');
+  if(fPend.length>0){
+    alertas.push({tipo:'info',icon:'📋',titulo:`${fPend.length} solicitação(ões) de férias pendentes`,desc:'Aprove ou recuse no módulo de Férias.'});
+  }
+
+  // OKRs atrasados
+  const okrAtr=(dados.okr||[]).filter(o=>o.status==='Atrasado');
+  if(okrAtr.length>0){
+    alertas.push({tipo:'danger',icon:'🔥',titulo:`${okrAtr.length} OKR(s) atrasados`,desc:'Revise as metas no módulo de OKR.'});
+  }
+
+  // Avaliações em andamento
+  const avAnd=(dados.avalia||[]).filter(a=>a.status==='Em Andamento');
+  if(avAnd.length>0){
+    alertas.push({tipo:'info',icon:'📊',titulo:`${avAnd.length} avaliação(ões) em andamento`,desc:'Acompanhe no módulo de Avaliação.'});
+  }
+
+  // Vagas há mais de 30 dias
+  const vagas=(dados.recrut||[]).filter(v=>{const d=(hoje-new Date(v.abertura))/86400000;return d>30&&(v.status==='Aberta'||v.status==='Em entrevista');});
+  if(vagas.length>0){
+    alertas.push({tipo:'',icon:'⏳',titulo:`${vagas.length} vaga(s) abertas há mais de 30 dias`,desc:'Revise o pipeline de recrutamento.'});
+  }
+
+  const div=document.getElementById('alertas-area');
+  if(alertas.length===0){
+    div.innerHTML=`<div style="text-align:center;padding:20px;color:var(--verde);">✅ <strong>Tudo em ordem!</strong> Nenhum alerta crítico no momento.</div>`;
+    return;
+  }
+  div.innerHTML=`<h4 style="color:var(--azul-ville);margin-bottom:15px;font-size:14px;text-transform:uppercase;letter-spacing:.5px;">🔔 Alertas Ativos (${alertas.length})</h4>`+
+    alertas.map(a=>`
+      <div class="alerta-item ${a.tipo}">
+        <div class="alerta-icon">${a.icon}</div>
+        <div class="alerta-content">
+          <div class="alerta-titulo">${a.titulo}</div>
+          <div class="alerta-desc">${a.desc}</div>
+        </div>
+      </div>
+    `).join('');
+}
+
+// ============================================
+// GRÁFICOS
+// ============================================
+let chartSetor,chartKPI;
+
+function renderGraficos(){
+  const dados=coletarDados();
+  const folha=dados.folha||[];
+
+  // Distribuição por cargo/setor
+  const setores={};
+  folha.forEach(f=>{
+    const s=f.cargo||'Outros';
+    setores[s]=(setores[s]||0)+1;
+  });
+  const labels=Object.keys(setores);
+  const valores=Object.values(setores);
+
+  if(chartSetor)chartSetor.destroy();
+  chartSetor=new Chart(document.getElementById('chart-setor'),{
+    type:'doughnut',
+    data:{
+      labels:labels.length?labels:['Sem dados'],
+      datasets:[{
+        data:valores.length?valores:[1],
+        backgroundColor:['#0a2540','#ff6b35','#10b981','#8b5cf6','#f59e0b','#06b6d4','#ec4899','#ef4444'],
+        borderWidth:3,borderColor:'#fff'
+      }]
+    },
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{padding:12,font:{size:11}}}}}
+  });
+
+  // KPIs Chave
+  const k=calcularKPIs(dados);
+  if(chartKPI)chartKPI.destroy();
+  chartKPI=new Chart(document.getElementById('chart-kpi'),{
+    type:'bar',
+    data:{
+      labels:['Headcount','Vagas','Férias Pend.','OKRs Ativos','ASOs Vencer','Avaliações'],
+      datasets:[{
+        label:'Quantidade',
+        data:[k.headcount,k.vagasAbertas,k.feriasPend,k.okrAtivos,k.asoVencer,(dados.avalia||[]).length],
+        backgroundColor:['#0a2540','#ff6b35','#f59e0b','#8b5cf6','#ef4444','#10b981'],
+        borderRadius:8
+      }]
+    },
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,ticks:{precision:0}}}}
+  });
+}
+
+// ============================================
+// AÇÕES
+// ============================================
+function abrirAlertas(){
+  const dados=coletarDados();
+  const hoje=new Date();
+  const todosAlertas=[];
+
+  const asoVencer=(dados.saude||[]).filter(s=>{const d=(new Date(s.validade)-hoje)/86400000;return d>0&&d<60;});
+  asoVencer.forEach(s=>todosAlertas.push(`⚠️ ASO de <strong>${s.colab}</strong> vence em ${new Date(s.validade).toLocaleDateString('pt-BR')}`));
+
+  const fPend=(dados.ferias||[]).filter(f=>f.status==='Pendente');
+  fPend.forEach(f=>todosAlertas.push(`📋 Férias pendentes: <strong>${f.colab}</strong> (${new Date(f.inicio).toLocaleDateString('pt-BR')})`));
+
+  const okrAtr=(dados.okr||[]).filter(o=>o.status==='Atrasado');
+  okrAtr.forEach(o=>todosAlertas.push(`🔥 OKR atrasado: <strong>${o.objetivo}</strong>`));
+
+  abrirModal('🔔 Todos os Alertas',`
+    ${todosAlertas.length===0?'<div style="text-align:center;padding:30px;color:var(--verde);font-size:16px;">✅ Nenhum alerta no momento!</div>':
+    '<div style="display:flex;flex-direction:column;gap:10px;">'+
+    todosAlertas.map(a=>`<div style="padding:12px;background:var(--cinza-50);border-radius:8px;border-left:3px solid var(--laranja);">${a}</div>`).join('')+
+    '</div>'}
+    <button class="btn btn-primary" style="margin-top:20px;width:100%;" onclick="fecharModal()">Fechar</button>
+  `);
+}
+
+function exportarPainel(){
+  const dados=coletarDados();
+  const k=calcularKPIs(dados);
+  const data=new Date().toLocaleDateString('pt-BR');
+
+  let csv='RELATÓRIO CONSOLIDADO RH/HCM - EQPS VILLE\n';
+  csv+=`Data: ${data}\n\n`;
+  csv+='INDICADOR;VALOR\n';
+  csv+=`Headcount Total;${k.headcount}\n`;
+  csv+=`Folha Bruta;R$ ${k.folhaBruta.toLocaleString('pt-BR')}\n`;
+  csv+=`Folha Líquida;R$ ${k.folhaLiquida.toLocaleString('pt-BR')}\n`;
+  csv+=`Vagas Abertas;${k.vagasAbertas}\n`;
+  csv+=`Férias Pendentes;${k.feriasPend}\n`;
+  csv+=`ASOs a Vencer;${k.asoVencer}\n`;
+  csv+=`OKRs Ativos;${k.okrAtivos}\n`;
+  csv+=`eNPS;${k.enps}\n`;
+  csv+=`Satisfação;${k.satisfacao}%\n`;
+  csv+=`Nota Média Avaliações;${k.mediaAvalia}%\n`;
+  csv+=`Total Treinamentos;${k.totalTrein}\n`;
+  csv+=`Horas Extras (mês);${k.horasExtras}h\n`;
+
+  const b=new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8;'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(b);
+  a.download=`painel-rh-${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+  toast('Painel exportado com sucesso!','success');
+}
+
+// ============================================
+// INICIALIZAÇÃO
+// ============================================
+function renderTudo(){
+  renderKPIs();
+  renderFerramentas();
+  renderAlertas();
+  setTimeout(renderGraficos,80);
+}
+
+document.getElementById('modal').addEventListener('click',e=>{
+  if(e.target.id==='modal')fecharModal();
+});
+
+// Atalhos de teclado
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape')fecharModal();
+});
+
+renderTudo();
+
+// Auto-refresh a cada 30s (caso edite uma ferramenta em outra aba)
+setInterval(renderTudo,30000);
+
+console.log('%c✅ Painel RH/HCM EPQS carregado!','background:#0a2540;color:#ff6b35;font-size:14px;font-weight:bold;padding:8px 14px;border-radius:6px;');
+console.log('%c🔗 9 ferramentas integradas via localStorage','color:#10b981;font-size:12px;');
+</script>
+<p class="epqs-credit">EPQS - Eng Process Quality and Statistics · Sistema Integrado de Ferramentas · Desenvolvido por Marcos Garçon</p>
+</body>
+</html>

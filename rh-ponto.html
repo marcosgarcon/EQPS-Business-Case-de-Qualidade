@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>EPQS - Eng Process Quality and Statistics · Ponto Eletrônico</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+:root{--azul-ville:#1565c0;--azul-deep:#0d47a1;--azul-claro:#4a90d9;--laranja:#4a90d9;--laranja-claro:#7fb3e8;--verde:#22c55e;--vermelho:#ef4444;--amarelo:#f59e0b;--roxo:#a78bfa;--cinza-50:#0f1e36;--cinza-100:#1a2942;--cinza-200:#2a3a55;--cinza-300:#2a3a55;--cinza-500:#94a3b8;--cinza-600:#94a3b8;--cinza-700:#cbd5e1;--cinza-800:#e5e7eb;--sombra-md:0 4px 12px rgba(0,0,0,.35);--sombra-lg:0 10px 30px rgba(0,0,0,.45);--radius-md:10px;--radius-lg:14px;--bg:#0a1628;--panel:#0f1e36;--muted:#1a2942;--text:#e5e7eb;--accent:#1565c0;--accent2:#4a90d9;--ok:#22c55e;--warn:#f59e0b;--bad:#ef4444;}
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--cinza-800);min-height:100vh;}
+.header{background:linear-gradient(135deg,var(--azul-deep),var(--azul-ville));color:#fff;padding:20px 30px;box-shadow:var(--sombra-lg);position:sticky;top:0;z-index:100;}
+.header-inner{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:20px;max-width:1600px;margin:0 auto;}
+.logo-area{display:flex;align-items:center;gap:15px;}
+.logo-icon{width:55px;height:55px;background:linear-gradient(135deg,var(--laranja),var(--laranja-claro));border-radius:var(--radius-md);display:flex;align-items:center;justify-content:center;font-size:28px;}
+.logo-text h1{font-size:22px;font-weight:800;}.logo-text p{font-size:13px;opacity:.85;}
+.header-info{display:flex;align-items:center;gap:15px;flex-wrap:wrap;}
+.header-stat{text-align:center;padding:8px 16px;background:rgba(255,255,255,.1);border-radius:var(--radius-md);}
+.header-stat .label{font-size:11px;opacity:.8;text-transform:uppercase;}.header-stat .valor{font-size:20px;font-weight:700;color:var(--laranja-claro);}
+.btn-voltar{padding:10px 18px;background:var(--laranja);color:#fff;border:none;border-radius:var(--radius-md);font-weight:600;cursor:pointer;font-family:inherit;}
+.main{max-width:1600px;margin:0 auto;padding:30px;}
+.section-title{font-size:24px;font-weight:700;color:var(--azul-ville);margin-bottom:20px;}
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:20px;margin-bottom:30px;}
+.kpi-card{background:var(--panel);border-radius:var(--radius-lg);padding:22px;box-shadow:var(--sombra-md);border-left:4px solid var(--azul-ville);}
+.kpi-card.verde{border-left-color:var(--verde);}.kpi-card.laranja{border-left-color:var(--laranja);}.kpi-card.vermelho{border-left-color:var(--vermelho);}.kpi-card.amarelo{border-left-color:var(--amarelo);}.kpi-card.roxo{border-left-color:var(--roxo);}
+.kpi-label{font-size:12px;text-transform:uppercase;color:var(--cinza-500);font-weight:600;margin-bottom:8px;}
+.kpi-valor{font-size:32px;font-weight:800;color:var(--azul-ville);}
+.kpi-sub{font-size:12px;color:var(--cinza-500);}
+.card{background:var(--panel);border-radius:var(--radius-lg);padding:22px;box-shadow:var(--sombra-md);margin-bottom:20px;}
+.card-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;padding-bottom:12px;border-bottom:2px solid var(--cinza-100);flex-wrap:wrap;gap:10px;}
+.card-title{font-size:16px;font-weight:700;color:var(--azul-ville);}
+.btn{padding:10px 18px;border:none;border-radius:var(--radius-md);font-weight:600;cursor:pointer;font-size:13px;font-family:inherit;display:inline-flex;align-items:center;gap:6px;}
+.btn-primary{background:linear-gradient(135deg,var(--azul-ville),var(--azul-claro));color:#fff;}
+.btn-success{background:linear-gradient(135deg,var(--verde),#059669);color:#fff;}
+.btn-warning{background:linear-gradient(135deg,var(--amarelo),#d97706);color:#fff;}
+.btn-danger{background:linear-gradient(135deg,var(--vermelho),#dc2626);color:#fff;}
+.btn-secondary{background:var(--cinza-200);color:var(--cinza-700);}
+.btn-small{padding:6px 12px;font-size:12px;}
+.tabela{width:100%;border-collapse:collapse;}
+.tabela th{background:var(--cinza-50);padding:12px;text-align:left;font-size:12px;text-transform:uppercase;color:var(--cinza-600);font-weight:600;border-bottom:2px solid var(--cinza-200);}
+.tabela td{padding:12px;border-bottom:1px solid var(--cinza-100);font-size:13px;}
+.tabela tr:hover{background:var(--cinza-50);}
+.badge{padding:4px 10px;border-radius:50px;font-size:11px;font-weight:600;display:inline-block;}
+.badge-verde{background:#d1fae5;color:#065f46;}.badge-vermelho{background:#fee2e2;color:#991b1b;}.badge-amarelo{background:#fef3c7;color:#92400e;}.badge-azul{background:#dbeafe;color:#1e40af;}
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:1000;align-items:center;justify-content:center;padding:20px;}
+.modal-overlay.active{display:flex;}
+.modal{background:var(--panel);border-radius:20px;max-width:700px;width:100%;max-height:90vh;overflow-y:auto;}
+.modal-header{padding:22px;border-bottom:1px solid var(--cinza-200);display:flex;justify-content:space-between;align-items:center;}
+.modal-header h2{color:var(--azul-ville);font-size:20px;}
+.modal-close{background:var(--cinza-100);border:none;width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:16px;}
+.modal-body{padding:22px;}
+.form-group{margin-bottom:15px;}
+.form-group label{display:block;margin-bottom:6px;font-weight:600;font-size:13px;color:var(--cinza-700);}
+.form-group input,.form-group select{width:100%;padding:10px;border:1px solid var(--cinza-300);border-radius:var(--radius-md);font-family:inherit;font-size:13px;}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:15px;}
+#toast-container{position:fixed;top:20px;right:20px;z-index:2000;display:flex;flex-direction:column;gap:10px;}
+.toast{padding:14px 20px;border-radius:var(--radius-md);color:#fff;font-weight:600;font-size:13px;box-shadow:var(--sombra-lg);min-width:280px;animation:slideIn .3s;}
+.toast.success{background:linear-gradient(135deg,var(--verde),#059669);}
+.toast.error{background:linear-gradient(135deg,var(--vermelho),#dc2626);}
+.toast.warning{background:linear-gradient(135deg,var(--amarelo),#d97706);}
+@keyframes slideIn{from{transform:translateX(100%);opacity:0;}to{transform:translateX(0);opacity:1;}}
+.search-bar{display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap;}
+.search-bar input,.search-bar select{padding:10px 14px;border:1px solid var(--cinza-300);border-radius:var(--radius-md);font-size:13px;font-family:inherit;background:var(--cinza-50);color:var(--cinza-800)}
+.empty-state{text-align:center;padding:40px;color:var(--cinza-500);}
+.chart-container{position:relative;height:280px;}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+@media(max-width:900px){.grid-2,.form-row{grid-template-columns:1fr;}}
+
+.epqs-topbar{background:var(--panel);border-bottom:1px solid #2a3a55;padding:10px 20px;display:flex;gap:8px;flex-wrap:wrap;align-items:center;position:sticky;top:0;z-index:99;}
+.epqs-topbar .epqs-brand{display:flex;align-items:center;gap:8px;font-size:12px;color:#94a3b8;margin-right:10px;white-space:nowrap;}
+.epqs-topbar .epqs-brand img{height:20px;}
+.epqs-nav{display:flex;gap:6px;flex-wrap:wrap;overflow-x:auto;}
+.epqs-nav a{padding:7px 12px;border-radius:20px;background:var(--muted);color:var(--text);text-decoration:none;font-size:12.5px;font-weight:600;border:1px solid #2a3a55;white-space:nowrap;}
+.epqs-nav a:hover{background:#28406b;}
+.epqs-nav a.active{background:var(--accent);border-color:var(--accent);color:#fff;}
+.epqs-actions{display:flex;gap:8px;margin-left:auto;flex-wrap:wrap;}
+.epqs-actions button{padding:7px 12px;border-radius:8px;border:1px solid #2a3a55;background:var(--muted);color:var(--text);font-weight:600;font-size:12.5px;cursor:pointer;font-family:inherit;}
+.epqs-actions button:hover{background:#28406b;}
+.epqs-actions button.epqs-pdf{background:var(--accent);border-color:var(--accent);color:#fff;}
+.epqs-credit{font-size:11px;color:#64748b;text-align:center;padding:14px;}
+@media print{.epqs-topbar,.btn-voltar{display:none !important;}}
+@media(max-width:700px){.epqs-topbar{flex-direction:column;align-items:stretch;}.epqs-actions{margin-left:0;}}
+</style>
+</head>
+<body>
+<div class="epqs-topbar">
+    <div class="epqs-brand"><img src="assets/eqps-logo-horizontal.png" alt="EPQS" onerror="this.style.display='none'"> EPQS - Eng Process Quality and Statistics</div>
+    <div class="epqs-nav">
+    <a href="painel-rh.html">🏠 Painel RH</a>
+    <a href="index.html">🏢 EPQS</a>
+    <a href="rh-avaliacoes.html">📊 Avaliação de Desempenho</a>
+    <a href="rh-clima.html">🤝 Clima Organizacional</a>
+    <a href="rh-ferias.html">🏖️ Controle de Férias</a>
+    <a href="rh-folha.html">💰 Folha de Pagamento</a>
+    <a href="rh-okr.html">🎯 OKR</a>
+    <a href="rh-ponto.html" class="active">⏰ Ponto Eletrônico</a>
+    <a href="rh-recrutamento.html">📋 Recrutamento</a>
+    <a href="rh-saude.html">🏥 Saúde Ocupacional</a>
+    <a href="rh-treinamentos.html">🎓 Treinamentos</a>
+    </div>
+    <div class="epqs-actions">
+      <button onclick="epqsRestore()">⬆ Restaurar</button>
+      <button onclick="epqsBackup()">⬇ Backup</button>
+      <button class="epqs-pdf" onclick="window.print()">🖨 PDF</button>
+    </div>
+  </div>
+
+<header class="header">
+  <div class="header-inner">
+    <div class="logo-area"><div class="logo-icon">⏰</div><div class="logo-text"><h1>Ponto Eletrônico</h1><p>Banco de Horas e Frequência · EPQS</p></div></div>
+    <div class="header-info">
+      <div class="header-stat"><div class="label">H. Extras</div><div class="valor" id="h-ext">0h</div></div>
+      <div class="header-stat"><div class="label">Banco</div><div class="valor" id="h-bco">0h</div></div>
+      <button class="btn-voltar" onclick="voltarPainel()">← Painel RH</button>
+    </div>
+  </div>
+</header>
+<main class="main">
+  <h2 class="section-title">⏰ Ponto Eletrônico</h2>
+  <div class="kpi-grid" id="kpi-grid"></div>
+  <div class="grid-2" style="margin-bottom:20px;">
+    <div class="card"><div class="card-header"><div class="card-title">📊 Horas Extras</div></div><div class="chart-container"><canvas id="chart1"></canvas></div></div>
+    <div class="card"><div class="card-header"><div class="card-title">💼 Banco de Horas</div></div><div class="chart-container"><canvas id="chart2"></canvas></div></div>
+  </div>
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title">📑 Registros de Ponto</div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;">
+        <button class="btn btn-primary" onclick="novo()">➕ Novo</button>
+        <button class="btn btn-success" onclick="exportarCSV()">📥 Exportar</button>
+        <button class="btn btn-warning" onclick="importarCSV()">📤 Importar</button>
+      </div>
+    </div>
+    <div class="search-bar">
+      <input type="text" id="busca" placeholder="🔍 Buscar..." style="flex:1;min-width:200px;"/>
+      <select id="filtro-mes"><option value="">Todos meses</option></select>
+    </div>
+    <div style="overflow-x:auto;">
+      <table class="tabela">
+        <thead><tr><th>Colaborador</th><th>Mês</th><th>H. Normais</th><th>H. Extras</th><th>Banco</th><th>Faltas</th><th>Ações</th></tr></thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+  </div>
+</main>
+<div class="modal-overlay" id="modal"><div class="modal"><div class="modal-header"><h2 id="modal-titulo"></h2><button class="modal-close" onclick="fecharModal()">✕</button></div><div class="modal-body" id="modal-corpo"></div></div></div>
+<div id="toast-container"></div>
+<script>
+const STORAGE_KEY='rh_ponto_v1';
+const dadosIniciais=[
+  {id:1,colab:'Ana Souza',mes:'2025-04',horasNormais:176,extras:12,banco:8,faltas:0},
+  {id:2,colab:'Bruno Lima',mes:'2025-04',horasNormais:176,extras:24,banco:-4,faltas:1},
+  {id:3,colab:'Carla Mendes',mes:'2025-04',horasNormais:176,extras:8,banco:16,faltas:0},
+  {id:4,colab:'Diego Costa',mes:'2025-04',horasNormais:176,extras:32,banco:0,faltas:0},
+  {id:5,colab:'Felipe Alves',mes:'2025-04',horasNormais:160,extras:4,banco:-8,faltas:2}
+];
+let dados=carregar();let chart1,chart2;
+function carregar(){try{const s=localStorage.getItem(STORAGE_KEY);if(s)return JSON.parse(s);}catch(e){}return JSON.parse(JSON.stringify(dadosIniciais));}
+function salvar(){localStorage.setItem(STORAGE_KEY,JSON.stringify(dados));}
+function toast(m,t='success'){const c=document.getElementById('toast-container');const e=document.createElement('div');e.className='toast '+t;e.textContent=m;c.appendChild(e);setTimeout(()=>e.remove(),3500);}
+function fecharModal(){document.getElementById('modal').classList.remove('active');}
+function abrirModal(t,c){document.getElementById('modal-titulo').innerHTML=t;document.getElementById('modal-corpo').innerHTML=c;document.getElementById('modal').classList.add('active');}
+function voltarPainel(){if(confirm('Voltar?'))window.location.href='painel-rh.html';}
+
+function renderKPIs(){
+  const totExt=dados.reduce((s,d)=>s+d.extras,0);
+  const totBco=dados.reduce((s,d)=>s+d.banco,0);
+  const totFalt=dados.reduce((s,d)=>s+d.faltas,0);
+  const semFaltas=dados.filter(d=>d.faltas===0).length;
+  document.getElementById('h-ext').textContent=totExt+'h';
+  document.getElementById('h-bco').textContent=(totBco>=0?'+':'')+totBco+'h';
+  document.getElementById('kpi-grid').innerHTML=`
+    <div class="kpi-card"><div class="kpi-label">Registros</div><div class="kpi-valor">${dados.length}</div></div>
+    <div class="kpi-card laranja"><div class="kpi-label">Total H. Extras</div><div class="kpi-valor">${totExt}h</div></div>
+    <div class="kpi-card verde"><div class="kpi-label">Banco Total</div><div class="kpi-valor">${totBco>=0?'+':''}${totBco}h</div></div>
+    <div class="kpi-card vermelho"><div class="kpi-label">Total Faltas</div><div class="kpi-valor">${totFalt}</div></div>
+    <div class="kpi-card roxo"><div class="kpi-label">Sem Faltas</div><div class="kpi-valor">${semFaltas}</div></div>
+  `;
+}
+
+function renderGraficos(){
+  if(chart1)chart1.destroy();
+  chart1=new Chart(document.getElementById('chart1'),{type:'bar',data:{labels:dados.map(d=>d.colab.split(' ')[0]),datasets:[{label:'Horas Extras',data:dados.map(d=>d.extras),backgroundColor:'#ff6b35',borderRadius:8}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}}}});
+  if(chart2)chart2.destroy();
+  chart2=new Chart(document.getElementById('chart2'),{type:'bar',data:{labels:dados.map(d=>d.colab.split(' ')[0]),datasets:[{label:'Banco',data:dados.map(d=>d.banco),backgroundColor:dados.map(d=>d.banco>=0?'#10b981':'#ef4444'),borderRadius:8}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}}}});
+}
+
+function renderTabela(){
+  const meses=[...new Set(dados.map(d=>d.mes))].sort().reverse();
+  const sel=document.getElementById('filtro-mes');
+  const cur=sel.value;
+  sel.innerHTML='<option value="">Todos meses</option>'+meses.map(m=>`<option ${m===cur?'selected':''}>${m}</option>`).join('');
+  const b=document.getElementById('busca').value.toLowerCase();
+  const fm=sel.value;
+  const filt=dados.filter(d=>(!b||d.colab.toLowerCase().includes(b))&&(!fm||d.mes===fm));
+  const tb=document.getElementById('tbody');
+  if(!filt.length){tb.innerHTML='<tr><td colspan="7"><div class="empty-state">Nenhum registro</div></td></tr>';return;}
+  tb.innerHTML=filt.map(d=>`
+    <tr>
+      <td><strong>${d.colab}</strong></td>
+      <td><span class="badge badge-azul">${d.mes}</span></td>
+      <td>${d.horasNormais}h</td>
+      <td style="color:var(--verde);">+${d.extras}h</td>
+      <td style="color:${d.banco>=0?'var(--verde)':'var(--vermelho)'};font-weight:700;">${d.banco>=0?'+':''}${d.banco}h</td>
+      <td>${d.faltas>0?`<span class="badge badge-vermelho">${d.faltas}</span>`:'<span style="color:var(--verde);">-</span>'}</td>
+      <td>
+        <button class="btn btn-small btn-warning" onclick="editar(${d.id})">✏️</button>
+        <button class="btn btn-small btn-danger" onclick="excluir(${d.id})">🗑️</button>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function novo(){
+  abrirModal('➕ Novo Registro',`
+    <div class="form-row">
+      <div class="form-group"><label>Colaborador</label><input id="f-colab" type="text"/></div>
+      <div class="form-group"><label>Mês</label><input id="f-mes" type="month" value="${new Date().toISOString().slice(0,7)}"/></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>Horas Normais</label><input id="f-hn" type="number" value="176"/></div>
+      <div class="form-group"><label>Horas Extras</label><input id="f-ext" type="number" value="0"/></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>Banco de Horas</label><input id="f-bco" type="number" value="0"/></div>
+      <div class="form-group"><label>Faltas</label><input id="f-fal" type="number" value="0"/></div>
+    </div>
+    <button class="btn btn-success" onclick="salvarNovo()">💾 Salvar</button>
+    <button class="btn btn-secondary" onclick="fecharModal()">Cancelar</button>
+  `);
+}
+
+function salvarNovo(){
+  const colab=document.getElementById('f-colab').value.trim();
+  if(!colab){toast('Informe o colaborador!','error');return;}
+  dados.push({id:Math.max(0,...dados.map(d=>d.id))+1,colab,mes:document.getElementById('f-mes').value,horasNormais:parseInt(document.getElementById('f-hn').value)||0,extras:parseInt(document.getElementById('f-ext').value)||0,banco:parseInt(document.getElementById('f-bco').value)||0,faltas:parseInt(document.getElementById('f-fal').value)||0});
+  salvar();fecharModal();toast('Salvo!','success');renderTudo();
+}
+
+function editar(id){
+  const d=dados.find(x=>x.id===id);
+  abrirModal('✏️ Editar',`
+    <div class="form-row">
+      <div class="form-group"><label>Colaborador</label><input id="e-colab" type="text" value="${d.colab}"/></div>
+      <div class="form-group"><label>Mês</label><input id="e-mes" type="month" value="${d.mes}"/></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>H. Normais</label><input id="e-hn" type="number" value="${d.horasNormais}"/></div>
+      <div class="form-group"><label>H. Extras</label><input id="e-ext" type="number" value="${d.extras}"/></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>Banco</label><input id="e-bco" type="number" value="${d.banco}"/></div>
+      <div class="form-group"><label>Faltas</label><input id="e-fal" type="number" value="${d.faltas}"/></div>
+    </div>
+    <button class="btn btn-success" onclick="salvarEd(${id})">💾 Salvar</button>
+    <button class="btn btn-secondary" onclick="fecharModal()">Cancelar</button>
+  `);
+}
+
+function salvarEd(id){
+  const d=dados.find(x=>x.id===id);
+  d.colab=document.getElementById('e-colab').value;
+  d.mes=document.getElementById('e-mes').value;
+  d.horasNormais=parseInt(document.getElementById('e-hn').value)||0;
+  d.extras=parseInt(document.getElementById('e-ext').value)||0;
+  d.banco=parseInt(document.getElementById('e-bco').value)||0;
+  d.faltas=parseInt(document.getElementById('e-fal').value)||0;
+  salvar();fecharModal();toast('Atualizado!','success');renderTudo();
+}
+
+function excluir(id){if(!confirm('Excluir?'))return;dados=dados.filter(d=>d.id!==id);salvar();toast('Excluído','warning');renderTudo();}
+
+function exportarCSV(){
+  const csv='ID,Colaborador,Mês,H.Normais,H.Extras,Banco,Faltas\n'+dados.map(d=>`${d.id},"${d.colab}",${d.mes},${d.horasNormais},${d.extras},${d.banco},${d.faltas}`).join('\n');
+  const b=new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8;'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=`ponto-${new Date().toISOString().slice(0,10)}.csv`;a.click();toast('Exportado!','success');
+}
+
+function importarCSV(){
+  const i=document.createElement('input');i.type='file';i.accept='.csv';
+  i.onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();
+    r.onload=ev=>{try{const lns=ev.target.result.split('\n').slice(1).filter(l=>l.trim());
+      const nv=lns.map((l,idx)=>{const c=l.split(',');return{id:Math.max(0,...dados.map(x=>x.id))+idx+1,colab:(c[1]||'').replace(/"/g,''),mes:c[2]||'',horasNormais:parseInt(c[3])||0,extras:parseInt(c[4])||0,banco:parseInt(c[5])||0,faltas:parseInt(c[6])||0};});
+      dados=[...dados,...nv];salvar();toast(`${nv.length} importados!`,'success');renderTudo();
+    }catch{toast('Erro','error');}};r.readAsText(f);};i.click();
+}
+
+function renderTudo(){renderKPIs();renderTabela();setTimeout(renderGraficos,50);}
+document.getElementById('busca').addEventListener('input',renderTabela);
+document.getElementById('filtro-mes').addEventListener('change',renderTabela);
+document.getElementById('modal').addEventListener('click',e=>{if(e.target.id==='modal')fecharModal();});
+renderTudo();
+console.log('%c✅ Ponto Eletrônico carregado!','background:#0a2540;color:#ff6b35;font-size:14px;font-weight:bold;padding:6px 12px;border-radius:6px;');
+</script>
+<script>
+function epqsBackup(){try{const data=localStorage.getItem('rh_ponto_v1');const blob=new Blob([data||'{}'],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='EPQS_rh_ponto_v1_'+new Date().toISOString().slice(0,10)+'.json';a.click();URL.revokeObjectURL(url);}catch(e){alert('Erro ao gerar backup.');}}
+function epqsRestore(){const inp=document.createElement('input');inp.type='file';inp.accept='.json';inp.onchange=function(e){const file=e.target.files[0];if(!file)return;const reader=new FileReader();reader.onload=function(ev){try{JSON.parse(ev.target.result);localStorage.setItem('rh_ponto_v1',ev.target.result);alert('Backup restaurado! A página será recarregada.');location.reload();}catch(err){alert('Arquivo inválido.');}};reader.readAsText(file);};inp.click();}
+</script>
+<p class="epqs-credit">EPQS - Eng Process Quality and Statistics · Sistema Integrado de Ferramentas · Desenvolvido por Marcos Garçon</p>
+</body>
+</html>

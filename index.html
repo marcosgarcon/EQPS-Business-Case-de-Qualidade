@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>EPQS SYSTEM — Painel Principal | Marcos Garçon</title>
+  <title>EPQS - Eng Process Quality and Statistics | Sistema Integrado de Ferramentas</title>
   <style>
     :root{
       --bg:#08111f;
@@ -159,7 +159,7 @@
       #toolView{display:none !important}
     }
 
-    /* ===== Painel Central (shell no padrão EPQS SYSTEM) ===== */
+    /* ===== Painel Central (shell no padrão EPQS) ===== */
     body.app{margin:0;display:grid;grid-template-columns:280px 1fr;grid-template-rows:auto 1fr;height:100vh;background:var(--bg);}
     .sidebar{grid-row:2;grid-column:1;background:#0f1e36;border-right:1px solid #1e2f4d;padding:20px;
       display:flex;flex-direction:column;gap:18px;overflow-y:auto;}
@@ -212,8 +212,8 @@
         <text x="256" y="345" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-weight="800" font-size="105" fill="#ffffff">EPQS</text>
       </svg>
       <div>
-        <strong>EPQS SYSTEM</strong>
-        <span>Business Case de Qualidade — Perfil Campeão · Painel Central</span>
+        <strong>EPQS - Eng Process Quality and Statistics</strong>
+        <span>Sistema Integrado de Ferramentas · Desenvolvido por Marcos Garçon</span>
       </div>
     </div>
     <div class="actions">
@@ -269,13 +269,15 @@
       <a class="menu-item" href="#" onclick="openTool('treinamento.html', this);return false;">🎓 Treinamentos</a>
       <a class="menu-item" href="#" onclick="openTool('manutencao.html', this);return false;">🛠️ Gestão de Manutenção</a>
     </div>
-    <div class="menu-divider">Módulos EPQS SYSTEM</div>
+    <div class="menu-divider">Módulos EPQS</div>
     <div class="menu">
       <a class="menu-item" href="#" onclick="openTool('estoque.html', this);return false;">📦 Estoque</a>
-      <a class="menu-item" href="#" onclick="openTool('rh.html', this);return false;">👥 RH</a>
+      <a class="menu-item" href="#" onclick="openTool('painel-rh.html', this);return false;">👥 RH</a>
       <a class="menu-item" href="#" onclick="openTool('engenharia.html', this);return false;">📐 Engenharia</a>
       <a class="menu-item" href="#" onclick="openTool('logistica.html', this);return false;">🚚 Logística</a>
       <a class="menu-item" href="#" onclick="openTool('vendas.html', this);return false;">💹 Vendas</a>
+      <a class="menu-item" href="#" onclick="openTool('painel-producao.html', this);return false;">🏭 Painel de Produção</a>
+      <a class="menu-item" href="#" onclick="openTool('wm-kpi.html', this);return false;">📈 KPI Manager</a>
     </div>
     <div class="menu-divider">Ambiental · ISO 14001</div>
     <div class="menu">
@@ -676,13 +678,13 @@
     <section class="slide">
       <div class="slide-header">
         <div>
-          <h2>9. Ferramentas de apoio do sistema EPQS SYSTEM</h2>
+          <h2>9. Ferramentas de apoio do sistema EPQS</h2>
           <div class="subtitle">Cada etapa deste business case é executada e evidenciada em uma ferramenta digital do sistema.</div>
         </div>
         <div class="slide-no">Slide 09</div>
       </div>
       <p contenteditable="true" class="editable">
-        Este business case não fica só no papel: o sistema EPQS SYSTEM reúne 34 ferramentas de qualidade, produção e gestão ambiental usadas para registrar evidências, medir indicadores e sustentar o plano de ação ao longo do tempo.
+        Este business case não fica só no papel: o sistema EPQS reúne 34 ferramentas de qualidade, produção e gestão ambiental usadas para registrar evidências, medir indicadores e sustentar o plano de ação ao longo do tempo.
       </p>
       <div class="tool-grid">
         <a class="tool-card" href="#" onclick="openTool('root-cause-analysis.html');return false;"><div class="t-name">🔎 RCA / Causa Raiz</div><div class="t-phase">Diagnóstico (etapa 2)</div></a>
@@ -718,11 +720,13 @@
         <a class="tool-card" href="#" onclick="openTool('painel-qualidade.html');return false;"><div class="t-name">📺 Painel da Qualidade</div><div class="t-phase">Indicadores consolidados</div></a>
         <a class="tool-card" href="#" onclick="openTool('treinamento.html');return false;"><div class="t-name">🎓 Treinamentos</div><div class="t-phase">Implantação (etapa 8)</div></a>
         <a class="tool-card" href="#" onclick="openTool('manutencao.html');return false;"><div class="t-name">🛠️ Gestão de Manutenção</div><div class="t-phase">Sustentação (etapa 5)</div></a>
-        <a class="tool-card" href="#" onclick="openTool('estoque.html');return false;"><div class="t-name">📦 Estoque</div><div class="t-phase">Módulo EPQS SYSTEM</div></a>
-        <a class="tool-card" href="#" onclick="openTool('rh.html');return false;"><div class="t-name">👥 RH</div><div class="t-phase">Módulo EPQS SYSTEM</div></a>
-        <a class="tool-card" href="#" onclick="openTool('engenharia.html');return false;"><div class="t-name">📐 Engenharia</div><div class="t-phase">Módulo EPQS SYSTEM</div></a>
-        <a class="tool-card" href="#" onclick="openTool('logistica.html');return false;"><div class="t-name">🚚 Logística</div><div class="t-phase">Módulo EPQS SYSTEM</div></a>
-        <a class="tool-card" href="#" onclick="openTool('vendas.html');return false;"><div class="t-name">💹 Vendas</div><div class="t-phase">Módulo EPQS SYSTEM</div></a>
+        <a class="tool-card" href="#" onclick="openTool('estoque.html');return false;"><div class="t-name">📦 Estoque</div><div class="t-phase">Módulo EPQS</div></a>
+        <a class="tool-card" href="#" onclick="openTool('painel-rh.html');return false;"><div class="t-name">👥 RH</div><div class="t-phase">Módulo EPQS</div></a>
+        <a class="tool-card" href="#" onclick="openTool('engenharia.html');return false;"><div class="t-name">📐 Engenharia</div><div class="t-phase">Módulo EPQS</div></a>
+        <a class="tool-card" href="#" onclick="openTool('logistica.html');return false;"><div class="t-name">🚚 Logística</div><div class="t-phase">Módulo EPQS</div></a>
+        <a class="tool-card" href="#" onclick="openTool('vendas.html');return false;"><div class="t-name">💹 Vendas</div><div class="t-phase">Módulo EPQS</div></a>
+        <a class="tool-card" href="#" onclick="openTool('painel-producao.html');return false;"><div class="t-name">🏭 Painel de Produção</div><div class="t-phase">Módulo EPQS</div></a>
+        <a class="tool-card" href="#" onclick="openTool('wm-kpi.html');return false;"><div class="t-name">📈 KPI Manager</div><div class="t-phase">Módulo EPQS</div></a>
         <a class="tool-card" href="#" onclick="openTool('aspectos-impactos-ambientais.html');return false;"><div class="t-name">🌱 Aspectos e Impactos Ambientais</div><div class="t-phase">Rumo à ISO 14001 (etapa 10)</div></a>
       </div>
       <div class="footer-note" style="margin-top:14px">Os links acima abrem a ferramenta correspondente diretamente aqui no painel, quando os arquivos estão salvos na mesma pasta deste business case.</div>

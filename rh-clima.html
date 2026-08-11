@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>EPQS - Eng Process Quality and Statistics · Clima Organizacional</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+:root{--azul-ville:#1565c0;--azul-deep:#0d47a1;--azul-claro:#4a90d9;--laranja:#4a90d9;--laranja-claro:#7fb3e8;--verde:#22c55e;--vermelho:#ef4444;--amarelo:#f59e0b;--roxo:#a78bfa;--cinza-50:#0f1e36;--cinza-100:#1a2942;--cinza-200:#2a3a55;--cinza-300:#2a3a55;--cinza-500:#94a3b8;--cinza-600:#94a3b8;--cinza-700:#cbd5e1;--cinza-800:#e5e7eb;--sombra-md:0 4px 12px rgba(0,0,0,.35);--sombra-lg:0 10px 30px rgba(0,0,0,.45);--radius-md:10px;--radius-lg:14px;--bg:#0a1628;--panel:#0f1e36;--muted:#1a2942;--text:#e5e7eb;--accent:#1565c0;--accent2:#4a90d9;--ok:#22c55e;--warn:#f59e0b;--bad:#ef4444;}
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--cinza-800);min-height:100vh;}
+.header{background:linear-gradient(135deg,var(--azul-deep),var(--azul-ville));color:#fff;padding:20px 30px;box-shadow:var(--sombra-lg);position:sticky;top:0;z-index:100;}
+.header-inner{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:20px;max-width:1600px;margin:0 auto;}
+.logo-area{display:flex;align-items:center;gap:15px;}
+.logo-icon{width:55px;height:55px;background:linear-gradient(135deg,var(--laranja),var(--laranja-claro));border-radius:var(--radius-md);display:flex;align-items:center;justify-content:center;font-size:28px;}
+.logo-text h1{font-size:22px;font-weight:800;}.logo-text p{font-size:13px;opacity:.85;}
+.header-info{display:flex;align-items:center;gap:15px;flex-wrap:wrap;}
+.header-stat{text-align:center;padding:8px 16px;background:rgba(255,255,255,.1);border-radius:var(--radius-md);}
+.header-stat .label{font-size:11px;opacity:.8;text-transform:uppercase;}.header-stat .valor{font-size:20px;font-weight:700;color:var(--laranja-claro);}
+.btn-voltar{padding:10px 18px;background:var(--laranja);color:#fff;border:none;border-radius:var(--radius-md);font-weight:600;cursor:pointer;font-family:inherit;}
+.main{max-width:1600px;margin:0 auto;padding:30px;}
+.section-title{font-size:24px;font-weight:700;color:var(--azul-ville);margin-bottom:20px;}
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:20px;margin-bottom:30px;}
+.kpi-card{background:var(--panel);border-radius:var(--radius-lg);padding:22px;box-shadow:var(--sombra-md);border-left:4px solid var(--azul-ville);}
+.kpi-card.verde{border-left-color:var(--verde);}.kpi-card.laranja{border-left-color:var(--laranja);}.kpi-card.vermelho{border-left-color:var(--vermelho);}.kpi-card.amarelo{border-left-color:var(--amarelo);}.kpi-card.roxo{border-left-color:var(--roxo);}
+.kpi-label{font-size:12px;text-transform:uppercase;color:var(--cinza-500);font-weight:600;margin-bottom:8px;}
+.kpi-valor{font-size:32px;font-weight:800;color:var(--azul-ville);}
+.kpi-sub{font-size:12px;color:var(--cinza-500);}
+.card{background:var(--panel);border-radius:var(--radius-lg);padding:22px;box-shadow:var(--sombra-md);margin-bottom:20px;}
+.card-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;padding-bottom:12px;border-bottom:2px solid var(--cinza-100);flex-wrap:wrap;gap:10px;}
+.card-title{font-size:16px;font-weight:700;color:var(--azul-ville);}
+.btn{padding:10px 18px;border:none;border-radius:var(--radius-md);font-weight:600;cursor:pointer;font-size:13px;font-family:inherit;display:inline-flex;align-items:center;gap:6px;}
+.btn-primary{background:linear-gradient(135deg,var(--azul-ville),var(--azul-claro));color:#fff;}
+.btn-success{background:linear-gradient(135deg,var(--verde),#059669);color:#fff;}
+.btn-warning{background:linear-gradient(135deg,var(--amarelo),#d97706);color:#fff;}
+.btn-danger{background:linear-gradient(135deg,var(--vermelho),#dc2626);color:#fff;}
+.btn-secondary{background:var(--cinza-200);color:var(--cinza-700);}
+.btn-small{padding:6px 12px;font-size:12px;}
+.tabela{width:100%;border-collapse:collapse;}
+.tabela th{background:var(--cinza-50);padding:12px;text-align:left;font-size:12px;text-transform:uppercase;color:var(--cinza-600);font-weight:600;border-bottom:2px solid var(--cinza-200);}
+.tabela td{padding:12px;border-bottom:1px solid var(--cinza-100);font-size:13px;}
+.tabela tr:hover{background:var(--cinza-50);}
+.badge{padding:4px 10px;border-radius:50px;font-size:11px;font-weight:600;display:inline-block;}
+.badge-verde{background:#d1fae5;color:#065f46;}.badge-vermelho{background:#fee2e2;color:#991b1b;}.badge-amarelo{background:#fef3c7;color:#92400e;}.badge-azul{background:#dbeafe;color:#1e40af;}
+.progress-bar{height:8px;background:var(--cinza-200);border-radius:50px;overflow:hidden;}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--verde),#059669);border-radius:50px;}
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:1000;align-items:center;justify-content:center;padding:20px;}
+.modal-overlay.active{display:flex;}
+.modal{background:var(--panel);border-radius:20px;max-width:700px;width:100%;max-height:90vh;overflow-y:auto;}
+.modal-header{padding:22px;border-bottom:1px solid var(--cinza-200);display:flex;justify-content:space-between;align-items:center;}
+.modal-header h2{color:var(--azul-ville);font-size:20px;}
+.modal-close{background:var(--cinza-100);border:none;width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:16px;}
+.modal-body{padding:22px;}
+.form-group{margin-bottom:15px;}
+.form-group label{display:block;margin-bottom:6px;font-weight:600;font-size:13px;color:var(--cinza-700);}
+.form-group input,.form-group select{width:100%;padding:10px;border:1px solid var(--cinza-300);border-radius:var(--radius-md);font-family:inherit;font-size:13px;}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:15px;}
+#toast-container{position:fixed;top:20px;right:20px;z-index:2000;display:flex;flex-direction:column;gap:10px;}
+.toast{padding:14px 20px;border-radius:var(--radius-md);color:#fff;font-weight:600;font-size:13px;box-shadow:var(--sombra-lg);min-width:280px;animation:slideIn .3s;}
+.toast.success{background:linear-gradient(135deg,var(--verde),#059669);}
+.toast.error{background:linear-gradient(135deg,var(--vermelho),#dc2626);}
+.toast.warning{background:linear-gradient(135deg,var(--amarelo),#d97706);}
+@keyframes slideIn{from{transform:translateX(100%);opacity:0;}to{transform:translateX(0);opacity:1;}}
+.empty-state{text-align:center;padding:40px;color:var(--cinza-500);}
+.chart-container{position:relative;height:280px;}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+.alert-box{padding:15px;border-radius:8px;margin-bottom:20px;display:flex;align-items:center;gap:12px;}
+.alert-box.success{background:#d1fae5;border-left:4px solid var(--verde);color:#065f46;}
+.alert-box.info{background:#dbeafe;border-left:4px solid var(--azul-claro);color:#1e3a8a;}
+.alert-box.warning{background:#fef3c7;border-left:4px solid var(--amarelo);color:#92400e;}
+@media(max-width:900px){.grid-2,.form-row{grid-template-columns:1fr;}}
+
+.epqs-topbar{background:var(--panel);border-bottom:1px solid #2a3a55;padding:10px 20px;display:flex;gap:8px;flex-wrap:wrap;align-items:center;position:sticky;top:0;z-index:99;}
+.epqs-topbar .epqs-brand{display:flex;align-items:center;gap:8px;font-size:12px;color:#94a3b8;margin-right:10px;white-space:nowrap;}
+.epqs-topbar .epqs-brand img{height:20px;}
+.epqs-nav{display:flex;gap:6px;flex-wrap:wrap;overflow-x:auto;}
+.epqs-nav a{padding:7px 12px;border-radius:20px;background:var(--muted);color:var(--text);text-decoration:none;font-size:12.5px;font-weight:600;border:1px solid #2a3a55;white-space:nowrap;}
+.epqs-nav a:hover{background:#28406b;}
+.epqs-nav a.active{background:var(--accent);border-color:var(--accent);color:#fff;}
+.epqs-actions{display:flex;gap:8px;margin-left:auto;flex-wrap:wrap;}
+.epqs-actions button{padding:7px 12px;border-radius:8px;border:1px solid #2a3a55;background:var(--muted);color:var(--text);font-weight:600;font-size:12.5px;cursor:pointer;font-family:inherit;}
+.epqs-actions button:hover{background:#28406b;}
+.epqs-actions button.epqs-pdf{background:var(--accent);border-color:var(--accent);color:#fff;}
+.epqs-credit{font-size:11px;color:#64748b;text-align:center;padding:14px;}
+@media print{.epqs-topbar,.btn-voltar{display:none !important;}}
+@media(max-width:700px){.epqs-topbar{flex-direction:column;align-items:stretch;}.epqs-actions{margin-left:0;}}
+</style>
+</head>
+<body>
+<div class="epqs-topbar">
+    <div class="epqs-brand"><img src="assets/eqps-logo-horizontal.png" alt="EPQS" onerror="this.style.display='none'"> EPQS - Eng Process Quality and Statistics</div>
+    <div class="epqs-nav">
+    <a href="painel-rh.html">🏠 Painel RH</a>
+    <a href="index.html">🏢 EPQS</a>
+    <a href="rh-avaliacoes.html">📊 Avaliação de Desempenho</a>
+    <a href="rh-clima.html" class="active">🤝 Clima Organizacional</a>
+    <a href="rh-ferias.html">🏖️ Controle de Férias</a>
+    <a href="rh-folha.html">💰 Folha de Pagamento</a>
+    <a href="rh-okr.html">🎯 OKR</a>
+    <a href="rh-ponto.html">⏰ Ponto Eletrônico</a>
+    <a href="rh-recrutamento.html">📋 Recrutamento</a>
+    <a href="rh-saude.html">🏥 Saúde Ocupacional</a>
+    <a href="rh-treinamentos.html">🎓 Treinamentos</a>
+    </div>
+    <div class="epqs-actions">
+      <button onclick="epqsRestore()">⬆ Restaurar</button>
+      <button onclick="epqsBackup()">⬇ Backup</button>
+      <button class="epqs-pdf" onclick="window.print()">🖨 PDF</button>
+    </div>
+  </div>
+
+<header class="header">
+  <div class="header-inner">
+    <div class="logo-area"><div class="logo-icon">🤝</div><div class="logo-text"><h1>Clima Organizacional</h1><p>Pesquisas e eNPS · EPQS</p></div></div>
+    <div class="header-info">
+      <div class="header-stat"><div class="label">Última Satisf.</div><div class="valor" id="h-sat">0%</div></div>
+      <div class="header-stat"><div class="label">eNPS</div><div class="valor" id="h-enps">0</div></div>
+      <button class="btn-voltar" onclick="voltarPainel()">← Painel RH</button>
+    </div>
+  </div>
+</header>
+<main class="main">
+  <h2 class="section-title">🤝 Clima Organizacional</h2>
+  <div id="alerta-area"></div>
+  <div class="kpi-grid" id="kpi-grid"></div>
+  <div class="grid-2" style="margin-bottom:20px;">
+    <div class="card"><div class="card-header"><div class="card-title">📈 Evolução eNPS</div></div><div class="chart-container"><canvas id="chart1"></canvas></div></div>
+    <div class="card"><div class="card-header"><div class="card-title">📊 Satisfação x Participação</div></div><div class="chart-container"><canvas id="chart2"></canvas></div></div>
+  </div>
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title">📑 Pesquisas Realizadas</div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;">
+        <button class="btn btn-primary" onclick="novo()">➕ Nova Pesquisa</button>
+        <button class="btn btn-success" onclick="exportarCSV()">📥 Exportar</button>
+        <button class="btn btn-warning" onclick="importarCSV()">📤 Importar</button>
+      </div>
+    </div>
+    <div style="overflow-x:auto;">
+      <table class="tabela">
+        <thead><tr><th>Pesquisa</th><th>Data</th><th>Participação</th><th>Satisfação</th><th>eNPS</th><th>Ações</th></tr></thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+  </div>
+</main>
+<div class="modal-overlay" id="modal"><div class="modal"><div class="modal-header"><h2 id="modal-titulo"></h2><button class="modal-close" onclick="fecharModal()">✕</button></div><div class="modal-body" id="modal-corpo"></div></div></div>
+<div id="toast-container"></div>
+<script>
+const STORAGE_KEY='rh_clima_v1';
+const dadosIniciais=[
+  {id:1,pesquisa:'Pulse Q1 2025',participacao:87,satisfacao:82,enps:54,data:'2025-03-30'},
+  {id:2,pesquisa:'Clima Anual 2024',participacao:94,satisfacao:78,enps:48,data:'2024-12-15'},
+  {id:3,pesquisa:'Pulse Q3 2024',participacao:85,satisfacao:75,enps:42,data:'2024-09-20'},
+  {id:4,pesquisa:'Pulse Q2 2024',participacao:82,satisfacao:72,enps:38,data:'2024-06-15'}
+];
+let dados=carregar();let chart1,chart2;
+function carregar(){try{const s=localStorage.getItem(STORAGE_KEY);if(s)return JSON.parse(s);}catch(e){}return JSON.parse(JSON.stringify(dadosIniciais));}
+function salvar(){localStorage.setItem(STORAGE_KEY,JSON.stringify(dados));}
+function toast(m,t='success'){const c=document.getElementById('toast-container');const e=document.createElement('div');e.className='toast '+t;e.textContent=m;c.appendChild(e);setTimeout(()=>e.remove(),3500);}
+function fecharModal(){document.getElementById('modal').classList.remove('active');}
+function abrirModal(t,c){document.getElementById('modal-titulo').innerHTML=t;document.getElementById('modal-corpo').innerHTML=c;document.getElementById('modal').classList.add('active');}
+function voltarPainel(){if(confirm('Voltar?'))window.location.href='painel-rh.html';}
+
+function classificarENPS(v){if(v>=50)return{txt:'Zona de Encantamento',cls:'success'};if(v>=30)return{txt:'Zona de Qualidade',cls:'info'};if(v>=10)return{txt:'Zona de Aperfeiçoamento',cls:'warning'};return{txt:'Zona Crítica',cls:'warning'};}
+
+function renderKPIs(){
+  dados.sort((a,b)=>new Date(b.data)-new Date(a.data));
+  const u=dados[0]||{};
+  const mediaSat=dados.length?Math.round(dados.reduce((s,d)=>s+d.satisfacao,0)/dados.length):0;
+  const mediaPart=dados.length?Math.round(dados.reduce((s,d)=>s+d.participacao,0)/dados.length):0;
+  const mediaEnps=dados.length?Math.round(dados.reduce((s,d)=>s+d.enps,0)/dados.length):0;
+  document.getElementById('h-sat').textContent=(u.satisfacao||0)+'%';
+  document.getElementById('h-enps').textContent=u.enps||0;
+  const cls=classificarENPS(u.enps||0);
+  document.getElementById('alerta-area').innerHTML=`<div class="alert-box ${cls.cls}"><div style="font-size:24px;">📊</div><div><strong>eNPS Atual: ${u.enps||0}</strong> — ${cls.txt}</div></div>`;
+  document.getElementById('kpi-grid').innerHTML=`
+    <div class="kpi-card"><div class="kpi-label">Pesquisas</div><div class="kpi-valor">${dados.length}</div></div>
+    <div class="kpi-card verde"><div class="kpi-label">Satisfação Atual</div><div class="kpi-valor">${u.satisfacao||0}%</div></div>
+    <div class="kpi-card laranja"><div class="kpi-label">Participação Atual</div><div class="kpi-valor">${u.participacao||0}%</div></div>
+    <div class="kpi-card roxo"><div class="kpi-label">eNPS Atual</div><div class="kpi-valor">${u.enps||0}</div></div>
+    <div class="kpi-card amarelo"><div class="kpi-label">Média Satisfação</div><div class="kpi-valor">${mediaSat}%</div></div>
+    <div class="kpi-card azul"><div class="kpi-label">Média eNPS</div><div class="kpi-valor">${mediaEnps}</div></div>
+  `;
+}
+
+function renderGraficos(){
+  const ord=[...dados].sort((a,b)=>new Date(a.data)-new Date(b.data));
+  if(chart1)chart1.destroy();
+  chart1=new Chart(document.getElementById('chart1'),{type:'line',data:{labels:ord.map(d=>d.pesquisa),datasets:[{label:'eNPS',data:ord.map(d=>d.enps),borderColor:'#ff6b35',backgroundColor:'rgba(255,107,53,.1)',fill:true,tension:.4,borderWidth:3,pointRadius:5,pointBackgroundColor:'#0a2540'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{min:-20,max:100}}}});
+  if(chart2)chart2.destroy();
+  chart2=new Chart(document.getElementById('chart2'),{type:'bar',data:{labels:ord.map(d=>d.pesquisa),datasets:[{label:'Satisfação',data:ord.map(d=>d.satisfacao),backgroundColor:'#10b981',borderRadius:8},{label:'Participação',data:ord.map(d=>d.participacao),backgroundColor:'#0a2540',borderRadius:8}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom'}}}});
+}
+
+function renderTabela(){
+  const tb=document.getElementById('tbody');
+  if(!dados.length){tb.innerHTML='<tr><td colspan="6"><div class="empty-state">Nenhuma pesquisa</div></td></tr>';return;}
+  tb.innerHTML=dados.map(d=>`
+    <tr>
+      <td><strong>${d.pesquisa}</strong></td>
+      <td>${new Date(d.data).toLocaleDateString('pt-BR')}</td>
+      <td>${d.participacao}%</td>
+      <td><div style="display:flex;align-items:center;gap:8px;"><strong>${d.satisfacao}%</strong><div class="progress-bar" style="flex:1;min-width:60px;"><div class="progress-fill" style="width:${d.satisfacao}%"></div></div></div></td>
+      <td><span class="badge ${d.enps>=50?'badge-verde':d.enps>=30?'badge-azul':d.enps>=10?'badge-amarelo':'badge-vermelho'}">${d.enps}</span></td>
+      <td>
+        <button class="btn btn-small btn-warning" onclick="editar(${d.id})">✏️</button>
+        <button class="btn btn-small btn-danger" onclick="excluir(${d.id})">🗑️</button>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function novo(){
+  abrirModal('➕ Nova Pesquisa',`
+    <div class="form-group"><label>Nome da Pesquisa</label><input id="f-nome" type="text" placeholder="Ex: Pulse Q2 2025"/></div>
+    <div class="form-row">
+      <div class="form-group"><label>Participação (%)</label><input id="f-part" type="number" min="0" max="100" value="80"/></div>
+      <div class="form-group"><label>Satisfação (%)</label><input id="f-sat" type="number" min="0" max="100" value="75"/></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>eNPS (-100 a 100)</label><input id="f-enps" type="number" min="-100" max="100" value="40"/></div>
+      <div class="form-group"><label>Data</label><input id="f-data" type="date" value="${new Date().toISOString().slice(0,10)}"/></div>
+    </div>
+    <button class="btn btn-success" onclick="salvarNovo()">💾 Salvar</button>
+    <button class="btn btn-secondary" onclick="fecharModal()">Cancelar</button>
+  `);
+}
+
+function salvarNovo(){
+  const nome=document.getElementById('f-nome').value.trim();
+  if(!nome){toast('Informe o nome!','error');return;}
+  dados.push({id:Math.max(0,...dados.map(d=>d.id))+1,pesquisa:nome,participacao:parseInt(document.getElementById('f-part').value)||0,satisfacao:parseInt(document.getElementById('f-sat').value)||0,enps:parseInt(document.getElementById('f-enps').value)||0,data:document.getElementById('f-data').value});
+  salvar();fecharModal();toast('Salvo!','success');renderTudo();
+}
+
+function editar(id){
+  const d=dados.find(x=>x.id===id);
+  abrirModal('✏️ Editar',`
+    <div class="form-group"><label>Nome</label><input id="e-nome" type="text" value="${d.pesquisa}"/></div>
+    <div class="form-row">
+      <div class="form-group"><label>Participação</label><input id="e-part" type="number" value="${d.participacao}"/></div>
+      <div class="form-group"><label>Satisfação</label><input id="e-sat" type="number" value="${d.satisfacao}"/></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>eNPS</label><input id="e-enps" type="number" value="${d.enps}"/></div>
+      <div class="form-group"><label>Data</label><input id="e-data" type="date" value="${d.data}"/></div>
+    </div>
+    <button class="btn btn-success" onclick="salvarEd(${id})">💾 Salvar</button>
+    <button class="btn btn-secondary" onclick="fecharModal()">Cancelar</button>
+  `);
+}
+
+function salvarEd(id){
+  const d=dados.find(x=>x.id===id);
+  d.pesquisa=document.getElementById('e-nome').value;
+  d.participacao=parseInt(document.getElementById('e-part').value)||0;
+  d.satisfacao=parseInt(document.getElementById('e-sat').value)||0;
+  d.enps=parseInt(document.getElementById('e-enps').value)||0;
+  d.data=document.getElementById('e-data').value;
+  salvar();fecharModal();toast('Atualizado!','success');renderTudo();
+}
+
+function excluir(id){if(!confirm('Excluir?'))return;dados=dados.filter(d=>d.id!==id);salvar();toast('Excluído','warning');renderTudo();}
+
+function exportarCSV(){
+  const csv='ID,Pesquisa,Data,Participação,Satisfação,eNPS\n'+dados.map(d=>`${d.id},"${d.pesquisa}",${d.data},${d.participacao},${d.satisfacao},${d.enps}`).join('\n');
+  const b=new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8;'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=`clima-${new Date().toISOString().slice(0,10)}.csv`;a.click();toast('Exportado!','success');
+}
+
+function importarCSV(){
+  const i=document.createElement('input');i.type='file';i.accept='.csv';
+  i.onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();
+    r.onload=ev=>{try{const lns=ev.target.result.split('\n').slice(1).filter(l=>l.trim());
+      const nv=lns.map((l,idx)=>{const c=l.split(',');return{id:Math.max(0,...dados.map(x=>x.id))+idx+1,pesquisa:(c[1]||'').replace(/"/g,''),data:c[2]||'',participacao:parseInt(c[3])||0,satisfacao:parseInt(c[4])||0,enps:parseInt(c[5])||0};});
+      dados=[...dados,...nv];salvar();toast(`${nv.length} importados!`,'success');renderTudo();
+    }catch{toast('Erro','error');}};r.readAsText(f);};i.click();
+}
+
+function renderTudo(){renderKPIs();renderTabela();setTimeout(renderGraficos,50);}
+document.getElementById('modal').addEventListener('click',e=>{if(e.target.id==='modal')fecharModal();});
+renderTudo();
+console.log('%c✅ Clima Organizacional carregado!','background:#0a2540;color:#ff6b35;font-size:14px;font-weight:bold;padding:6px 12px;border-radius:6px;');
+</script>
+<script>
+function epqsBackup(){try{const data=localStorage.getItem('rh_clima_v1');const blob=new Blob([data||'{}'],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='EPQS_rh_clima_v1_'+new Date().toISOString().slice(0,10)+'.json';a.click();URL.revokeObjectURL(url);}catch(e){alert('Erro ao gerar backup.');}}
+function epqsRestore(){const inp=document.createElement('input');inp.type='file';inp.accept='.json';inp.onchange=function(e){const file=e.target.files[0];if(!file)return;const reader=new FileReader();reader.onload=function(ev){try{JSON.parse(ev.target.result);localStorage.setItem('rh_clima_v1',ev.target.result);alert('Backup restaurado! A página será recarregada.');location.reload();}catch(err){alert('Arquivo inválido.');}};reader.readAsText(file);};inp.click();}
+</script>
+<p class="epqs-credit">EPQS - Eng Process Quality and Statistics · Sistema Integrado de Ferramentas · Desenvolvido por Marcos Garçon</p>
+</body>
+</html>
