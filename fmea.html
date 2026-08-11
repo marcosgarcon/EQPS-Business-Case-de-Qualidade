@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>EQPS - FMEA</title>
+<title>EPQS SYSTEM - FMEA</title>
 <script src="https://unpkg.com/@phosphor-icons/web"></script>
 <style>
   :root{--bg:#0a1628;--panel:#0f1e36;--muted:#1a2942;--card:#0d1a2e;--text:#e5e7eb;--accent:#ff7a1a;--accent2:#ffa552;--ok:#22c55e;--warn:#f59e0b;--bad:#ef4444;--shadow:0 10px 30px rgba(0,0,0,.45);--radius:16px;--status-iniciar:#6c757d;--status-iniciado:#0d6efd;--status-pausado:#fd7e14;--status-finalizado:#22c55e;--status-atraso:#ef4444;}
@@ -62,7 +62,7 @@
 <body>
 <div id="toast-container"></div>
 <header>
-  <div class="header-title"><h1>🛡️ EQPS</h1><p class="subtitle">Formulário FMEA Avançado</p><p class="dev-credit">Desenvolvido por Marcos Garçon</p></div>
+  <div class="header-title"><h1>🛡️ EPQS SYSTEM</h1><p class="subtitle">Formulário FMEA Avançado</p><p class="dev-credit">Desenvolvido por Marcos Garçon</p></div>
   <div class="actions">
     <button class="btn ghost" id="btn-restore-backup">Restaurar Backup</button>
     <button class="btn ghost" id="btn-download-backup">Baixar Backup (.json)</button>
@@ -182,7 +182,7 @@ document.addEventListener('DOMContentLoaded',()=>{
   document.getElementById('btn-archive-and-clear').addEventListener('click',()=>{if(confirm("Apagar?")){document.getElementById('btn-download-backup').click();localStorage.removeItem(DB_KEY);setTimeout(()=>location.reload(),2000);}});
   document.getElementById('btn-export-pdf').addEventListener('click',()=>window.print());
   const SEED={
-    header:{projectName:'Peças Técnicas Injetadas + Peças Injetadas — EQPS',fmeaId:'PFMEA-001',responsible:'Marcos Garçon',startDate:new Date().toISOString().slice(0,10)},
+    header:{projectName:'Peças Técnicas Injetadas + Peças Injetadas — EPQS SYSTEM',fmeaId:'PFMEA-001',responsible:'Marcos Garçon',startDate:new Date().toISOString().slice(0,10)},
     entries:{FMEA:[],DFMEA:[],
       PFMEA:[
         {fields:{itemFunction:'Injeção de conector técnico — preencher a cavidade do molde com material fundido sob temperatura e pressão controladas',failureMode:'Rebarba (flash) na linha de partição e variação dimensional da peça',failureEffects:'Reclamação de cliente, devolução, custo de retrabalho e imagem da marca',failureCauses:'Temperatura/pressão/tempo de injeção fora da faixa; desgaste do molde; parâmetros de setup não padronizados',currentControls:'Inspeção visual esporádica, sem ficha de setup nem gabarito dimensional',severity:'8',occurrence:'6',detection:'6',actionPriority:'Alta',status:'iniciado'},

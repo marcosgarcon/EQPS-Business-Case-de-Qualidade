@@ -3,27 +3,27 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>VILLE SYSTEM QUALITY - RCA</title>
+<title>EPQS SYSTEM - RCA</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/4.2.0/html2pdf.js.min.js"></script>
 <style>
 :root{
-  --bg:#0d3b73;--panel:#0f4c86;--muted:#124a7a;--card:#0d2b52;
-  --border:#1e5a94;--text:#e5e7eb;--accent:#ff8c1a;--accent2:#ffb066;
+  --bg:#0a1628;--panel:#0f1e36;--muted:#1a2942;--card:#0d1a2e;
+  --border:#1e3a5f;--text:#e5e7eb;--accent:#ff7a1a;--accent2:#ffa552;
   --ok:#22c55e;--warn:#f59e0b;--bad:#ef4444;--info:#4a90d9;
 }
 *{margin:0;padding:0;box-sizing:border-box}
 body{
   font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;
   color:var(--text);line-height:1.5;
-  background: linear-gradient(135deg,#0a2f5c,#1565c0 55%,#0d3b73);
+  background: linear-gradient(135deg,#0a1628,#0f1e36 55%,#0a1628);
   min-height:100vh;
 }
 .container{max-width:1400px;margin:0 auto;padding:20px}
 .header{
   text-align:center;padding:24px;border-bottom:2px solid var(--accent);margin-bottom:16px;
-  background: linear-gradient(90deg,#0a2f5c,#1565c0);border-radius:16px;
+  background: linear-gradient(90deg,#0a1628,#152a4a);border-radius:16px;
 }
 .header h1{color:#fff;font-size:1.8rem}
 .header p{color:#cfe0f5;font-size:.85rem}
@@ -46,7 +46,7 @@ body{
 }
 .tab{
   flex:1 1 auto;min-width:130px;max-width:180px;text-align:center;
-  background:#ff8c1a;color:#ffffff;border:1px solid #e06f00;
+  background:#ff7a1a;color:#ffffff;border:1px solid #e06f00;
   padding:10px 14px;border-radius:10px;cursor:pointer;
   font-size:.82rem;font-weight:700;white-space:nowrap;
   transition:.2s;user-select:none;
@@ -192,7 +192,7 @@ body{
 <body>
 <div class="container">
   <div class="header">
-    <h1>🏭 VILLE SYSTEM QUALITY</h1>
+    <h1>🔎 EPQS SYSTEM</h1>
     <p>Sistema de Análise de Causa Raiz (RCA) — Gestão de Não Conformidades</p>
     <p class="dev-credit">Desenvolvido por Marcos Garçon</p>
   </div>
@@ -964,7 +964,7 @@ class RCA{
     const top=Object.entries(byClient).sort((x,y)=>y[1]-x[1]).slice(0,10);
     this.destroyChart('rncClientChart');
     this.charts.rncClientChart=new Chart(document.getElementById('rncClientChart'),{
-      type:'bar',data:{labels:top.map(t=>t[0]),datasets:[{label:'RNCs',data:top.map(t=>t[1]),backgroundColor:'#ff8c1a'}]},
+      type:'bar',data:{labels:top.map(t=>t[0]),datasets:[{label:'RNCs',data:top.map(t=>t[1]),backgroundColor:'#ff7a1a'}]},
       options:{plugins:{legend:{display:false}},scales:{x:{ticks:{color:'#e5e7eb'}},y:{ticks:{color:'#e5e7eb'}}}}
     });
   }
@@ -1248,7 +1248,7 @@ class RCA{
     const byResp={}; this.data.rncs.forEach(r=>{ const k=r.responsavel||'N/D'; byResp[k]=(byResp[k]||0)+1; });
     this.destroyChart('dashRespChart');
     this.charts.dashRespChart=new Chart(document.getElementById('dashRespChart'),{
-      type:'bar',data:{labels:Object.keys(byResp),datasets:[{label:'RNCs',data:Object.values(byResp),backgroundColor:'#ff8c1a'}]},
+      type:'bar',data:{labels:Object.keys(byResp),datasets:[{label:'RNCs',data:Object.values(byResp),backgroundColor:'#ff7a1a'}]},
       options:{plugins:{legend:{display:false}},scales:{x:{ticks:{color:'#e5e7eb'}},y:{ticks:{color:'#e5e7eb'}}}}
     });
     const byClient={}; this.data.rncs.forEach(r=>{ const k=r.cliente||'N/D'; byClient[k]=(byClient[k]||0)+1; });
@@ -1264,7 +1264,7 @@ class RCA{
     const monthKeys=Object.keys(byMonth).sort();
     this.destroyChart('dashMonthChart');
     this.charts.dashMonthChart=new Chart(document.getElementById('dashMonthChart'),{
-      type:'line',data:{labels:monthKeys,datasets:[{label:'RNCs Abertas',data:monthKeys.map(k=>byMonth[k]),borderColor:'#ff8c1a',backgroundColor:'rgba(255,140,26,.2)',tension:.3,fill:true}]},
+      type:'line',data:{labels:monthKeys,datasets:[{label:'RNCs Abertas',data:monthKeys.map(k=>byMonth[k]),borderColor:'#ff7a1a',backgroundColor:'rgba(255,122,26,.2)',tension:.3,fill:true}]},
       options:{plugins:{legend:{labels:{color:'#e5e7eb'}}},scales:{x:{ticks:{color:'#e5e7eb'}},y:{ticks:{color:'#e5e7eb'}}}}
     });
     const stageCounts={draft:0,progress:0,finalized:0};
@@ -1469,7 +1469,7 @@ class RCA{
 
     let html='';
     html+=`<div class="rp-slide rp-cover">
-      <div class="rp-logo">VILLE</div>
+      <div class="rp-logo">EPQS</div>
       <div class="rp-cover-badge">Relatório de Análise de Causa Raiz</div>
       <div class="rp-cover-title">${p.title||'Análise RCA'}</div>
       <div class="rp-cover-sub">${p.description||''}</div>
@@ -1539,7 +1539,7 @@ class RCA{
         <div><strong>${p.analista||'Marcos Garçon'}</strong>Analista Responsável</div>
         <div><strong>${p.client||'-'}</strong>Cliente/Fornecedor</div>
       </div>
-      <div class="rp-footer"><span>VILLE SYSTEM QUALITY</span><span>Gerado em ${new Date().toLocaleString('pt-BR')}</span></div>
+      <div class="rp-footer"><span>EPQS SYSTEM</span><span>Gerado em ${new Date().toLocaleString('pt-BR')}</span></div>
     </div>`;
 
     document.getElementById('rp-content').innerHTML=html;

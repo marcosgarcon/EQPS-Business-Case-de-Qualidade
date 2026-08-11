@@ -3,172 +3,667 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>EQPS - Cronoanálise MTM</title>
+<title>EQPS System Quality - Cronoanálise &amp; Lean Manufacturing</title>
 <style>
   :root{
-    --bg:#0a1628;--panel:#0f1e36;--muted:#1a2942;--card:#0d1a2e;--text:#e5e7eb;
-    --accent:#ff7a1a;--accent2:#ffa552;--ok:#22c55e;--warn:#f59e0b;--bad:#ef4444;
-    --shadow:0 10px 30px rgba(0,0,0,.45);--radius:16px;
+    --bg1:#061229;--bg2:#0a2352;--card:#0a1f47;--text:#ffffff;--text-dim:#c8d6ee;
+    --orange:#f97316;--orange-dark:#c2410c;--orange-soft:rgba(249,115,22,.15);
+    --ok:#22c55e;--warn:#f59e0b;--bad:#ef4444;
+    --shadow:0 4px 14px rgba(0,0,0,.35);--radius:14px;
   }
   *{box-sizing:border-box}
-  html,body{height:100%}
-  body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Inter,Arial;background:linear-gradient(120deg,#081225,#0a1a35);color:var(--text);display:grid;grid-template-columns:280px 1fr;grid-template-rows:auto 1fr;}
-  header{grid-column:1/3;display:flex;align-items:center;justify-content:space-between;padding:14px 20px;background:linear-gradient(90deg,#081225,#0a1f3d);border-bottom:1px solid #1e2f4d;position:sticky;top:0;z-index:5}
-  .header-title h1{margin:0;font-size:20px;color:var(--text);}
-  .header-title .subtitle{margin:4px 0 0 0;font-size:14px;color:var(--accent);}
-  .header-title .dev-credit{margin:4px 0 0 0;font-size:11px;color:#64748b;}
-  header .actions{display:flex;flex-wrap:wrap;gap:8px}
-  button, .btn{background:var(--muted);color:var(--text);border:1px solid #2a3a55;border-radius:12px;padding:10px 14px;cursor:pointer;box-shadow:var(--shadow);transition:.2s;font-weight:600;display:inline-flex;align-items:center;justify-content:center;gap:8px;}
-  button:hover, .btn:hover{transform:translateY(-1px);border-color:#3d4f6f}
-  button.primary{background:linear-gradient(180deg,#ff7a1a,#e85d04);border-color:transparent;color:#fff}
-  button.ghost{background:transparent;border-color:#3d4f6f}
-  aside{border-right:1px solid #1e2f4d;background:linear-gradient(180deg,#081225,#0a1a35);padding:16px;display:flex;flex-direction:column;gap:24px;}
-  .menu{display:flex;flex-direction:column;gap:8px}
-  .menu a{display:flex;gap:10px;align-items:center;text-decoration:none;color:#cbd5e1;padding:10px 12px;border:1px solid #1e2f4d;border-radius:12px;background:rgba(255,255,255,.02);cursor:pointer;}
-  .menu a.active, .menu a:hover{border-color:#ff7a1a;background:rgba(255,122,26,.1);color:#ffe0c2}
-  main{padding:18px;overflow:auto}
-  .hidden, .tab-content.hidden{display:none !important}
-  section{background:rgba(255,255,255,.03);border:1px solid #1e2f4d;border-radius:var(--radius);padding:20px;margin-bottom:20px;box-shadow:var(--shadow)}
-  h2, h3, h4{margin:0 0 12px 0;color:var(--accent);} h4{color:var(--accent2)}
-  .grid{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));}
-  .field{display:flex;flex-direction:column;gap:6px}
-  label{font-size:12px;color:#ffa552}
-  input, select, textarea{background:#0d1a2e;border:1px solid #2a3a55;color:var(--text);padding:10px 12px;border-radius:10px;outline:none;font-family:inherit;font-size:14px;min-height:44px}
-  input:focus, select:focus, textarea:focus{border-color:var(--accent)}
-  table{width:100%;border-collapse:collapse;} th, td{padding:10px 12px;border-bottom:1px solid var(--muted);text-align:left;font-size:13px;} th{background:rgba(255,122,26,.08);color:#ffa552;font-size:12px;}
-  .video-wrapper{position:relative;background:#000;border-radius:12px;overflow:hidden;border:1px solid #2a3a55;}
-  video{width:100%;display:block;max-height:500px;}
-  .timer-display{font-family:'Courier New',monospace;font-size:48px;text-align:center;color:var(--accent);background:#0d1a2e;border:1px solid #2a3a55;padding:20px;border-radius:12px;margin:12px 0;font-weight:bold;}
-  .timer-controls{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;}
-  .step-row{display:grid;grid-template-columns:60px 1fr 120px 120px 120px 100px;gap:10px;padding:10px;background:rgba(255,255,255,.02);border:1px solid #1e2f4d;border-radius:10px;margin-bottom:8px;align-items:center;}
-  .kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;}
-  .kpi-card{background:var(--card);border-radius:12px;padding:16px;text-align:center;border:1px solid #1e2f4d}
-  .kpi-card h3{font-size:12px;color:var(--accent2);margin:0 0 8px 0;font-weight:normal;text-transform:uppercase;}
-  .kpi-card .kpi-value{font-size:2rem;font-weight:bold;color:var(--accent);}
-  .toast-container{position:fixed;top:20px;right:20px;z-index:200;display:flex;flex-direction:column;gap:10px;}
-  .toast{padding:12px 18px;border-radius:12px;color:white;font-weight:600;font-size:14px;box-shadow:var(--shadow);opacity:0;transform:translateX(100%);transition:all 0.4s;}
-  .toast.show{opacity:1;transform:translateX(0);}
-  .toast.success{background:linear-gradient(90deg,#22c55e,#16a34a);}
-  .toast.error{background:linear-gradient(90deg,#ef4444,#dc2626);}
-  .toast.info{background:linear-gradient(90deg,#ff7a1a,#e85d04);}
-  @media print{body{grid-template-columns:1fr;color:#000;background:#fff;}header,aside,.btn,.hidden-print{display:none!important;}main{padding:0;}section{border:1px solid #ccc;background:#fff;}h2,h3,h4,label{color:black;}}
+  body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Inter,Arial;background:linear-gradient(135deg,var(--bg1),var(--bg2) 60%,#0a1a3d);color:var(--text);display:flex;flex-direction:column;min-height:100vh}
+  header{display:flex;align-items:center;justify-content:space-between;padding:12px 20px;background:linear-gradient(90deg,#04102a,#0a2660);border-bottom:2px solid var(--orange);position:sticky;top:0;z-index:20;flex-wrap:wrap;gap:8px}
+  .header-title h1{margin:0;font-size:19px;color:var(--text);letter-spacing:.3px}
+  .header-title .subtitle{margin:2px 0 0 0;font-size:12.5px;color:var(--orange);font-weight:600}
+  .header-title .dev-credit{margin:2px 0 0 0;font-size:10.5px;color:#8fa6cf}
+  header .actions{display:flex;flex-wrap:wrap;gap:6px}
+  button,.btn{background:#123268;color:var(--text);border:1px solid #274a8c;border-radius:10px;padding:8px 12px;cursor:pointer;box-shadow:var(--shadow);transition:.15s;font-weight:600;display:inline-flex;align-items:center;justify-content:center;gap:6px;font-size:12.5px}
+  button:hover,.btn:hover{transform:translateY(-1px);border-color:var(--orange)}
+  button.primary,.btn.primary{background:linear-gradient(180deg,var(--orange),var(--orange-dark));border-color:transparent;color:#fff}
+  button.ghost,.btn.ghost{background:transparent;border-color:#2b4a86}
+  button.small,.btn.small{padding:5px 9px;font-size:11.5px}
+  button.big,.btn.big{padding:14px 18px;font-size:15px}
+  .layout{display:flex;flex:1;width:100%;align-items:flex-start}
+  aside{width:250px;flex-shrink:0;border-right:2px solid var(--orange);background:linear-gradient(180deg,#04102a,#081c47);padding:14px;display:flex;flex-direction:column;gap:8px}
+  .menu{display:flex;flex-direction:column;gap:6px}
+  .menu a{display:flex;gap:9px;align-items:center;text-decoration:none;color:var(--text);padding:9px 11px;border:1px solid var(--orange-dark);border-radius:10px;background:rgba(249,115,22,.08);cursor:pointer;font-size:13.5px;font-weight:600}
+  .menu a.active,.menu a:hover{border-color:var(--orange);background:linear-gradient(90deg,var(--orange),var(--orange-dark));color:#fff}
+  .sidebar-footer{margin-top:auto;font-size:10.5px;color:#8fa6cf;line-height:1.5;border-top:1px solid #1c3d78;padding-top:10px}
+  main{flex:1;padding:16px;min-width:0}
+  .main-inner{max-width:1240px;margin:0 auto;width:100%}
+  @media(max-width:820px){
+    .layout{flex-direction:column}
+    aside{width:100%;border-right:none;border-bottom:2px solid var(--orange);padding:10px}
+    .menu{flex-direction:row;flex-wrap:wrap;gap:6px}
+    .menu a{flex:1 1 auto;justify-content:center;font-size:12px;padding:8px 9px}
+    .sidebar-footer{display:none}
+    main{padding:12px}
+  }
+  .hidden,.tab-content.hidden{display:none!important}
+  section{background:rgba(255,255,255,.04);border:1px solid #1c3d78;border-radius:var(--radius);padding:16px 18px;margin-bottom:14px;box-shadow:var(--shadow)}
+  h2,h3,h4{margin:0 0 10px 0;color:var(--orange);line-height:1.3}
+  h2{font-size:18px}h4{color:#ffb37a;font-size:14px}
+  p,li,td,th,label,span,div{color:var(--text)}
+  p{margin:0 0 10px 0;line-height:1.5}
+  .dim{color:var(--text-dim)!important;font-size:12.5px}
+  .grid{display:grid;gap:12px;grid-template-columns:repeat(4,1fr)}
+  .grid-2{display:grid;gap:12px;grid-template-columns:1fr 1fr}
+  .grid-3{display:grid;gap:10px;grid-template-columns:repeat(3,1fr)}
+  @media(max-width:820px){.grid{grid-template-columns:repeat(2,1fr)}.grid-2,.grid-3{grid-template-columns:1fr}}
+  .field{display:flex;flex-direction:column;gap:4px}
+  label{font-size:11.5px;color:#ffcda3;font-weight:600}
+  input,select,textarea{background:#08183a;border:1px solid #274a8c;color:var(--text);padding:9px 11px;border-radius:9px;outline:none;font-family:inherit;font-size:13.5px;min-height:40px;width:100%}
+  textarea{min-height:52px;resize:vertical;line-height:1.4}
+  input:focus,select:focus,textarea:focus{border-color:var(--orange)}
+  input::placeholder,textarea::placeholder{color:#5b7bb8}
+  table{width:100%;border-collapse:collapse}
+  th,td{padding:8px 10px;border-bottom:1px solid #123268;text-align:left;font-size:12.5px}
+  th{background:rgba(249,115,22,.12);color:#ffcda3;font-size:11px;text-transform:uppercase}
+  .video-wrapper{position:relative;background:#000;border-radius:10px;overflow:hidden;border:1px solid #274a8c;aspect-ratio:16/9;display:flex;align-items:center;justify-content:center}
+  .video-wrapper video,.video-wrapper iframe{width:100%;height:100%;display:block;object-fit:contain;border:0}
+  .study-live-row{display:flex;gap:16px;align-items:flex-start;flex-wrap:wrap}
+  .video-col{flex:0 0 380px;max-width:380px;position:sticky;top:12px}
+  .timer-col{flex:1 1 340px;min-width:280px}
+  @media (max-width:900px){.video-col{position:static;flex:1 1 100%;max-width:100%}}
+  .video-empty{color:#5b7bb8;font-size:13px;text-align:center;padding:16px}
+  .timer-display{font-family:'Courier New',monospace;font-size:38px;text-align:center;color:var(--orange);background:#08183a;border:1px solid #274a8c;padding:12px;border-radius:10px;margin:10px 0;font-weight:bold;letter-spacing:1.5px}
+  .timer-controls{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+  .lap-status{background:#08183a;border:1px solid var(--orange-dark);border-radius:10px;padding:10px 12px;margin:10px 0;font-size:13px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:6px}
+  .lap-status b{color:var(--orange)}
+  .kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+  @media(max-width:820px){.kpi-grid{grid-template-columns:repeat(2,1fr)}}
+  .kpi-card{background:var(--card);border-radius:10px;padding:12px;text-align:center;border:1px solid #1c3d78}
+  .kpi-card h3{font-size:10.5px;color:#ffcda3;margin:0 0 6px 0;font-weight:700;text-transform:uppercase;letter-spacing:.4px}
+  .kpi-card .kpi-value{font-size:1.6rem;font-weight:800;color:var(--orange)}
+  .elem-card{background:var(--card);border:1px solid #1c3d78;border-radius:12px;padding:14px;margin-bottom:10px}
+  .elem-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+  .elem-head b{color:var(--orange);font-size:14px}
+  .chips{display:flex;flex-wrap:wrap;gap:6px}
+  .chip{display:flex;align-items:center;gap:5px;background:#08183a;border:1px solid #274a8c;border-radius:16px;padding:5px 10px;font-size:11.5px;cursor:pointer;min-height:auto;width:auto}
+  .chip input{width:13px;height:13px;min-height:auto;padding:0}
+  .chip.checked{border-color:var(--orange);background:var(--orange-soft)}
+  .calc-summary{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-top:10px;padding-top:10px;border-top:1px dashed #274a8c;font-size:13px}
+  .tag{padding:2px 9px;border-radius:16px;font-size:10.5px;font-weight:700;text-transform:uppercase}
+  .tag.Produtivo{background:rgba(34,197,94,.18);color:#4ade80;border:1px solid #22c55e}
+  .tag.Improdutivo{background:rgba(239,68,68,.18);color:#f87171;border:1px solid #ef4444}
+  .bar-row{display:grid;grid-template-columns:200px 1fr 70px;gap:8px;align-items:center;margin-bottom:6px;font-size:12.5px}
+  @media(max-width:820px){.bar-row{grid-template-columns:110px 1fr 55px}}
+  .bar-track{background:#08183a;border-radius:6px;overflow:hidden;height:16px;border:1px solid #274a8c}
+  .bar-fill{height:100%;background:linear-gradient(90deg,var(--orange),var(--orange-dark))}
+  .bar-fill.gargalo{background:linear-gradient(90deg,#ef4444,#b91c1c)}
+  .it-step{background:var(--card);border:1px solid #1c3d78;border-left:4px solid var(--orange);border-radius:8px;padding:10px 14px;margin-bottom:8px;font-size:13.5px;line-height:1.5}
+  .it-step b.stepno{color:var(--orange)}
+  .toast-container{position:fixed;top:16px;right:16px;z-index:200;display:flex;flex-direction:column;gap:8px;max-width:90vw}
+  .toast{padding:11px 16px;border-radius:10px;color:white;font-weight:600;font-size:13.5px;box-shadow:var(--shadow);opacity:0;transform:translateX(100%);transition:all .4s}
+  .toast.show{opacity:1;transform:translateX(0)}
+  .toast.success{background:linear-gradient(90deg,#22c55e,#16a34a)}
+  .toast.error{background:linear-gradient(90deg,#ef4444,#dc2626)}
+  .toast.info{background:linear-gradient(90deg,var(--orange),var(--orange-dark))}
+  .suggestion-item{background:#08183a;border:1px solid #274a8c;border-radius:9px;padding:8px 11px;margin-bottom:6px;font-size:13px;display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+  .link-row{display:flex;gap:8px;flex-wrap:wrap}
+  .link-row input{flex:1;min-width:220px}
+  .section-actions{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap}
+  hr.sep{border:none;border-top:1px solid #1c3d78;margin:14px 0}
+  @media print{
+    body{display:block;color:#000;background:#fff}
+    header,aside,.btn,.hidden-print,button{display:none!important}
+    main{padding:0}
+    section{border:1px solid #ccc;background:#fff;box-shadow:none}
+    h2,h3,h4,label,p,li,td,th,span,div,b{color:#000!important}
+    .it-step{border-left:4px solid #000}
+  }
 </style>
 </head>
 <body>
 <div id="toast-container"></div>
 <header>
   <div class="header-title">
-    <h1>🛡️ EQPS</h1>
-    <p class="subtitle">Cronoanálise MTM</p>
+    <h1>⚙️ EQPS System Quality</h1>
+    <p class="subtitle">Cronoanálise &amp; Lean Manufacturing</p>
     <p class="dev-credit">Desenvolvido por Marcos Garçon</p>
   </div>
   <div class="actions">
     <button class="btn ghost" id="btn-restore-backup">Restaurar Backup</button>
     <button class="btn ghost" id="btn-download-backup">Baixar Backup (.json)</button>
-    <button class="btn ghost" id="btn-archive-and-clear" style="color:var(--warn);">Arquivar e Limpar</button>
+    <button class="btn ghost" id="btn-archive-and-clear" style="color:var(--bad);">Arquivar e Limpar</button>
+    <button class="btn primary hidden-print" id="btn-export-excel">📊 Exportar Excel</button>
     <button class="btn primary hidden-print" id="btn-export-pdf">Exportar PDF</button>
   </div>
 </header>
+<div class="layout">
 <aside>
   <div class="menu">
-    <a href="#" class="tab-link active" onclick="openTab(event,'study')">📹 Estudo de Tempo</a>
-    <a href="#" class="tab-link" onclick="openTab(event,'steps')">📋 Etapas/Elementos</a>
-    <a href="#" class="tab-link" onclick="openTab(event,'analysis')">📊 Análise</a>
-    <a href="#" class="tab-link" onclick="openTab(event,'history')">📁 Histórico</a>
-    <a href="#" class="tab-link" onclick="openTab(event,'help')">❓ Ajuda</a>
+    <a href="#" class="tab-link active" data-tab="study" onclick="openTab(event,'study')">📹 Estudo de Tempo</a>
+    <a href="#" class="tab-link" data-tab="config" onclick="openTab(event,'config')">⚙️ Configurações</a>
+    <a href="#" class="tab-link" data-tab="elements" onclick="openTab(event,'elements')">📋 Elementos</a>
+    <a href="#" class="tab-link" data-tab="analysis" onclick="openTab(event,'analysis')">📊 Análise</a>
+    <a href="#" class="tab-link" data-tab="improvements" onclick="openTab(event,'improvements')">💡 Melhorias</a>
+    <a href="#" class="tab-link" data-tab="it" onclick="openTab(event,'it')">📄 Instrução</a>
+    <a href="#" class="tab-link" data-tab="history" onclick="openTab(event,'history')">📁 Histórico</a>
+    <a href="#" class="tab-link" data-tab="help" onclick="openTab(event,'help')">❓ Ajuda</a>
   </div>
+  <div class="sidebar-footer">EQPS · Engenharia de Métodos<br>TM × Ritmo = TN<br>TN × (1+Tolerância) = TP</div>
 </aside>
-<main id="main-content"></main>
+<main><div class="main-inner" id="main-content"></div></main>
+</div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded',()=>{
-  let state={studies:[],currentStudy:null};
-  const DB_KEY='itp_mtm_v1';
-  let timer={start:0,running:false,interval:null,elapsed:0};
+  let state={studies:[],currentStudy:null,config:{empresa:'',setor:'',responsavel:'',toleranciaPadrao:15,baseElements:[]}};
+  const DB_KEY='eqps_mtm_v4';
+  const OLD_KEYS=[];
+  let timer={start:0,running:false,interval:null,elapsed:0,lastMark:0,currentElementIdx:0,cycleCount:1};
   const main=document.getElementById('main-content');
+
+  const THERBLIGS=[
+    {name:'Alcançar',tipo:'Produtivo'},{name:'Mover',tipo:'Produtivo'},{name:'Pegar (Agarrar)',tipo:'Produtivo'},
+    {name:'Posicionar',tipo:'Produtivo'},{name:'Soltar',tipo:'Produtivo'},{name:'Montar',tipo:'Produtivo'},
+    {name:'Desmontar',tipo:'Produtivo'},{name:'Usar',tipo:'Produtivo'},{name:'Inspecionar',tipo:'Produtivo'},
+    {name:'Procurar',tipo:'Improdutivo'},{name:'Selecionar',tipo:'Improdutivo'},{name:'Planejar',tipo:'Improdutivo'},
+    {name:'Pré-posicionar',tipo:'Improdutivo'},{name:'Segurar',tipo:'Improdutivo'},{name:'Espera Evitável',tipo:'Improdutivo'},
+    {name:'Espera Inevitável',tipo:'Improdutivo'},{name:'Descansar (Fadiga)',tipo:'Improdutivo'},{name:'Posição Inadequada',tipo:'Improdutivo'}
+  ];
+  const DESPERDICIOS_OPTS=['Movimento excessivo','Cruzamento de braços','Torção de tronco','Distância desnecessária','Deslocamento longo','Dupla manipulação','Busca visual prolongada','Espera evitável'];
+  const SUGGESTION_MAP={
+    'Movimento excessivo':'Reduzir a amplitude de movimento aproximando materiais e ferramentas da zona normal de trabalho.',
+    'Cruzamento de braços':'Reorganizar o layout para eliminar o cruzamento de braços, posicionando cada item do lado da mão que o utiliza.',
+    'Torção de tronco':'Reposicionar bancada/dispositivo para manter o operador de frente ao ponto de trabalho, evitando rotação de tronco.',
+    'Distância desnecessária':'Aproximar componentes e dispositivos dentro da área de alcance máximo normal (círculos de Barnes).',
+    'Deslocamento longo':'Redesenhar o fluxo do posto para reduzir deslocamentos entre estações de trabalho.',
+    'Dupla manipulação':'Utilizar dispositivo de fixação (poka-yoke) para eliminar a dupla manipulação da peça.',
+    'Busca visual prolongada':'Padronizar identificação visual (cores, etiquetas, sombra de ferramentas) para reduzir tempo de busca.',
+    'Espera evitável':'Balancear a linha ou sincronizar etapas para eliminar tempos de espera evitáveis.'
+  };
+  const LAYOUT_TIPS=[
+    'Avaliar dispositivo poka-yoke para eliminar a possibilidade de montagem incorreta.',
+    'Padronizar posição de ferramentas com sombra/quadro visual (5S) para reduzir tempo de busca.',
+    'Aproximar caixas de componentes dentro do arco de alcance normal, evitando flexão de tronco.',
+    'Avaliar uso de gabarito de fixação para reduzir tempo de posicionamento e variabilidade entre operadores.'
+  ];
 
   const showToast=(msg,type='info')=>{const c=document.getElementById('toast-container');const t=document.createElement('div');t.className=`toast ${type}`;t.textContent=msg;c.appendChild(t);setTimeout(()=>t.classList.add('show'),10);setTimeout(()=>{t.classList.remove('show');t.addEventListener('transitionend',()=>t.remove())},4000);};
   const saveData=()=>{try{localStorage.setItem(DB_KEY,JSON.stringify(state))}catch(e){showToast('Erro ao salvar.','error')}};
-  const loadData=()=>{const l=JSON.parse(localStorage.getItem(DB_KEY));if(l)state=l;};
+  const loadData=()=>{let raw=localStorage.getItem(DB_KEY);if(!raw){for(const k of OLD_KEYS){raw=localStorage.getItem(k);if(raw)break;}}const l=raw?JSON.parse(raw):null;if(l)state=l;if(!state.config)state.config={empresa:'',setor:'',responsavel:'',toleranciaPadrao:15,baseElements:[]};if(!state.config.baseElements)state.config.baseElements=[];};
   const fmtTime=(ms)=>{const t=Math.floor(ms/1000);const m=Math.floor(t/60);const s=t%60;const c=Math.floor((ms%1000)/10);return `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}.${String(c).padStart(2,'0')}`;};
+  const num=(v,d=0)=>{const n=parseFloat(v);return isNaN(n)?d:n;};
 
-  window.openTab=(evt,tabId)=>{evt.preventDefault();document.querySelectorAll('.tab-content').forEach(t=>t.classList.add('hidden'));const el=document.getElementById(tabId);if(el)el.classList.remove('hidden');document.querySelectorAll('.menu a').forEach(l=>l.classList.remove('active'));if(evt.currentTarget)evt.currentTarget.classList.add('active');if(tabId==='analysis')renderAnalysis();if(tabId==='history')renderHistory();if(tabId==='steps')renderSteps();};
+  const avg=(arr)=>arr.length?arr.reduce((a,b)=>a+b,0)/arr.length:0;
+  const stepTM=(el)=>avg(el.ciclos||[]);
+  const stepTN=(el)=>stepTM(el)*((num(el.ritmo,100))/100);
+  const stepTP=(el,tol)=>stepTN(el)*(1+(num(tol,15)/100));
+  const therbligTipo=(name)=>{const f=THERBLIGS.find(t=>t.name===name);return f?f.tipo:'Produtivo';};
 
-  const newStudy=()=>{state.currentStudy={id:Date.now(),name:'Novo Estudo',operator:'',operation:'',date:new Date().toISOString().slice(0,10),steps:[],videoSrc:null,createdAt:new Date().toISOString()};saveData();renderStudyInfo();renderSteps();showToast('Novo estudo criado!','success');};
+  // Deriva automaticamente, a partir dos ciclos já capturados em cada elemento,
+  // quantos CICLOS DE PRODUÇÃO COMPLETOS já foram feitos e o tempo total de cada um.
+  const computeCycleSummary=(study)=>{
+    if(!study||!study.elements||!study.elements.length)return{count:0,cycles:[],avg:0};
+    const lens=study.elements.map(e=>(e.ciclos||[]).length);
+    const minLen=Math.min(...lens);
+    const cycles=[];
+    for(let c=0;c<minLen;c++){
+      let total=0;study.elements.forEach(e=>total+=(e.ciclos[c]||0));
+      cycles.push({n:c+1,total:+total.toFixed(2)});
+    }
+    const avgCycle=cycles.length?cycles.reduce((a,c)=>a+c.total,0)/cycles.length:0;
+    return{count:minLen,cycles,avg:avgCycle};
+  };
+
+  const goToTab=(tabId)=>{
+    document.querySelectorAll('.tab-content').forEach(t=>t.classList.add('hidden'));
+    const el=document.getElementById(tabId);if(el)el.classList.remove('hidden');
+    document.querySelectorAll('.menu a').forEach(l=>l.classList.remove('active'));
+    const link=document.querySelector(`.menu a[data-tab="${tabId}"]`);if(link)link.classList.add('active');
+    if(tabId==='config')renderConfig();
+    if(tabId==='elements')renderElements();
+    if(tabId==='analysis')renderAnalysis();
+    if(tabId==='improvements')renderImprovements();
+    if(tabId==='it')renderIT();
+    if(tabId==='history')renderHistory();
+    if(tabId==='study'){renderLapStatus();renderCycleSummary();}
+  };
+  window.openTab=(evt,tabId)=>{evt.preventDefault();goToTab(tabId);};
+
+  const newStudy=()=>{const cfg=state.config||{};state.currentStudy={id:Date.now(),name:'Novo Estudo',operator:cfg.responsavel||'',operation:'',empresa:cfg.empresa||'',setor:cfg.setor||'',date:new Date().toISOString().slice(0,10),revisao:'Rev. 00',tolerancia:cfg.toleranciaPadrao??15,elements:[],videoLink:'',melhorias:[],layout:[],createdAt:new Date().toISOString()};timer={start:0,running:false,interval:null,elapsed:0,lastMark:0,currentElementIdx:0,cycleCount:1};saveData();renderStudyInfo();renderElements();showToast('Novo estudo criado! (dados padrão aplicados a partir das Configurações)','success');};
   const saveStudy=()=>{if(!state.currentStudy)return;const ex=state.studies.findIndex(s=>s.id===state.currentStudy.id);if(ex>=0)state.studies[ex]=state.currentStudy;else state.studies.push(state.currentStudy);saveData();showToast('Estudo salvo!','success');};
 
-  const renderStudyInfo=()=>{if(!state.currentStudy)return;document.getElementById('study_name').value=state.currentStudy.name||'';document.getElementById('study_operator').value=state.currentStudy.operator||'';document.getElementById('study_operation').value=state.currentStudy.operation||'';document.getElementById('study_date').value=state.currentStudy.date||'';};
+  const renderStudyInfo=()=>{if(!state.currentStudy)return;document.getElementById('study_name').value=state.currentStudy.name||'';document.getElementById('study_operator').value=state.currentStudy.operator||'';document.getElementById('study_operation').value=state.currentStudy.operation||'';document.getElementById('study_date').value=state.currentStudy.date||'';document.getElementById('study_empresa').value=state.currentStudy.empresa||'';document.getElementById('study_setor').value=state.currentStudy.setor||'';document.getElementById('study_tolerancia').value=state.currentStudy.tolerancia??15;document.getElementById('study_video_link').value=state.currentStudy.videoLink||'';populateElementSelect();renderLapStatus();renderCycleSummary();};
 
-  const renderSteps=()=>{const c=document.getElementById('steps-list');if(!c||!state.currentStudy)return;c.innerHTML='';state.currentStudy.steps.forEach((s,i)=>{const r=document.createElement('div');r.className='step-row';r.innerHTML=`<div><b>${i+1}</b></div><input value="${s.description||''}" placeholder="Descrição da etapa" onchange="updateStep(${i},'description',this.value)"><input type="number" step="0.01" value="${s.time||''}" placeholder="Tempo (s)" onchange="updateStep(${i},'time',this.value)"><input type="number" value="${s.tmu||''}" placeholder="TMU" onchange="updateStep(${i},'tmu',this.value)"><input value="${s.classification||''}" placeholder="Class. MTM" onchange="updateStep(${i},'classification',this.value)"><button class="btn ghost" onclick="removeStep(${i})" style="color:var(--bad)">×</button>`;c.appendChild(r);});};
-  window.updateStep=(i,k,v)=>{state.currentStudy.steps[i][k]=v;saveData();};
-  window.removeStep=(i)=>{state.currentStudy.steps.splice(i,1);saveData();renderSteps();};
+  // ---------- VÍDEO ----------
+  const onVideoEnded=()=>{
+    stopTimer();
+    showToast('Vídeo finalizado! Cronômetro pausado automaticamente. Gerando análise completa dos ciclos capturados...','info');
+    goToTab('analysis');
+  };
+  const attachVideoEndedListener=()=>{const v=document.getElementById('video-player');if(v)v.addEventListener('ended',onVideoEnded);};
+  const setVideoWrapperVideoTag=()=>{document.getElementById('video-wrapper').innerHTML='<video id="video-player" controls playsinline></video>';};
+  const setVideoWrapperIframe=(embedUrl)=>{document.getElementById('video-wrapper').innerHTML=`<iframe src="${embedUrl}" allowfullscreen></iframe>`;};
+  const detectEmbed=(url)=>{
+    const yt=url.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/))([\w-]{6,})/);
+    if(yt)return `https://www.youtube.com/embed/${yt[1]}`;
+    const vm=url.match(/vimeo\.com\/(\d+)/);
+    if(vm)return `https://player.vimeo.com/video/${vm[1]}`;
+    return null;
+  };
+  window.loadVideoLink=()=>{
+    const url=document.getElementById('study_video_link').value.trim();
+    if(!url)return showToast('Cole um link de vídeo.','error');
+    if(state.currentStudy){state.currentStudy.videoLink=url;saveData();}
+    const embed=detectEmbed(url);
+    if(embed){setVideoWrapperIframe(embed);showToast('Vídeo carregado por link! (detecção automática de fim de vídeo não é possível em players incorporados do YouTube/Vimeo — use o cronômetro normalmente)','info');}
+    else{setVideoWrapperVideoTag();document.getElementById('video-player').src=url;attachVideoEndedListener();showToast('Vídeo carregado por link!','success');}
+  };
 
-  const renderAnalysis=()=>{if(!state.currentStudy||!state.currentStudy.steps.length){document.getElementById('analysis-content').innerHTML='<p>Nenhum estudo ativo.</p>';return;}const steps=state.currentStudy.steps;const tT=steps.reduce((a,s)=>a+(parseFloat(s.time)||0),0);const tTmu=steps.reduce((a,s)=>a+(parseFloat(s.tmu)||0),0);const aT=steps.length?tT/steps.length:0;document.getElementById('analysis-content').innerHTML=`<div class="kpi-grid"><div class="kpi-card"><h3>Tempo Total</h3><b class="kpi-value">${tT.toFixed(2)}s</b></div><div class="kpi-card"><h3>TMU Total</h3><b class="kpi-value">${tTmu.toFixed(0)}</b></div><div class="kpi-card"><h3>Tempo Médio</h3><b class="kpi-value">${aT.toFixed(2)}s</b></div><div class="kpi-card"><h3>Nº Etapas</h3><b class="kpi-value">${steps.length}</b></div></div><div style="margin-top:20px;overflow:auto"><table><thead><tr><th>#</th><th>Descrição</th><th>Tempo (s)</th><th>TMU</th><th>Class.</th><th>%</th></tr></thead><tbody>${steps.map((s,i)=>`<tr><td>${i+1}</td><td>${s.description||''}</td><td>${s.time||0}</td><td>${s.tmu||0}</td><td>${s.classification||''}</td><td>${tT>0?((s.time/tT)*100).toFixed(1):0}%</td></tr>`).join('')}</tbody></table></div>`;};
+  // ---------- CRONÔMETRO CONTÍNUO (repetição automática de ciclos) ----------
+  // Semi-automático: iniciar o cronômetro também dá play no vídeo; o vídeo terminando pausa o cronômetro sozinho.
+  const startTimer=()=>{
+    if(timer.running)return;
+    timer.start=Date.now()-timer.elapsed;timer.running=true;
+    timer.interval=setInterval(()=>{timer.elapsed=Date.now()-timer.start;const d=document.getElementById('timer-display');if(d)d.textContent=fmtTime(timer.elapsed);},50);
+    const v=document.getElementById('video-player');if(v&&v.paused)v.play().catch(()=>{});
+  };
+  const stopTimer=()=>{
+    if(!timer.running)return;
+    clearInterval(timer.interval);timer.running=false;
+    const v=document.getElementById('video-player');if(v&&!v.paused)v.pause();
+  };
+  const resetTimer=()=>{stopTimer();timer.elapsed=0;timer.lastMark=0;timer.cycleCount=1;const d=document.getElementById('timer-display');if(d)d.textContent='00:00.00';renderLapStatus();};
 
-  const renderHistory=()=>{const c=document.getElementById('history-list');if(!c)return;c.innerHTML=`<table><thead><tr><th>Nome</th><th>Operação</th><th>Operador</th><th>Data</th><th>Etapas</th><th>Ações</th></tr></thead><tbody>${state.studies.map(s=>`<tr><td>${s.name}</td><td>${s.operation||''}</td><td>${s.operator||''}</td><td>${s.date||''}</td><td>${s.steps.length}</td><td><button class="btn ghost" onclick="loadStudy(${s.id})">Abrir</button> <button class="btn ghost" onclick="deleteStudy(${s.id})" style="color:var(--bad)">Excluir</button></td></tr>`).join('')}</tbody></table>`;};
-  window.loadStudy=(id)=>{const s=state.studies.find(x=>x.id===id);if(s){state.currentStudy=JSON.parse(JSON.stringify(s));saveData();renderStudyInfo();renderSteps();document.querySelector('.menu a').click();showToast('Estudo carregado!','success');}};
+  const populateElementSelect=()=>{const sel=document.getElementById('target-element-select');if(!sel||!state.currentStudy)return;sel.innerHTML=state.currentStudy.elements.map((e,i)=>`<option value="${i}">Elemento ${i+1} — ${(e.acao||'sem descrição').slice(0,40)}</option>`).join('')||'<option value="">Nenhum elemento — clique em "+ Criar Elemento Rápido"</option>';if(timer.currentElementIdx>=state.currentStudy.elements.length)timer.currentElementIdx=0;sel.value=timer.currentElementIdx;};
+
+  const renderLapStatus=()=>{
+    const box=document.getElementById('lap-status');if(!box)return;
+    if(!state.currentStudy||!state.currentStudy.elements.length){box.innerHTML='Crie ao menos um elemento para iniciar a cronometragem contínua.';return;}
+    const cur=state.currentStudy.elements[timer.currentElementIdx];
+    box.innerHTML=`<span>Ciclo de produção atual: <b>${timer.cycleCount}</b></span><span>Cronometrando agora: <b>Elemento ${timer.currentElementIdx+1} — ${(cur&&cur.acao)?cur.acao.slice(0,50):'sem descrição'}</b></span>`;
+  };
+
+  // Painel ao vivo: mostra automaticamente, a cada ciclo marcado, quantos ciclos completos
+  // já foram feitos e o tempo de cada um — sem precisar trocar de aba.
+  const renderCycleSummary=()=>{
+    const box=document.getElementById('cycle-summary');if(!box||!state.currentStudy)return;
+    const s=computeCycleSummary(state.currentStudy);
+    if(!s.count){box.innerHTML='<p class="dim">Nenhum ciclo completo ainda. Marque os ciclos de todos os elementos ao menos uma vez para ver o resumo aqui.</p>';return;}
+    box.innerHTML=`
+      <div class="kpi-grid">
+        <div class="kpi-card"><h3>Ciclos Completos</h3><b class="kpi-value">${s.count}</b></div>
+        <div class="kpi-card"><h3>Tempo Médio / Ciclo</h3><b class="kpi-value">${s.avg.toFixed(2)}s</b></div>
+      </div>
+      <div style="overflow:auto;margin-top:10px;max-height:180px;"><table><thead><tr><th>Ciclo</th><th>Tempo Total (s)</th></tr></thead><tbody>${s.cycles.map(c=>`<tr><td>${c.n}</td><td>${c.total}</td></tr>`).join('')}</tbody></table></div>`;
+  };
+
+  window.onTargetElementChange=()=>{const sel=document.getElementById('target-element-select');const idx=parseInt(sel.value);if(isNaN(idx))return;timer.currentElementIdx=idx;timer.lastMark=timer.elapsed;renderLapStatus();};
+
+  // Marca o ciclo do elemento atual (tempo desde a última marcação) e avança automaticamente
+  // para o próximo elemento — assim a repetição dos ciclos é capturada de forma automática
+  // enquanto o vídeo roda, sem precisar zerar o cronômetro a cada volta.
+  window.markLap=()=>{
+    if(!state.currentStudy)return showToast('Crie um estudo primeiro!','error');
+    if(!state.currentStudy.elements.length)return showToast('Crie ao menos um elemento na aba "Elementos".','error');
+    if(!timer.running)return showToast('Inicie o cronômetro antes de marcar um ciclo.','error');
+    const sec=+((timer.elapsed-timer.lastMark)/1000).toFixed(2);
+    if(sec<=0)return showToast('Aguarde um instante antes de marcar o próximo ciclo.','error');
+    const idx=timer.currentElementIdx;
+    state.currentStudy.elements[idx].ciclos.push(sec);
+    timer.lastMark=timer.elapsed;
+    timer.currentElementIdx=(idx+1)%state.currentStudy.elements.length;
+    if(timer.currentElementIdx===0){timer.cycleCount++;showToast(`Ciclo de produção Nº ${timer.cycleCount} iniciado!`,'info');}
+    else{showToast(`Elemento ${idx+1}: ${sec}s registrado.`,'success');}
+    saveData();
+    populateElementSelect();renderLapStatus();renderCycleSummary();
+    if(!document.getElementById('elements').classList.contains('hidden'))renderElements();
+  };
+  window.quickAddElement=()=>{if(!state.currentStudy)return showToast('Crie um estudo primeiro!','error');state.currentStudy.elements.push({acao:'',pontoChave:'',therblig:'Alcançar',ciclos:[],ritmo:100,desperdicios:[]});saveData();populateElementSelect();renderLapStatus();showToast('Novo elemento criado — edite-o na aba "Elementos".','success');};
+
+  // ---------- ELEMENTOS ----------
+  const renderElements=()=>{
+    const c=document.getElementById('elements-list');if(!c||!state.currentStudy)return;
+    const tol=state.currentStudy.tolerancia??15;
+    if(!state.currentStudy.elements.length){c.innerHTML='<p class="dim">Nenhum elemento cadastrado. Clique em "+ Novo Elemento".</p>';return;}
+    c.innerHTML=state.currentStudy.elements.map((el,i)=>{
+      const TM=stepTM(el),TN=stepTN(el),TP=stepTP(el,tol);
+      const tipo=therbligTipo(el.therblig);
+      const therbOpts=THERBLIGS.map(t=>`<option value="${t.name}" ${el.therblig===t.name?'selected':''}>${t.name} (${t.tipo})</option>`).join('');
+      const chips=DESPERDICIOS_OPTS.map(opt=>{const on=(el.desperdicios||[]).includes(opt);return `<label class="chip ${on?'checked':''}"><input type="checkbox" ${on?'checked':''} onchange="toggleDesperdicio(${i},'${opt}')"> ${opt}</label>`;}).join('');
+      return `<div class="elem-card">
+        <div class="elem-head"><b>Elemento ${i+1} <span class="dim">(${(el.ciclos||[]).length} ciclo(s) registrado(s))</span></b><button class="btn ghost small" onclick="removeElement(${i})" style="color:var(--bad)">✕ Remover</button></div>
+        <div class="grid-2">
+          <div class="field"><label>Ação — O que fazer</label><textarea placeholder="Descreva a ação executada" onchange="updateElement(${i},'acao',this.value)">${el.acao||''}</textarea></div>
+          <div class="field"><label>Ponto-Chave — Como fazer (Qualidade/Segurança)</label><textarea placeholder="Detalhe crítico de qualidade ou segurança" onchange="updateElement(${i},'pontoChave',this.value)">${el.pontoChave||''}</textarea></div>
+        </div>
+        <div class="grid-3" style="margin-top:10px;">
+          <div class="field"><label>Classificação (Therblig)</label><select onchange="updateElement(${i},'therblig',this.value)">${therbOpts}</select></div>
+          <div class="field"><label>Ciclos observados, em segundos</label><input value="${(el.ciclos||[]).join(', ')}" placeholder="ex: 8.2, 8.5, 7.9" onchange="updateCiclos(${i},this.value)"></div>
+          <div class="field"><label>Ritmo do operador (%)</label><input type="number" value="${el.ritmo??100}" onchange="updateElement(${i},'ritmo',parseFloat(this.value)||100)"></div>
+        </div>
+        <div class="field" style="margin-top:10px;"><label>Desperdícios identificados (Muda)</label><div class="chips">${chips}</div></div>
+        <div class="calc-summary">
+          <span>TM: <b style="color:var(--orange)">${TM.toFixed(2)}s</b></span>
+          <span>TN: <b style="color:var(--orange)">${TN.toFixed(2)}s</b></span>
+          <span>TP: <b style="color:var(--orange)">${TP.toFixed(2)}s</b></span>
+          <span class="tag ${tipo}">${tipo}</span>
+        </div>
+      </div>`;
+    }).join('');
+  };
+  window.updateElement=(i,k,v)=>{state.currentStudy.elements[i][k]=v;saveData();if(k!=='acao'&&k!=='pontoChave')renderElements();};
+  window.updateCiclos=(i,v)=>{const arr=v.split(',').map(x=>parseFloat(x.trim())).filter(x=>!isNaN(x));state.currentStudy.elements[i].ciclos=arr;saveData();renderElements();};
+  window.toggleDesperdicio=(i,opt)=>{const el=state.currentStudy.elements[i];el.desperdicios=el.desperdicios||[];const idx=el.desperdicios.indexOf(opt);if(idx>=0)el.desperdicios.splice(idx,1);else el.desperdicios.push(opt);saveData();renderElements();};
+  window.removeElement=(i)=>{state.currentStudy.elements.splice(i,1);saveData();renderElements();populateElementSelect();};
+
+  // ---------- ANÁLISE (calculada automaticamente a partir dos ciclos/repetições) ----------
+  const renderAnalysis=()=>{
+    const box=document.getElementById('analysis-content');if(!box)return;
+    if(!state.currentStudy||!state.currentStudy.elements.length){box.innerHTML='<p class="dim">Nenhum elemento cadastrado ainda.</p>';return;}
+    const tol=state.currentStudy.tolerancia??15;
+    const els=state.currentStudy.elements.map((el,i)=>({i,el,TM:stepTM(el),TN:stepTN(el),TP:stepTP(el,tol),tipo:therbligTipo(el.therblig),n:(el.ciclos||[]).length}));
+    const TPtotal=els.reduce((a,e)=>a+e.TP,0);
+    const TPprodutivo=els.filter(e=>e.tipo==='Produtivo').reduce((a,e)=>a+e.TP,0);
+    const pctProdutivo=TPtotal>0?(TPprodutivo/TPtotal*100):0;
+    const gargalo=els.reduce((max,e)=>e.TP>(max?max.TP:-1)?e:max,null);
+    const maxTP=gargalo?gargalo.TP:1;
+    const sorted=[...els].sort((a,b)=>b.TP-a.TP);
+    const desperdiciosFlagged=els.filter(e=>(e.el.desperdicios||[]).length>0);
+    const cs=computeCycleSummary(state.currentStudy);
+
+    box.innerHTML=`
+      <div class="kpi-grid">
+        <div class="kpi-card"><h3>Tempo Padrão Total</h3><b class="kpi-value">${TPtotal.toFixed(2)}s</b></div>
+        <div class="kpi-card"><h3>Ciclos Completos</h3><b class="kpi-value">${cs.count}</b></div>
+        <div class="kpi-card"><h3>Tempo Médio / Ciclo</h3><b class="kpi-value">${cs.avg.toFixed(2)}s</b></div>
+        <div class="kpi-card"><h3>% Tempo Produtivo</h3><b class="kpi-value">${pctProdutivo.toFixed(1)}%</b></div>
+      </div>
+      <h4 style="margin-top:18px;">Ciclos de Produção Completos (calculado automaticamente)</h4>
+      ${cs.count?`<div style="overflow:auto;max-height:220px;"><table><thead><tr><th>Ciclo</th><th>Tempo Total (s)</th></tr></thead><tbody>${cs.cycles.map(c=>`<tr><td>${c.n}</td><td>${c.total}</td></tr>`).join('')}</tbody></table></div>`:'<p class="dim">Ainda não há um ciclo completo (todos os elementos precisam ter ao menos 1 ciclo registrado).</p>'}
+      <h4 style="margin-top:18px;">Pareto de Tempo Padrão por Elemento — Gargalo: Elem. ${gargalo?gargalo.i+1:'—'}</h4>
+      <div>${sorted.map(e=>`<div class="bar-row"><span class="dim">Elem. ${e.i+1} — ${(e.el.acao||'sem descrição').slice(0,24)}</span><div class="bar-track"><div class="bar-fill ${e.i===gargalo.i?'gargalo':''}" style="width:${maxTP>0?(e.TP/maxTP*100):0}%"></div></div><span>${e.TP.toFixed(2)}s</span></div>`).join('')}</div>
+      <h4 style="margin-top:18px;">Desperdícios (Muda) Identificados</h4>
+      ${desperdiciosFlagged.length?`<table><thead><tr><th>Elemento</th><th>Ação</th><th>Desperdícios</th></tr></thead><tbody>${desperdiciosFlagged.map(e=>`<tr><td>Elem. ${e.i+1}</td><td>${e.el.acao||''}</td><td>${(e.el.desperdicios||[]).join(', ')}</td></tr>`).join('')}</tbody></table>`:'<p class="dim">Nenhum desperdício sinalizado. Marque os desperdícios na aba "Elementos".</p>'}
+      <h4 style="margin-top:18px;">Tabela Completa de Cronoanálise</h4>
+      <div style="overflow:auto"><table><thead><tr><th>#</th><th>Ação</th><th>Therblig</th><th>Nº Ciclos</th><th>Ciclos (s)</th><th>TM (s)</th><th>Ritmo</th><th>TN (s)</th><th>Toler.</th><th>TP (s)</th><th>%</th></tr></thead><tbody>${els.map(e=>`<tr><td>${e.i+1}</td><td>${e.el.acao||''}</td><td>${e.el.therblig||''}</td><td>${e.n}</td><td>${(e.el.ciclos||[]).join(', ')||'-'}</td><td>${e.TM.toFixed(2)}</td><td>${e.el.ritmo??100}%</td><td>${e.TN.toFixed(2)}</td><td>${tol}%</td><td><b style="color:var(--orange)">${e.TP.toFixed(2)}</b></td><td>${TPtotal>0?(e.TP/TPtotal*100).toFixed(1):0}%</td></tr>`).join('')}</tbody></table></div>`;
+  };
+
+  // ---------- MELHORIAS ----------
+  const renderImprovements=()=>{
+    if(!state.currentStudy)return;
+    const mBox=document.getElementById('melhorias-list');
+    const lBox=document.getElementById('layout-list');
+    mBox.innerHTML=(state.currentStudy.melhorias||[]).map((m,i)=>`<div class="suggestion-item"><span>${m}</span><button class="btn ghost small" onclick="removeMelhoria(${i})" style="color:var(--bad)">✕</button></div>`).join('')||'<p class="dim">Nenhuma proposta ainda.</p>';
+    lBox.innerHTML=(state.currentStudy.layout||[]).map((m,i)=>`<div class="suggestion-item"><span>${m}</span><button class="btn ghost small" onclick="removeLayout(${i})" style="color:var(--bad)">✕</button></div>`).join('')||'<p class="dim">Nenhuma sugestão ainda.</p>';
+  };
+  window.addMelhoria=()=>{const input=document.getElementById('melhoria-input');if(!input.value.trim())return;state.currentStudy.melhorias=state.currentStudy.melhorias||[];state.currentStudy.melhorias.push(input.value.trim());input.value='';saveData();renderImprovements();};
+  window.removeMelhoria=(i)=>{state.currentStudy.melhorias.splice(i,1);saveData();renderImprovements();};
+  window.addLayout=()=>{const input=document.getElementById('layout-input');if(!input.value.trim())return;state.currentStudy.layout=state.currentStudy.layout||[];state.currentStudy.layout.push(input.value.trim());input.value='';saveData();renderImprovements();};
+  window.removeLayout=(i)=>{state.currentStudy.layout.splice(i,1);saveData();renderImprovements();};
+  window.autoSuggest=()=>{
+    if(!state.currentStudy||!state.currentStudy.elements.length)return showToast('Cadastre elementos primeiro.','error');
+    state.currentStudy.melhorias=state.currentStudy.melhorias||[];
+    state.currentStudy.layout=state.currentStudy.layout||[];
+    const flagged=new Set();
+    state.currentStudy.elements.forEach(el=>(el.desperdicios||[]).forEach(d=>flagged.add(d)));
+    let added=0;
+    flagged.forEach(d=>{const s=SUGGESTION_MAP[d];if(s&&!state.currentStudy.melhorias.includes(s)){state.currentStudy.melhorias.push(s);added++;}});
+    LAYOUT_TIPS.forEach(t=>{if(!state.currentStudy.layout.includes(t))state.currentStudy.layout.push(t);});
+    saveData();renderImprovements();
+    showToast(added?`${added} sugestão(ões) gerada(s) a partir dos desperdícios!`:'Sugestões de layout adicionadas.','success');
+  };
+
+  // ---------- INSTRUÇÃO DE TRABALHO ----------
+  const renderIT=()=>{
+    const box=document.getElementById('it-content');if(!box||!state.currentStudy)return;
+    document.getElementById('it_name').value=state.currentStudy.name||'';
+    document.getElementById('it_operation').value=state.currentStudy.operation||'';
+    document.getElementById('it_revisao').value=state.currentStudy.revisao||'Rev. 00';
+    const tol=state.currentStudy.tolerancia??15;
+    if(!state.currentStudy.elements.length){box.innerHTML='<p class="dim">Cadastre elementos para gerar o draft da IT.</p>';return;}
+    box.innerHTML=state.currentStudy.elements.map((el,i)=>{
+      const TP=stepTP(el,tol);
+      return `<div class="it-step"><b class="stepno">Passo ${i+1}:</b> ${el.acao||'(descrever ação)'} &nbsp;|&nbsp; <b>Ponto-Chave:</b> ${el.pontoChave||'—'} &nbsp;|&nbsp; <b>Tempo Esperado:</b> ${TP.toFixed(2)}s</div>`;
+    }).join('');
+  };
+
+  // ---------- CONFIGURAÇÕES ----------
+  const renderConfig=()=>{
+    const cfg=state.config;
+    document.getElementById('cfg_empresa').value=cfg.empresa||'';
+    document.getElementById('cfg_setor').value=cfg.setor||'';
+    document.getElementById('cfg_responsavel').value=cfg.responsavel||'';
+    document.getElementById('cfg_tolerancia').value=cfg.toleranciaPadrao??15;
+    const list=document.getElementById('base-elements-list');
+    if(!cfg.baseElements.length){list.innerHTML='<p class="dim">Nenhuma etapa no modelo ainda. Clique em "+ Nova Etapa no Modelo".</p>';return;}
+    const therbOpts=THERBLIGS.map(t=>`<option value="${t.name}">${t.name} (${t.tipo})</option>`).join('');
+    list.innerHTML=`<table><thead><tr><th style="min-width:180px;">Ação</th><th style="min-width:180px;">Ponto-Chave</th><th style="min-width:150px;">Therblig</th><th style="min-width:90px;">Ritmo (%)</th><th></th></tr></thead><tbody>${cfg.baseElements.map((el,i)=>`<tr>
+      <td><input value="${(el.acao||'').replace(/"/g,'&quot;')}" onchange="updateBaseElement(${i},'acao',this.value)"></td>
+      <td><input value="${(el.pontoChave||'').replace(/"/g,'&quot;')}" onchange="updateBaseElement(${i},'pontoChave',this.value)"></td>
+      <td><select onchange="updateBaseElement(${i},'therblig',this.value)">${THERBLIGS.map(t=>`<option value="${t.name}" ${el.therblig===t.name?'selected':''}>${t.name} (${t.tipo})</option>`).join('')}</select></td>
+      <td><input type="number" value="${el.ritmo??100}" onchange="updateBaseElement(${i},'ritmo',parseFloat(this.value)||100)"></td>
+      <td><button class="btn ghost small" onclick="removeBaseElement(${i})" style="color:var(--bad)">✕</button></td>
+    </tr>`).join('')}</tbody></table>`;
+  };
+  window.updateBaseElement=(i,k,v)=>{state.config.baseElements[i][k]=v;saveData();};
+  window.removeBaseElement=(i)=>{state.config.baseElements.splice(i,1);saveData();renderConfig();};
+  window.applyBaseElements=()=>{
+    if(!state.currentStudy)return showToast('Crie um estudo primeiro!','error');
+    if(!state.config.baseElements.length)return showToast('Cadastre etapas na Tabela Base em Configurações primeiro.','error');
+    if(state.currentStudy.elements.length&&!confirm('Isso vai ADICIONAR as etapas da Tabela Base aos elementos já existentes neste estudo. Continuar?'))return;
+    state.config.baseElements.forEach(be=>{state.currentStudy.elements.push({acao:be.acao||'',pontoChave:be.pontoChave||'',therblig:be.therblig||'Alcançar',ciclos:[],ritmo:be.ritmo??100,desperdicios:[]});});
+    saveData();renderElements();populateElementSelect();
+    showToast('Tabela Base aplicada! Etapas adicionadas ao estudo atual.','success');
+  };
+
+  // ---------- HISTÓRICO ----------
+  const renderHistory=()=>{const c=document.getElementById('history-list');if(!c)return;c.innerHTML=`<table><thead><tr><th>Nome</th><th>Operação</th><th>Operador</th><th>Data</th><th>Elementos</th><th>Ações</th></tr></thead><tbody>${state.studies.map(s=>`<tr><td>${s.name}</td><td>${s.operation||''}</td><td>${s.operator||''}</td><td>${s.date||''}</td><td>${(s.elements||[]).length}</td><td><button class="btn ghost small" onclick="loadStudy(${s.id})">Abrir</button> <button class="btn ghost small" onclick="deleteStudy(${s.id})" style="color:var(--bad)">Excluir</button></td></tr>`).join('')}</tbody></table>`;};
+  window.loadStudy=(id)=>{const s=state.studies.find(x=>x.id===id);if(s){state.currentStudy=JSON.parse(JSON.stringify(s));timer={start:0,running:false,interval:null,elapsed:0,lastMark:0,currentElementIdx:0,cycleCount:1};saveData();renderStudyInfo();renderElements();goToTab('study');showToast('Estudo carregado!','success');}};
   window.deleteStudy=(id)=>{if(confirm('Excluir estudo?')){state.studies=state.studies.filter(s=>s.id!==id);saveData();renderHistory();}};
 
-  const startTimer=()=>{if(timer.running)return;timer.start=Date.now()-timer.elapsed;timer.running=true;timer.interval=setInterval(()=>{timer.elapsed=Date.now()-timer.start;document.getElementById('timer-display').textContent=fmtTime(timer.elapsed);},50);};
-  const stopTimer=()=>{if(!timer.running)return;clearInterval(timer.interval);timer.running=false;};
-  const resetTimer=()=>{stopTimer();timer.elapsed=0;document.getElementById('timer-display').textContent='00:00.00';};
-  const captureTime=()=>{if(!state.currentStudy)return showToast('Crie um estudo primeiro!','error');const sec=(timer.elapsed/1000).toFixed(2);state.currentStudy.steps.push({description:`Etapa ${state.currentStudy.steps.length+1}`,time:sec,tmu:Math.round(sec*27.78),classification:''});saveData();renderSteps();resetTimer();showToast('Tempo capturado!','success');};
-
+  // ---------- VIEWS ----------
   const createViewsHTML=()=>`
     <div id="study" class="tab-content">
-      <section><h2>Estudo de Tempo</h2>
-        <div style="display:flex;gap:10px;margin-bottom:12px;flex-wrap:wrap;">
+      <section>
+        <h2>Estudo de Tempo</h2>
+        <div class="section-actions">
           <button class="btn primary" onclick="document.dispatchEvent(new CustomEvent('newStudy'))">+ Novo Estudo</button>
           <button class="btn ghost" onclick="document.dispatchEvent(new CustomEvent('saveStudy'))">💾 Salvar</button>
-          <input type="file" id="video-input" accept="video/*" style="display:none">
-          <button class="btn ghost" onclick="document.getElementById('video-input').click()">📹 Carregar Vídeo</button>
         </div>
-        <div class="grid" style="grid-template-columns:repeat(4,1fr);">
-          <div class="field"><label>Nome do Estudo</label><input id="study_name" onchange="state.currentStudy&&(state.currentStudy.name=this.value);saveData&&saveData();"></div>
+        <div class="grid">
+          <div class="field"><label>Nome do Estudo</label><input id="study_name" onchange="state.currentStudy&&(state.currentStudy.name=this.value)"></div>
           <div class="field"><label>Operador</label><input id="study_operator"></div>
           <div class="field"><label>Operação</label><input id="study_operation"></div>
           <div class="field"><label>Data</label><input id="study_date" type="date"></div>
+          <div class="field"><label>Empresa/Cliente</label><input id="study_empresa"></div>
+          <div class="field"><label>Setor/Departamento</label><input id="study_setor"></div>
         </div>
+        <div class="field" style="margin-top:10px;max-width:280px;"><label>Tolerância global (%)</label><input id="study_tolerancia" type="number" onchange="state.currentStudy&&(state.currentStudy.tolerancia=parseFloat(this.value)||15)"></div>
+        <p class="dim" style="margin-top:8px;">Os campos de Empresa, Setor, Responsável e Tolerância padrão vêm automaticamente da aba <b>Configurações</b> ao criar um Novo Estudo — mas podem ser ajustados aqui individualmente.</p>
       </section>
-      <section><h4>Vídeo</h4>
-        <div class="video-wrapper"><video id="video-player" controls></video></div>
-      </section>
-      <section><h4>Cronômetro</h4>
-        <div class="timer-display" id="timer-display">00:00.00</div>
-        <div class="timer-controls">
-          <button class="btn primary" id="btn-timer-start">▶ Iniciar</button>
-          <button class="btn ghost" id="btn-timer-stop">⏸ Pausar</button>
-          <button class="btn ghost" id="btn-timer-reset">⟳ Zerar</button>
-          <button class="btn primary" id="btn-timer-capture">✓ Capturar Etapa</button>
+      <div class="study-live-row">
+        <div class="video-col">
+          <section style="margin:0;">
+            <h4>Vídeo da Operação</h4>
+            <div class="video-wrapper" id="video-wrapper"><div class="video-empty">Nenhum vídeo carregado.<br>Envie um arquivo ou cole um link abaixo.</div></div>
+            <div class="field" style="margin-top:8px;"><label>Upload de arquivo de vídeo</label><input type="file" id="video-input" accept="video/*"></div>
+            <div class="field"><label>Ou link do vídeo (YouTube, Vimeo ou .mp4 direto)</label>
+              <div class="link-row"><input id="study_video_link" placeholder="https://..."><button class="btn primary" onclick="loadVideoLink()">Carregar</button></div>
+            </div>
+            <p class="dim" style="margin-top:6px;">Ao final de um vídeo enviado por upload ou link direto, o cronômetro <b>pausa automaticamente</b> e o sistema muda para a aba "Análise".</p>
+          </section>
         </div>
+        <div class="timer-col">
+          <section style="margin:0;">
+            <h4>Cronômetro Contínuo — repetição automática de ciclos</h4>
+            <p class="dim">Fluxo semi-automático: ao clicar "▶ Iniciar", o cronômetro começa <b>e o vídeo dá play junto</b>. A cada clique em "Marcar Ciclo", o sistema registra o tempo do elemento atual e avança sozinho para o próximo. Quando o vídeo terminar, o cronômetro <b>pausa sozinho</b>.</p>
+            <div class="timer-display" id="timer-display">00:00.00</div>
+            <div class="timer-controls">
+              <button class="btn primary" id="btn-timer-start">▶ Iniciar</button>
+              <button class="btn ghost" id="btn-timer-stop">⏸ Pausar</button>
+              <button class="btn ghost" id="btn-timer-reset">⟳ Zerar Tudo</button>
+            </div>
+            <div id="lap-status" class="lap-status"></div>
+            <div class="grid-2">
+              <div class="field"><label>Elemento sendo cronometrado agora</label><select id="target-element-select" onchange="onTargetElementChange()"></select></div>
+              <div class="field"><label>&nbsp;</label><button class="btn primary big" onclick="markLap()">✓ Marcar Ciclo e Avançar</button></div>
+            </div>
+            <button class="btn ghost small" style="margin-top:10px;" onclick="quickAddElement()">+ Criar Elemento Rápido</button>
+          </section>
+        </div>
+      </div>
+      <section>
+        <h4>📊 Resumo Automático dos Ciclos</h4>
+        <p class="dim">Atualizado automaticamente a cada ciclo marcado — mostra quantos ciclos completos já foram feitos e o tempo de cada um.</p>
+        <div id="cycle-summary"></div>
       </section>
     </div>
-    <div id="steps" class="tab-content hidden">
-      <section><div style="display:flex;justify-content:space-between;align-items:center;"><h2>Etapas / Elementos</h2><button class="btn primary" id="btn-add-step">+ Nova Etapa</button></div>
-        <div id="steps-list" style="margin-top:16px;"></div>
+
+    <div id="config" class="tab-content hidden">
+      <section>
+        <h2>Configurações — Dados Padrão</h2>
+        <p class="dim">Estes dados são aplicados automaticamente sempre que você criar um "Novo Estudo". Alterá-los aqui não muda estudos já existentes.</p>
+        <div class="grid">
+          <div class="field"><label>Empresa/Cliente</label><input id="cfg_empresa"></div>
+          <div class="field"><label>Setor/Departamento</label><input id="cfg_setor"></div>
+          <div class="field"><label>Responsável Técnico</label><input id="cfg_responsavel"></div>
+          <div class="field"><label>Tolerância padrão (%)</label><input id="cfg_tolerancia" type="number"></div>
+        </div>
+      </section>
+      <section>
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:8px;">
+          <h2 style="margin:0;">Tabela Base de Etapas (Modelo Reutilizável)</h2>
+          <button class="btn primary" id="btn-add-base-element">+ Nova Etapa no Modelo</button>
+        </div>
+        <p class="dim">Monte aqui a sequência padrão de etapas (elementos) de uma operação típica. Depois, em qualquer estudo, use "Aplicar Tabela Base" na aba Elementos para carregar essas etapas de uma vez, sem precisar redigitar tudo.</p>
+        <div id="base-elements-list" style="margin-top:12px;overflow:auto;"></div>
       </section>
     </div>
+
+    <div id="elements" class="tab-content hidden">
+      <section>
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:8px;"><h2 style="margin:0;">Elementos de Trabalho (Decomposição / Therbligs)</h2><div style="display:flex;gap:8px;flex-wrap:wrap;"><button class="btn ghost" onclick="applyBaseElements()">📥 Aplicar Tabela Base</button><button class="btn primary" id="btn-add-element">+ Novo Elemento</button></div></div>
+        <p class="dim">Divida a operação em micro-operações. Classifique cada uma pelos Therbligs e registre os ciclos observados — os ciclos capturados no cronômetro contínuo aparecem aqui automaticamente.</p>
+        <div id="elements-list" style="margin-top:12px;"></div>
+      </section>
+    </div>
+
     <div id="analysis" class="tab-content hidden">
       <section><h2>Análise do Estudo</h2><div id="analysis-content"></div></section>
     </div>
+
+    <div id="improvements" class="tab-content hidden">
+      <section>
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:8px;"><h2 style="margin:0;">Melhoria Contínua</h2><button class="btn primary" onclick="autoSuggest()">✨ Gerar Sugestões a partir dos Desperdícios</button></div>
+        <h4>Propostas de Redução de Tempo/Movimento</h4>
+        <div class="link-row"><input id="melhoria-input" placeholder="Descreva uma proposta de melhoria"><button class="btn ghost" onclick="addMelhoria()">+ Adicionar</button></div>
+        <div id="melhorias-list" style="margin-top:10px;"></div>
+        <hr class="sep">
+        <h4>Layout do Posto / Poka-Yoke</h4>
+        <div class="link-row"><input id="layout-input" placeholder="Descreva uma adequação de layout ou dispositivo"><button class="btn ghost" onclick="addLayout()">+ Adicionar</button></div>
+        <div id="layout-list" style="margin-top:10px;"></div>
+      </section>
+    </div>
+
+    <div id="it" class="tab-content hidden">
+      <section>
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:8px;"><h2 style="margin:0;">Draft da Instrução de Trabalho</h2><button class="btn primary hidden-print" onclick="window.print()">🖨 Exportar IT em PDF</button></div>
+        <div class="grid-3">
+          <div class="field"><label>Estudo / Operação</label><input id="it_name" disabled></div>
+          <div class="field"><label>Operação</label><input id="it_operation" disabled></div>
+          <div class="field"><label>Revisão</label><input id="it_revisao" onchange="state.currentStudy&&(state.currentStudy.revisao=this.value)"></div>
+        </div>
+        <div id="it-content" style="margin-top:14px;"></div>
+      </section>
+    </div>
+
     <div id="history" class="tab-content hidden">
       <section><h2>Histórico de Estudos</h2><div id="history-list" style="overflow:auto"></div></section>
     </div>
+
     <div id="help" class="tab-content hidden">
-      <section><h2>Guia Rápido - Cronoanálise MTM</h2>
-        <h4>O que é MTM?</h4>
-        <p>Methods Time Measurement — sistema que decompõe operações em movimentos básicos e atribui tempos pré-determinados (TMU = 0.036s).</p>
-        <h4>Fluxo:</h4>
+      <section>
+        <h2>Guia Rápido — EQPS Cronoanálise</h2>
+        <h4>Metodologia</h4>
+        <p>O EQPS aplica Engenharia de Métodos, Cronoanálise e Lean Manufacturing sobre a atividade registrada em vídeo (upload ou link), decompondo-a em elementos de trabalho classificados pelos <b>Therbligs</b> (movimentos produtivos e improdutivos).</p>
+        <h4>Fórmulas</h4>
+        <p><b>TM</b> (Tempo Médio) = média dos ciclos observados.<br><b>TN</b> (Tempo Normal) = TM × (Ritmo / 100).<br><b>TP</b> (Tempo Padrão) = TN × (1 + Tolerância / 100). Tolerância padrão sugerida: 15%.</p>
+        <h4>Análise automática de ciclos</h4>
+        <p>Toda vez que você marca um ciclo, o sistema recalcula sozinho quantos <b>ciclos de produção completos</b> já foram feitos (uma volta inteira por todos os elementos) e o tempo total de cada um — isso aparece ao vivo na aba "Estudo de Tempo" e de forma completa na aba "Análise". O fluxo é semi-automático: ao clicar "▶ Iniciar" o vídeo dá play junto com o cronômetro; quando o vídeo (upload ou link direto) termina, o cronômetro pausa sozinho e o sistema muda automaticamente para a aba "Análise" com o resultado. <span class="dim">(Vídeos incorporados do YouTube/Vimeo não expõem esse controle — nesses casos, use os botões Iniciar/Pausar manualmente.)</span></p>
+        <h4>Fluxo de uso</h4>
         <ol>
-          <li>Crie um Novo Estudo</li>
-          <li>Carregue um vídeo da operação (opcional)</li>
-          <li>Use o cronômetro para capturar cada etapa</li>
-          <li>Ajuste descrições, tempos e classificações MTM em "Etapas"</li>
-          <li>Veja análise consolidada em "Análise"</li>
-          <li>Salve para acessar no Histórico</li>
+          <li>Em "Configurações", cadastre os dados padrão (Empresa, Setor, Responsável, Tolerância) e, se quiser, monte a Tabela Base de Etapas — um modelo reutilizável para operações parecidas.</li>
+          <li>Crie um Novo Estudo (os dados padrão já vêm preenchidos automaticamente).</li>
+          <li>Carregue o vídeo por upload ou link.</li>
+          <li>Na aba Elementos, use "Aplicar Tabela Base" para trazer o modelo de etapas de uma vez, ou cadastre manualmente.</li>
+          <li>Use o cronômetro contínuo para marcar os ciclos assistindo ao vídeo.</li>
+          <li>Classifique cada elemento (Therblig) e marque os desperdícios (Muda) observados.</li>
+          <li>Veja o diagnóstico automático em "Análise" (ciclos, gargalo, Pareto, % produtivo).</li>
+          <li>Gere sugestões de melhoria e layout/poka-yoke em "Melhoria Contínua".</li>
+          <li>Revise o draft automático da Instrução de Trabalho.</li>
+          <li>Ao finalizar, exporte o relatório completo em <b>Excel</b> (tabelas editáveis, uma aba por seção) ou em <b>PDF</b>.</li>
+          <li>Salve para acessar no Histórico a qualquer momento.</li>
         </ol>
+        <p class="dim">Observação: os dados ficam salvos localmente no navegador (localStorage). Use "Baixar Backup" para preservar seus estudos.</p>
       </section>
     </div>`;
+
+  // ---------- EXPORTAÇÃO EXCEL (.xlsx tabelado e editável) ----------
+  const exportExcel=()=>{
+    if(!state.currentStudy)return showToast('Nenhum estudo carregado.','error');
+    if(typeof XLSX==='undefined')return showToast('Biblioteca de Excel não carregou (verifique conexão com a internet) — tente novamente.','error');
+    const s=state.currentStudy;
+    const tol=s.tolerancia??15;
+    const wb=XLSX.utils.book_new();
+
+    // Aba 1: Dados do Estudo
+    const infoRows=[
+      ['EQPS System Quality — Relatório de Cronoanálise'],[],
+      ['Nome do Estudo',s.name||''],
+      ['Empresa/Cliente',s.empresa||''],
+      ['Setor/Departamento',s.setor||''],
+      ['Operação',s.operation||''],
+      ['Operador',s.operator||''],
+      ['Data',s.date||''],
+      ['Revisão',s.revisao||''],
+      ['Tolerância Global (%)',tol],
+      ['Data de Exportação',new Date().toLocaleString('pt-BR')]
+    ];
+    const wsInfo=XLSX.utils.aoa_to_sheet(infoRows);
+    wsInfo['!cols']=[{wch:24},{wch:40}];
+    XLSX.utils.book_append_sheet(wb,wsInfo,'Dados do Estudo');
+
+    // Aba 2: Tabela de Cronoanálise (Elementos)
+    const elHeader=['#','Ação','Ponto-Chave','Therblig','Tipo','Nº Ciclos','Ciclos (s)','TM (s)','Ritmo (%)','TN (s)','Tolerância (%)','TP (s)','% do Total','Desperdícios (Muda)'];
+    const elsCalc=s.elements.map((el,i)=>({i,el,TM:stepTM(el),TN:stepTN(el),TP:stepTP(el,tol),tipo:therbligTipo(el.therblig)}));
+    const TPtotal=elsCalc.reduce((a,e)=>a+e.TP,0);
+    const elRows=[elHeader,...elsCalc.map(e=>[e.i+1,e.el.acao||'',e.el.pontoChave||'',e.el.therblig||'',e.tipo,(e.el.ciclos||[]).length,(e.el.ciclos||[]).join(', '),+e.TM.toFixed(2),e.el.ritmo??100,+e.TN.toFixed(2),tol,+e.TP.toFixed(2),TPtotal>0?+((e.TP/TPtotal)*100).toFixed(1):0,(e.el.desperdicios||[]).join(', ')])];
+    const wsEls=XLSX.utils.aoa_to_sheet(elRows);
+    wsEls['!cols']=[{wch:4},{wch:34},{wch:34},{wch:16},{wch:12},{wch:10},{wch:18},{wch:9},{wch:10},{wch:9},{wch:12},{wch:9},{wch:10},{wch:28}];
+    XLSX.utils.book_append_sheet(wb,wsEls,'Elementos');
+
+    // Aba 3: Ciclos de Produção Completos
+    const cs=computeCycleSummary(s);
+    const cycHeader=['Ciclo','Tempo Total (s)'];
+    const cycRows=[cycHeader,...cs.cycles.map(c=>[c.n,c.total])];
+    if(cs.count)cycRows.push([],['Tempo Médio por Ciclo (s)',+cs.avg.toFixed(2)]);
+    const wsCyc=XLSX.utils.aoa_to_sheet(cycRows);
+    wsCyc['!cols']=[{wch:12},{wch:16}];
+    XLSX.utils.book_append_sheet(wb,wsCyc,'Ciclos');
+
+    // Aba 4: Melhorias e Layout
+    const impRows=[['Propostas de Melhoria (Redução de Tempo/Movimento)'],...(s.melhorias||[]).map(m=>[m]),[],['Layout do Posto / Poka-Yoke'],...(s.layout||[]).map(m=>[m])];
+    const wsImp=XLSX.utils.aoa_to_sheet(impRows);
+    wsImp['!cols']=[{wch:70}];
+    XLSX.utils.book_append_sheet(wb,wsImp,'Melhoria Contínua');
+
+    // Aba 5: Instrução de Trabalho
+    const itHeader=['Passo','Ação','Ponto-Chave','Tempo Esperado (s)'];
+    const itRows=[itHeader,...elsCalc.map(e=>[e.i+1,e.el.acao||'',e.el.pontoChave||'',+e.TP.toFixed(2)])];
+    const wsIT=XLSX.utils.aoa_to_sheet(itRows);
+    wsIT['!cols']=[{wch:8},{wch:40},{wch:40},{wch:18}];
+    XLSX.utils.book_append_sheet(wb,wsIT,'Instrução de Trabalho');
+
+    const safeName=(s.name||'estudo').replace(/[^a-z0-9]+/gi,'_').slice(0,40);
+    XLSX.writeFile(wb,`EQPS_${safeName}_${new Date().toISOString().slice(0,10)}.xlsx`);
+    showToast('Relatório Excel exportado! Todas as tabelas estão editáveis.','success');
+  };
 
   document.addEventListener('newStudy',newStudy);
   document.addEventListener('saveStudy',saveStudy);
@@ -178,29 +673,21 @@ document.addEventListener('DOMContentLoaded',()=>{
     document.getElementById('btn-timer-start').addEventListener('click',startTimer);
     document.getElementById('btn-timer-stop').addEventListener('click',stopTimer);
     document.getElementById('btn-timer-reset').addEventListener('click',resetTimer);
-    document.getElementById('btn-timer-capture').addEventListener('click',captureTime);
-    document.getElementById('btn-add-step').addEventListener('click',()=>{if(!state.currentStudy)return showToast('Crie um estudo!','error');state.currentStudy.steps.push({description:'',time:0,tmu:0,classification:''});saveData();renderSteps();});
-    document.getElementById('video-input').addEventListener('change',e=>{const f=e.target.files[0];if(f){const url=URL.createObjectURL(f);document.getElementById('video-player').src=url;showToast('Vídeo carregado!','success');}});
-    ['name','operator','operation','date'].forEach(k=>{const el=document.getElementById(`study_${k}`);if(el)el.addEventListener('change',()=>{if(state.currentStudy){state.currentStudy[k]=el.value;saveData();}});});
-    if(!state.currentStudy && state.studies.length===0){
-      const seedStudy={id:Date.now(),name:'Inspeção em Processo — Peças Injetadas (Inspeção Visual + Gabarito Dimensional)',operator:'Equipe de Produção — Turno A',operation:'Injeção / Inspeção',date:new Date().toISOString().slice(0,10),
-        steps:[
-          {description:'Limpeza do molde e conferência de setup antes do ciclo de injeção',time:'8.20',tmu:228,classification:'Preparação'},
-          {description:'Posicionar peça de teste na bancada e aguardar estabilização térmica',time:'6.50',tmu:181,classification:'Setup'},
-          {description:'Aplicar controle dimensional com paquímetro/gabarito na peça de teste',time:'22.40',tmu:622,classification:'Inspeção'},
-          {description:'Checagem visual de rebarba e porosidade (gabarito Aprovado/Tolerável/Reprovado)',time:'3.10',tmu:86,classification:'Inspeção'},
-          {description:'Registrar resultado na Ficha de Setup / Plano de Inspeção (PIT)',time:'5.00',tmu:139,classification:'Registro'}
-        ],videoSrc:null,createdAt:new Date().toISOString()};
-      state.studies.push(seedStudy);
-      state.currentStudy=JSON.parse(JSON.stringify(seedStudy));
-      saveData();
-    }
-    if(!state.currentStudy)newStudy();else{renderStudyInfo();renderSteps();}
+    document.getElementById('btn-add-element').addEventListener('click',()=>{if(!state.currentStudy)return showToast('Crie um estudo!','error');state.currentStudy.elements.push({acao:'',pontoChave:'',therblig:'Alcançar',ciclos:[],ritmo:100,desperdicios:[]});saveData();renderElements();populateElementSelect();});
+    document.getElementById('video-input').addEventListener('change',e=>{const f=e.target.files[0];if(f){setVideoWrapperVideoTag();const url=URL.createObjectURL(f);document.getElementById('video-player').src=url;attachVideoEndedListener();showToast('Vídeo carregado por upload!','success');}});
+    ['name','operator','operation','date','empresa','setor','tolerancia'].forEach(k=>{const el=document.getElementById(`study_${k}`);if(el)el.addEventListener('change',()=>{if(state.currentStudy){state.currentStudy[k]=k==='tolerancia'?(parseFloat(el.value)||15):el.value;saveData();}});});
+    ['empresa','setor','responsavel'].forEach(k=>{const el=document.getElementById(`cfg_${k}`);if(el)el.addEventListener('change',()=>{state.config[k]=el.value;saveData();});});
+    document.getElementById('cfg_tolerancia').addEventListener('change',function(){state.config.toleranciaPadrao=parseFloat(this.value)||15;saveData();});
+    document.getElementById('btn-add-base-element').addEventListener('click',()=>{state.config.baseElements.push({acao:'',pontoChave:'',therblig:'Alcançar',ritmo:100});saveData();renderConfig();});
+
+    if(!state.currentStudy)newStudy();else{renderStudyInfo();renderElements();}
+    if(state.currentStudy&&state.currentStudy.videoLink){const embed=detectEmbed(state.currentStudy.videoLink);if(embed){setVideoWrapperIframe(embed);}else{setVideoWrapperVideoTag();document.getElementById('video-player').src=state.currentStudy.videoLink;attachVideoEndedListener();}}
   };
 
-  document.getElementById('btn-download-backup').addEventListener('click',()=>{const b=new Blob([JSON.stringify(state,null,2)],{type:'application/json'});const l=document.createElement("a");l.href=URL.createObjectURL(b);l.download=`itp_mtm_${new Date().toISOString().slice(0,10)}.json`;l.click();URL.revokeObjectURL(l.href);showToast("Backup baixado!","success");});
-  document.getElementById('btn-restore-backup').addEventListener('click',()=>{const i=document.createElement('input');i.type='file';i.accept='.json';i.onchange=e=>{const r=new FileReader();r.onload=ev=>{if(!confirm('Substituir dados?'))return;try{state=JSON.parse(ev.target.result);saveData();showToast('Restaurado!','success');setTimeout(()=>location.reload(),1000);}catch(err){showToast('Inválido.','error');}};r.readAsText(e.target.files[0]);};i.click();});
-  document.getElementById('btn-archive-and-clear').addEventListener('click',()=>{if(confirm("Baixar backup e APAGAR dados?")){document.getElementById('btn-download-backup').click();localStorage.removeItem(DB_KEY);setTimeout(()=>location.reload(),1500);}});
+  document.getElementById('btn-download-backup').addEventListener('click',()=>{const b=new Blob([JSON.stringify(state,null,2)],{type:'application/json'});const l=document.createElement("a");l.href=URL.createObjectURL(b);l.download=`eqps_mtm_${new Date().toISOString().slice(0,10)}.json`;l.click();URL.revokeObjectURL(l.href);showToast("Backup baixado!","success");});
+  document.getElementById('btn-restore-backup').addEventListener('click',()=>{const i=document.createElement('input');i.type='file';i.accept='.json';i.onchange=e=>{const r=new FileReader();r.onload=ev=>{if(!confirm('Substituir dados atuais?'))return;try{state=JSON.parse(ev.target.result);saveData();showToast('Restaurado!','success');setTimeout(()=>location.reload(),1000);}catch(err){showToast('Arquivo inválido.','error');}};r.readAsText(e.target.files[0]);};i.click();});
+  document.getElementById('btn-archive-and-clear').addEventListener('click',()=>{if(confirm("Baixar backup e APAGAR todos os dados?")){document.getElementById('btn-download-backup').click();localStorage.removeItem(DB_KEY);setTimeout(()=>location.reload(),1500);}});
+  document.getElementById('btn-export-excel').addEventListener('click',exportExcel);
   document.getElementById('btn-export-pdf').addEventListener('click',()=>window.print());
   initApp();
 });

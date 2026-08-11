@@ -1,11 +1,11 @@
 <p align="center">
-  <img src="assets/eqps-logo.png" alt="EQPS logo" width="160">
+  <img src="assets/eqps-logo.png" alt="EPQS SYSTEM logo" width="160">
 </p>
 
-<h1 align="center">EQPS — Engenharia, Processos, Qualidade e Estatística</h1>
+<h1 align="center">EPQS SYSTEM — Engenharia, Processos, Qualidade e Estatística</h1>
 
 <p align="center">
-  Sistema web standalone de gestão da qualidade, produção e meio ambiente — 34 ferramentas + uma mini biblioteca de e-books.<br>
+  Sistema web standalone de gestão da qualidade, produção e meio ambiente — 39 ferramentas + biblioteca de e-books com trilhas de conhecimento.<br>
   Desenvolvido por <strong>Marcos Garçon</strong>.
 </p>
 
@@ -19,7 +19,7 @@
 
 ## Sobre o projeto
 
-O **EQPS** é um sistema 100% front-end (sem backend, sem build step) que reúne **34 ferramentas de Engenharia da Qualidade, Produção e Gestão Ambiental**, todas funcionais, com persistência local via `localStorage`, gráficos, importação/exportação e impressão em PDF pelo próprio navegador.
+O **EPQS SYSTEM** é um sistema 100% front-end (sem backend, sem build step) que reúne **39 ferramentas de Engenharia da Qualidade, Produção, Gestão Ambiental e Módulos de Gestão (Estoque, RH, Engenharia, Logística, Vendas)**, todas funcionais, com persistência local via `localStorage`, gráficos, importação/exportação e impressão em PDF pelo próprio navegador.
 
 O projeto nasceu como um *business case* de qualidade voltado à indústria de injeção plástica e foi evoluindo para um sistema genérico, reaproveitável em qualquer operação industrial ou de serviços.
 
@@ -28,7 +28,7 @@ Inclui também uma **mini biblioteca de e-books** (`biblioteca-ebooks.html`) com
 ## ✨ Principais características
 
 - **Zero dependências de build** — abra `index.html` direto no navegador ou publique via GitHub Pages.
-- **34 ferramentas** de qualidade, produção e meio ambiente (lista completa abaixo).
+- **39 ferramentas** de qualidade, produção, meio ambiente e módulos de gestão (lista completa abaixo).
 - **Persistência local** via `localStorage` — cada ferramenta guarda seus próprios dados no navegador do usuário.
 - **Backup/Restore em JSON**, exportação em PDF (impressão) e, em algumas ferramentas, importação em massa via Excel/CSV.
 - **Painel de Aspectos e Impactos Ambientais**, alinhado à ISO 14001 (cláusulas 6.1.2, 6.1.3 e 6.2).
@@ -40,9 +40,16 @@ Inclui também uma **mini biblioteca de e-books** (`biblioteca-ebooks.html`) com
 .
 ├── index.html                          # Painel principal / hub do sistema
 ├── painel-qualidade.html               # Catálogo/dashboard de ferramentas de qualidade
-├── biblioteca-ebooks.html              # Mini biblioteca de e-books do autor
+├── biblioteca-ebooks.html              # Biblioteca de e-books + Caminho do Saber (trilhas)
+├── Business-case-IATF.html             # Business Case IATF 16949 (apresentação em slides)
 ├── aspectos-impactos-ambientais.html   # Ferramenta ISO 14001 (Aspectos e Impactos Ambientais)
-├── [demais 32 ferramentas].html
+├── estoque.html                        # Módulo de Estoque (itens, movimentações, fornecedores)
+├── rh.html                             # Módulo de RH (colaboradores, departamentos, avaliações)
+├── engenharia.html                     # Módulo de Engenharia (projetos, desenhos, ECNs)
+├── logistica.html                      # Módulo de Logística (compras, recebimentos, expedição)
+├── vendas.html                         # Módulo de Vendas (clientes, propostas, pedidos)
+├── [demais 29 ferramentas].html
+├── IATF/                               # Material de estudo da trilha IATF 16949 (PDFs, planilhas, vídeos, áudio)
 ├── assets/
 │   ├── eqps-logo.svg / .png            # Logo (versão ícone)
 │   └── eqps-logo-horizontal.svg / .png # Logo (versão horizontal / wordmark)
@@ -68,7 +75,9 @@ Inclui também uma **mini biblioteca de e-books** (`biblioteca-ebooks.html`) com
 | **Produção / Processo** | Cronoanálise MTM, SMED, 5S, Kaizen, Controle de Injeção, Controle de Estamparia, Controle de Sucata, Mapeamento de Processos, VSM |
 | **Governança de Projeto** | APQP, PPAP, DMAIC, Relatório A3, Análise SWOT, Gap Analysis, Matriz GUT, Matriz Esforço × Impacto, Planejamento |
 | **Gestão / Painéis** | Painel da Qualidade, Treinamentos, Gestão de Manutenção |
+| **Módulos de Gestão** | Estoque, RH, Engenharia, Logística, Vendas |
 | **Ambiental (ISO 14001)** | Aspectos e Impactos Ambientais |
+| **Business Cases** | Business Case (Injeção Plástica), Business Case IATF 16949 |
 
 ## 🚀 Como usar
 
@@ -84,9 +93,11 @@ cd Eng-Process-Quality-and-Statistics
 2. Em **Source**, selecione a branch `main` e a pasta `/ (root)`.
 3. Salve — o site ficará disponível em `https://eqps-system.github.io/Eng-Process-Quality-and-Statistics/`.
 
-## 📚 Biblioteca de E-books
+## 📚 Biblioteca de E-books & Caminho do Saber
 
 A `biblioteca-ebooks.html` reúne 9 e-books técnicos do autor (Carreira, Excelência Operacional, Comportamento e Liderança, Compliance e RH, Saúde Mental) mais um livro bônus, todos com download direto em PDF.
+
+Além dos e-books, a página tem a seção **🧭 Caminho do Saber**: trilhas de estudo por tema, cada uma reunindo PDFs, planilhas, vídeos e áudios sobre um assunto específico. A primeira trilha é **IATF 16949**, com o material completo da pasta `IATF/` (business case, e-books técnicos, planilhas de requisitos, guia de certificação, mapa da norma, vídeos e áudio). Novas trilhas são adicionadas apenas incluindo um novo item no array `TRILHAS` dentro do próprio `biblioteca-ebooks.html`.
 
 > Os textos dos e-books e do livro bônus são de autoria de Marcos Garçon e têm direitos reservados — ver seção de licença abaixo.
 

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>EQPS — Biblioteca de E-books | Marcos Garçon</title>
+  <title>EPQS SYSTEM — Painel Principal | Marcos Garçon</title>
   <style>
     :root{
       --bg:#08111f;
@@ -159,7 +159,7 @@
       #toolView{display:none !important}
     }
 
-    /* ===== Painel Central (shell no padrão EQPS) ===== */
+    /* ===== Painel Central (shell no padrão EPQS SYSTEM) ===== */
     body.app{margin:0;display:grid;grid-template-columns:280px 1fr;grid-template-rows:auto 1fr;height:100vh;background:var(--bg);}
     .sidebar{grid-row:2;grid-column:1;background:#0f1e36;border-right:1px solid #1e2f4d;padding:20px;
       display:flex;flex-direction:column;gap:18px;overflow-y:auto;}
@@ -209,16 +209,16 @@
         <polygon points="256,20 452,138 452,374 256,492 60,374 60,138" fill="url(#hdrBgG)" stroke="url(#hdrRG)" stroke-width="18"/>
         <polyline points="128,300 190,255 240,290 300,210 372,168" fill="none" stroke="url(#hdrGG)" stroke-width="16" stroke-linecap="round" stroke-linejoin="round"/>
         <circle cx="372" cy="168" r="15" fill="#86efac"/>
-        <text x="256" y="345" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-weight="800" font-size="105" fill="#ffffff">EQPS</text>
+        <text x="256" y="345" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-weight="800" font-size="105" fill="#ffffff">EPQS</text>
       </svg>
       <div>
-        <strong>EQPS</strong>
+        <strong>EPQS SYSTEM</strong>
         <span>Business Case de Qualidade — Perfil Campeão · Painel Central</span>
       </div>
     </div>
     <div class="actions">
       <a class="btn light" href="#" onclick="window.print();return false;">Exportar PDF</a>
-      <a class="btn secondary" href="biblioteca-ebooks.html" target="_blank" rel="noopener">📚 Biblioteca de E-books</a>
+      <a class="btn secondary" href="#" onclick="openTool('biblioteca-ebooks.html');return false;">📚 Biblioteca de E-books</a>
       <a class="btn secondary" href="#" onclick="showPainel();location.hash='bc-summary';return false;">Painel de Acompanhamento</a>
       <a class="btn primary" href="#" onclick="showPainel();location.hash='edicao';return false;">Editar conteúdo</a>
     </div>
@@ -227,8 +227,9 @@
   <div class="sidebar">
     <div class="menu">
       <a href="#" class="menu-item active" id="btn-painel" onclick="showPainel();return false;">🏠 Painel Principal</a>
-      <a href="#" class="menu-item" onclick="showPainel();location.hash='slides';return false;">📘 Business Case</a>
-      <a href="biblioteca-ebooks.html" class="menu-item" target="_blank" rel="noopener">📚 Biblioteca de E-books</a>
+      <a href="#" class="menu-item" onclick="showPainel();location.hash='slides';return false;">📘 Business Case (Injeção Plástica)</a>
+      <a href="#" class="menu-item" onclick="openTool('Business-case-IATF.html', this);return false;">🏭 Business Case IATF 16949</a>
+      <a href="#" class="menu-item" onclick="openTool('biblioteca-ebooks.html', this);return false;">📚 Biblioteca de E-books</a>
       <a href="#" class="menu-item" onclick="showPainel();location.hash='bc-summary';return false;">📈 Acompanhamento</a>
       <a href="#" class="menu-item" onclick="showPainel();location.hash='edicao';return false;">✏️ Editar dados</a>
     </div>
@@ -268,6 +269,14 @@
       <a class="menu-item" href="#" onclick="openTool('treinamento.html', this);return false;">🎓 Treinamentos</a>
       <a class="menu-item" href="#" onclick="openTool('manutencao.html', this);return false;">🛠️ Gestão de Manutenção</a>
     </div>
+    <div class="menu-divider">Módulos EPQS SYSTEM</div>
+    <div class="menu">
+      <a class="menu-item" href="#" onclick="openTool('estoque.html', this);return false;">📦 Estoque</a>
+      <a class="menu-item" href="#" onclick="openTool('rh.html', this);return false;">👥 RH</a>
+      <a class="menu-item" href="#" onclick="openTool('engenharia.html', this);return false;">📐 Engenharia</a>
+      <a class="menu-item" href="#" onclick="openTool('logistica.html', this);return false;">🚚 Logística</a>
+      <a class="menu-item" href="#" onclick="openTool('vendas.html', this);return false;">💹 Vendas</a>
+    </div>
     <div class="menu-divider">Ambiental · ISO 14001</div>
     <div class="menu">
       <a class="menu-item" href="#" onclick="openTool('aspectos-impactos-ambientais.html', this);return false;">🌱 Aspectos e Impactos Ambientais</a>
@@ -295,7 +304,7 @@
       </div>
       <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:16px">
         <a class="btn primary" href="#slides">Ver business case completo</a>
-        <a class="btn secondary" href="biblioteca-ebooks.html" target="_blank" rel="noopener">📚 Abrir Biblioteca de E-books</a>
+        <a class="btn secondary" href="#" onclick="openTool('biblioteca-ebooks.html');return false;">📚 Abrir Biblioteca de E-books</a>
         <a class="btn secondary" href="#bc-summary">Abrir painel de acompanhamento</a>
       </div>
     </section>
@@ -667,13 +676,13 @@
     <section class="slide">
       <div class="slide-header">
         <div>
-          <h2>9. Ferramentas de apoio do sistema EQPS</h2>
+          <h2>9. Ferramentas de apoio do sistema EPQS SYSTEM</h2>
           <div class="subtitle">Cada etapa deste business case é executada e evidenciada em uma ferramenta digital do sistema.</div>
         </div>
         <div class="slide-no">Slide 09</div>
       </div>
       <p contenteditable="true" class="editable">
-        Este business case não fica só no papel: o sistema EQPS reúne 34 ferramentas de qualidade, produção e gestão ambiental usadas para registrar evidências, medir indicadores e sustentar o plano de ação ao longo do tempo.
+        Este business case não fica só no papel: o sistema EPQS SYSTEM reúne 34 ferramentas de qualidade, produção e gestão ambiental usadas para registrar evidências, medir indicadores e sustentar o plano de ação ao longo do tempo.
       </p>
       <div class="tool-grid">
         <a class="tool-card" href="#" onclick="openTool('root-cause-analysis.html');return false;"><div class="t-name">🔎 RCA / Causa Raiz</div><div class="t-phase">Diagnóstico (etapa 2)</div></a>
@@ -709,6 +718,11 @@
         <a class="tool-card" href="#" onclick="openTool('painel-qualidade.html');return false;"><div class="t-name">📺 Painel da Qualidade</div><div class="t-phase">Indicadores consolidados</div></a>
         <a class="tool-card" href="#" onclick="openTool('treinamento.html');return false;"><div class="t-name">🎓 Treinamentos</div><div class="t-phase">Implantação (etapa 8)</div></a>
         <a class="tool-card" href="#" onclick="openTool('manutencao.html');return false;"><div class="t-name">🛠️ Gestão de Manutenção</div><div class="t-phase">Sustentação (etapa 5)</div></a>
+        <a class="tool-card" href="#" onclick="openTool('estoque.html');return false;"><div class="t-name">📦 Estoque</div><div class="t-phase">Módulo EPQS SYSTEM</div></a>
+        <a class="tool-card" href="#" onclick="openTool('rh.html');return false;"><div class="t-name">👥 RH</div><div class="t-phase">Módulo EPQS SYSTEM</div></a>
+        <a class="tool-card" href="#" onclick="openTool('engenharia.html');return false;"><div class="t-name">📐 Engenharia</div><div class="t-phase">Módulo EPQS SYSTEM</div></a>
+        <a class="tool-card" href="#" onclick="openTool('logistica.html');return false;"><div class="t-name">🚚 Logística</div><div class="t-phase">Módulo EPQS SYSTEM</div></a>
+        <a class="tool-card" href="#" onclick="openTool('vendas.html');return false;"><div class="t-name">💹 Vendas</div><div class="t-phase">Módulo EPQS SYSTEM</div></a>
         <a class="tool-card" href="#" onclick="openTool('aspectos-impactos-ambientais.html');return false;"><div class="t-name">🌱 Aspectos e Impactos Ambientais</div><div class="t-phase">Rumo à ISO 14001 (etapa 10)</div></a>
       </div>
       <div class="footer-note" style="margin-top:14px">Os links acima abrem a ferramenta correspondente diretamente aqui no painel, quando os arquivos estão salvos na mesma pasta deste business case.</div>
@@ -772,7 +786,7 @@
           <div class="subtitle">Progresso das fases, evolução dos indicadores e prazos — atualize conforme o projeto avança.</div>
         </div>
         <div class="slide-no">Slide 11</div>
-      </div>
+      </section>
 
       <div class="summary-strip" id="bc-summary">
         <div class="summary-pill"><div class="s-value" id="bc-avg-progress">0%</div><div class="s-label">Progresso médio do plano</div></div>
@@ -908,123 +922,146 @@
         const phases = {};
         PHASES.forEach(p => phases[p.id] = { progress:0, status:'Não iniciado', prazo:'' });
         const kpis = {};
-        KPIS.forEach(k => kpis[k.id] = k.baseline);
+        KPIS.forEach(k => kpis[k.id] = { current: k.baseline });
         return { phases, kpis };
+      }
+
+      function saveState(state){
+        try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }catch(e){}
       }
 
       let state = loadState();
 
-      function saveState(){
-        try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }catch(e){}
+      function fmtPct(v){ return Math.round(v) + '%'; }
+      function fmtKpi(k, v){
+        if(k.id === 'custonq') return 'R$ ' + v.toLocaleString('pt-BR');
+        return v + k.unit;
       }
 
-      function clamp(n){ return Math.max(0, Math.min(100, n)); }
-
       function renderPhases(){
-        const wrap = document.getElementById('bc-phase-tracker');
-        wrap.innerHTML = PHASES.map(p => {
-          const s = state.phases[p.id] || { progress:0, status:'Não iniciado', prazo:'' };
-          return `
-            <div class="progress-row">
-              <div class="p-label">${p.name}</div>
-              <div class="progress-track"><div class="progress-fill" style="width:${s.progress}%"></div></div>
-              <div class="progress-pct">${s.progress}%</div>
-            </div>
-            <div class="tracker-controls" style="margin:0 0 14px 162px">
-              <input type="range" min="0" max="100" step="5" value="${s.progress}" data-phase="${p.id}" data-field="progress">
-              <select data-phase="${p.id}" data-field="status">
-                <option ${s.status==='Não iniciado'?'selected':''}>Não iniciado</option>
-                <option ${s.status==='Em andamento'?'selected':''}>Em andamento</option>
-                <option ${s.status==='Concluído'?'selected':''}>Concluído</option>
-              </select>
-              <input type="date" data-phase="${p.id}" data-field="prazo" value="${s.prazo}">
-            </div>`;
-        }).join('');
+        const container = document.getElementById('bc-phase-tracker');
+        if(!container) return;
+        container.innerHTML = '';
+        let total = 0;
+        let done = 0;
+        let nextDate = null;
 
-        wrap.querySelectorAll('[data-phase]').forEach(el => {
-          el.addEventListener('input', e => {
-            const id = e.target.dataset.phase, field = e.target.dataset.field;
-            let val = e.target.value;
-            if(field === 'progress') val = parseInt(val, 10);
-            state.phases[id][field] = val;
-            saveState();
-            renderPhases();
-            renderSummary();
+        PHASES.forEach(p => {
+          const st = state.phases[p.id] || { progress:0, status:'Não iniciado', prazo:'' };
+          total += (st.progress || 0);
+          if((st.progress || 0) >= 100) done++;
+          if(st.prazo){
+            const d = new Date(st.prazo);
+            if(!isNaN(d) && (nextDate === null || d < nextDate)) nextDate = d;
+          }
+
+          const row = document.createElement('div');
+          row.className = 'progress-row';
+          row.innerHTML = `
+            <div class="p-label">${p.name}</div>
+            <div class="progress-track"><div class="progress-fill" style="width:${st.progress || 0}%"></div></div>
+            <div class="progress-pct">${st.progress || 0}%</div>
+            <div class="tracker-controls">
+              <input type="range" min="0" max="100" value="${st.progress || 0}" data-phase="${p.id}">
+              <select data-status="${p.id}">
+                <option ${st.status==='Não iniciado'?'selected':''}>Não iniciado</option>
+                <option ${st.status==='Em andamento'?'selected':''}>Em andamento</option>
+                <option ${st.status==='Concluído'?'selected':''}>Concluído</option>
+              </select>
+              <input type="date" value="${st.prazo || ''}" data-prazo="${p.id}">
+            </div>
+          `;
+          container.appendChild(row);
+        });
+
+        const avg = Math.round(total / PHASES.length);
+        document.getElementById('bc-avg-progress').textContent = avg + '%';
+        document.getElementById('dash-avg-progress').textContent = avg + '%';
+        document.getElementById('side-avg-progress').textContent = avg + '%';
+        document.getElementById('bc-phases-done').textContent = done + '/5';
+        document.getElementById('dash-phases-done').textContent = done + '/5';
+        document.getElementById('side-phases-done').textContent = done + '/5';
+
+        if(nextDate){
+          const today = new Date(); today.setHours(0,0,0,0);
+          const diff = Math.ceil((nextDate - today) / (1000*60*60*24));
+          document.getElementById('bc-days-left').textContent = diff + ' dias';
+        }else{
+          document.getElementById('bc-days-left').textContent = '—';
+        }
+
+        container.querySelectorAll('input[type="range"]').forEach(input => {
+          input.addEventListener('input', e => {
+            const id = e.target.dataset.phase;
+            state.phases[id].progress = parseInt(e.target.value);
+            if(state.phases[id].progress === 100) state.phases[id].status = 'Concluído';
+            else if(state.phases[id].progress > 0) state.phases[id].status = 'Em andamento';
+            saveState(state); renderPhases(); renderKpis();
+          });
+        });
+
+        container.querySelectorAll('select').forEach(sel => {
+          sel.addEventListener('change', e => {
+            const id = e.target.dataset.status;
+            state.phases[id].status = e.target.value;
+            if(e.target.value === 'Concluído') state.phases[id].progress = 100;
+            else if(e.target.value === 'Não iniciado') state.phases[id].progress = 0;
+            saveState(state); renderPhases();
+          });
+        });
+
+        container.querySelectorAll('input[type="date"]').forEach(input => {
+          input.addEventListener('change', e => {
+            const id = e.target.dataset.prazo;
+            state.phases[id].prazo = e.target.value;
+            saveState(state); renderPhases();
           });
         });
       }
 
       function renderKpis(){
         const tbody = document.getElementById('bc-kpi-tracker');
-        tbody.innerHTML = KPIS.map(k => {
-          const current = state.kpis[k.id] !== undefined ? state.kpis[k.id] : k.baseline;
-          let pct = k.dir === 'down'
-            ? (k.baseline - current) / (k.baseline - k.meta) * 100
-            : (current - k.baseline) / (k.meta - k.baseline) * 100;
-          pct = clamp(Math.round(pct));
-          return `
-            <tr>
-              <td>${k.name}</td>
-              <td>${k.baseline}${k.unit}</td>
-              <td>${k.meta}${k.unit}</td>
-              <td><input type="number" step="0.1" value="${current}" data-kpi="${k.id}" style="width:90px;border:1px solid var(--line);border-radius:8px;padding:6px 8px;font-family:inherit;"></td>
-              <td>
-                <div class="progress-row" style="margin:0">
-                  <div class="progress-track" style="min-width:80px"><div class="progress-fill" style="width:${pct}%"></div></div>
-                  <div class="progress-pct" style="width:44px">${pct}%</div>
-                </div>
-              </td>
-            </tr>`;
-        }).join('');
+        if(!tbody) return;
+        tbody.innerHTML = '';
 
-        tbody.querySelectorAll('[data-kpi]').forEach(el => {
-          el.addEventListener('input', e => {
+        KPIS.forEach(k => {
+          const cur = (state.kpis[k.id] && state.kpis[k.id].current !== undefined) ? state.kpis[k.id].current : k.baseline;
+          let evolution = '';
+          if(k.dir === 'down'){
+            const pct = ((k.baseline - cur) / (k.baseline - k.meta)) * 100;
+            evolution = Math.max(0, Math.min(100, pct)).toFixed(1) + '% caminho';
+          }else{
+            const pct = ((cur - k.baseline) / (k.meta - k.baseline)) * 100;
+            evolution = Math.max(0, Math.min(100, pct)).toFixed(1) + '% caminho';
+          }
+
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td>${k.name}</td>
+            <td>${fmtKpi(k, k.baseline)}</td>
+            <td>${fmtKpi(k, k.meta)}</td>
+            <td><input type="number" step="any" value="${cur}" data-kpi="${k.id}" style="width:90px;padding:6px;border:1px solid var(--line);border-radius:8px"></td>
+            <td>${evolution}</td>
+          `;
+          tbody.appendChild(tr);
+        });
+
+        tbody.querySelectorAll('input').forEach(input => {
+          input.addEventListener('change', e => {
             const id = e.target.dataset.kpi;
-            state.kpis[id] = parseFloat(e.target.value) || 0;
-            saveState();
-            renderKpis();
-            renderSummary();
+            state.kpis[id] = state.kpis[id] || {};
+            state.kpis[id].current = parseFloat(e.target.value);
+            saveState(state); renderKpis();
+            if(id === 'refugo') document.getElementById('dash-refugo').textContent = state.kpis[id].current + '%';
+            if(id === 'primeirapeca') document.getElementById('dash-primeirapeca').textContent = state.kpis[id].current + '%';
           });
         });
       }
 
-      function renderSummary(){
-        const progresses = PHASES.map(p => state.phases[p.id]?.progress || 0);
-        const avg = Math.round(progresses.reduce((a,b) => a+b, 0) / PHASES.length);
-        document.getElementById('bc-avg-progress').textContent = avg + '%';
-        document.getElementById('dash-avg-progress').textContent = avg + '%';
-        document.getElementById('side-avg-progress').textContent = avg + '%';
-
-        const done = PHASES.filter(p => state.phases[p.id]?.status === 'Concluído').length;
-        document.getElementById('bc-phases-done').textContent = done + '/' + PHASES.length;
-        document.getElementById('dash-phases-done').textContent = done + '/' + PHASES.length;
-        document.getElementById('side-phases-done').textContent = done + '/' + PHASES.length;
-
-        const refugo = state.kpis['refugo'];
-        if(refugo !== undefined) document.getElementById('dash-refugo').textContent = refugo + '%';
-        const pp = state.kpis['primeirapeca'];
-        if(pp !== undefined) document.getElementById('dash-primeirapeca').textContent = pp + '%';
-
-        const today = new Date(); today.setHours(0,0,0,0);
-        const upcoming = PHASES
-          .map(p => state.phases[p.id]?.prazo)
-          .filter(d => d && state.phases[PHASES.find(p=>state.phases[p.id]?.prazo===d)?.id]?.status !== 'Concluído')
-          .map(d => new Date(d + 'T00:00:00'))
-          .filter(d => d >= today)
-          .sort((a,b) => a - b);
-        const daysEl = document.getElementById('bc-days-left');
-        if(upcoming.length){
-          const diff = Math.round((upcoming[0] - today) / 86400000);
-          daysEl.textContent = diff + ' dias';
-        } else {
-          daysEl.textContent = '—';
-        }
-      }
-
       renderPhases();
       renderKpis();
-      renderSummary();
     })();
   </script>
+
 </body>
 </html>

@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EPQS SYSTEM - Logística</title>
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.0.3/src/regular/style.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+
+  :root{--bg:#0a1628;--panel:#0f1e36;--muted:#1a2942;--card:#0d1a2e;--text:#e5e7eb;--accent:#1565c0;--accent2:#4a90d9;--ok:#22c55e;--warn:#f59e0b;--bad:#ef4444;--shadow:0 10px 30px rgba(0,0,0,.45);--radius:16px;}
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:system-ui,Inter,Arial;background:var(--bg);color:var(--text);line-height:1.6;display:grid;grid-template-columns:280px 1fr;grid-template-rows:auto 1fr;height:100vh;}
+  .header{grid-column:1/3;display:flex;align-items:center;justify-content:space-between;padding:16px 20px;background:linear-gradient(135deg,#1565c0,#0d47a1);color:#0a1628;border-bottom:1px solid #2a3a55;position:sticky;top:0;z-index:100;}
+  .header-title h1{font-size:1.5rem;font-weight:700;margin-bottom:4px;}
+  .header-title .subtitle{font-size:.9rem;opacity:.85;}.header-title .dev-credit{font-size:.75rem;opacity:.7;}
+  .header-actions{display:flex;gap:12px;flex-wrap:wrap;}
+  .btn{padding:10px 16px;border:none;border-radius:8px;font-weight:600;cursor:pointer;transition:.2s;display:inline-flex;align-items:center;gap:8px;font-size:14px;min-height:40px;}
+  .btn-primary{background:var(--accent);color:#0a1628;}.btn-primary:hover{background:#0d47a1;transform:translateY(-1px);}
+  .btn-secondary{background:var(--muted);color:var(--text);border:1px solid #2a3a55;}.btn-secondary:hover{background:#3d4f6f;}
+  .btn-success{background:var(--ok);color:#fff;}.btn-danger{background:var(--bad);color:#fff;}.btn-warning{background:var(--warn);color:#0a1628;}
+  .btn-small{padding:6px 12px;font-size:12px;min-height:32px;}
+  .sidebar{background:var(--panel);border-right:1px solid #2a3a55;padding:20px;display:flex;flex-direction:column;gap:24px;overflow-y:auto;}
+  .menu{display:flex;flex-direction:column;gap:8px}
+  .menu-item{display:flex;align-items:center;gap:12px;padding:12px 16px;border-radius:8px;background:var(--muted);color:var(--text);cursor:pointer;transition:.2s;border:1px solid #2a3a55;text-decoration:none;}
+  .menu-item:hover{background:#3d4f6f;border-color:#3d4f6f;}
+  .menu-item.active{background:var(--accent);color:#0a1628;border-color:var(--accent);}
+  .menu-item i{font-size:18px;}
+  .main-content{padding:20px;overflow-y:auto;background:var(--bg);}
+  .section{background:var(--panel);border-radius:12px;padding:24px;margin-bottom:24px;border:1px solid #2a3a55;}
+  .section-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:10px;}
+  .section-title{font-size:1.5rem;font-weight:700;color:var(--accent);display:flex;align-items:center;gap:12px;}
+  .section-subtitle{font-size:1.2rem;font-weight:600;color:var(--accent2);margin-bottom:16px;display:flex;align-items:center;gap:8px;}
+  .form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:16px;margin-bottom:20px;}
+  .form-group{display:flex;flex-direction:column;gap:6px;}
+  .form-label{font-size:14px;font-weight:600;color:#4a90d9;}
+  .form-input,.form-select,.form-textarea{padding:12px;border:1px solid #2a3a55;border-radius:8px;background:var(--muted);color:var(--text);font-size:14px;min-height:44px;}
+  .form-input:focus,.form-select:focus,.form-textarea:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(21,101,192,.1);}
+  .form-textarea{resize:vertical;min-height:100px;}
+  .table-container{max-height:500px;overflow:auto;border-radius:8px;border:1px solid #2a3a55;}
+  .table{width:100%;border-collapse:collapse;}
+  .table th,.table td{padding:12px;text-align:left;border-bottom:1px solid #2a3a55;font-size:14px;}
+  .table th{background:var(--muted);font-weight:600;color:#4a90d9;position:sticky;top:0;z-index:10;}
+  .table tbody tr:hover{background:var(--muted);}
+  .kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:20px;margin-bottom:24px;}
+  .kpi-card{background:var(--muted);border-radius:12px;padding:20px;text-align:center;border:1px solid #2a3a55;}
+  .kpi-card h3{font-size:.9rem;color:var(--accent2);margin-bottom:12px;text-transform:uppercase;}
+  .kpi-value{font-size:2.5rem;font-weight:700;color:var(--accent);margin-bottom:8px;}
+  .kpi-label{font-size:.8rem;color:#94a3b8;}
+  .status-pill{padding:4px 12px;border-radius:20px;font-weight:600;font-size:12px;color:#fff;display:inline-block;}
+  .status-aberta{background:var(--bad);}.status-andamento{background:var(--warn);color:#0a1628;}.status-concluida{background:var(--ok);}.status-cancelada{background:#6b7280;}
+  .modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:1000;backdrop-filter:blur(4px);}
+  .modal.active{display:flex;justify-content:center;align-items:center;padding:20px;}
+  .modal-content{background:var(--panel);border-radius:12px;padding:30px;width:90%;max-width:800px;max-height:90vh;overflow-y:auto;border:1px solid #2a3a55;}
+  .modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;padding-bottom:16px;border-bottom:1px solid #2a3a55;}
+  .modal-title{font-size:1.5rem;font-weight:700;color:var(--accent);}
+  .close-btn{background:none;border:none;color:#94a3b8;font-size:24px;cursor:pointer;padding:8px;border-radius:4px;}
+  .close-btn:hover{color:var(--text);background:var(--muted);}
+  .notification{position:fixed;top:20px;right:20px;padding:16px 20px;border-radius:8px;color:#fff;font-weight:600;z-index:1001;transform:translateX(400px);transition:.3s;min-width:300px;}
+  .notification.show{transform:translateX(0);}
+  .notification.success{background:var(--ok);}.notification.error{background:var(--bad);}.notification.info{background:var(--accent);color:#0a1628;}
+  .hidden{display:none !important;}
+  .stats-container{background:var(--muted);border-radius:8px;padding:16px;margin-bottom:20px;border:1px solid #2a3a55;}
+  .stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:16px;}
+  .stat-item{text-align:center;}.stat-value{font-size:1.5rem;font-weight:700;color:var(--accent);}.stat-label{font-size:.8rem;color:#94a3b8;}
+  .chart-container{background:var(--muted);border-radius:8px;padding:20px;border:1px solid #2a3a55;}
+  @media(max-width:768px){body{grid-template-columns:1fr;grid-template-rows:auto auto 1fr;}.sidebar{grid-row:2;}}
+
+</style>
+</head>
+<body>
+<div class="header">
+  <div class="header-title">
+    <h1>🚚 EPQS SYSTEM · Logística</h1>
+    <p class="subtitle">Pedidos de Compra, Recebimentos e Expedição</p>
+    <p class="dev-credit">Desenvolvido por Marcos Garçon</p>
+  </div>
+  <div class="header-actions">
+    <a class="btn btn-secondary" href="index.html"><i class="ph ph-house"></i> Painel</a>
+    <button class="btn btn-secondary" id="btn-restore-backup"><i class="ph ph-upload"></i> Restaurar</button>
+    <button class="btn btn-secondary" id="btn-download-backup"><i class="ph ph-download"></i> Backup</button>
+    <button class="btn btn-primary" id="btn-export-pdf"><i class="ph ph-file-pdf"></i> PDF</button>
+  </div>
+</div>
+<div class="sidebar">
+  <div class="menu">
+    <a href="#" class="menu-item active" data-tab="dashboard"><i class="ph ph-gauge"></i><span>Dashboard</span></a>
+    <a href="#" class="menu-item" data-tab="pedidosCompra"><i class="ph ph-shopping-cart"></i><span>Pedidos de Compra</span></a><a href="#" class="menu-item" data-tab="recebimentos"><i class="ph ph-package"></i><span>Recebimentos</span></a><a href="#" class="menu-item" data-tab="expedicoes"><i class="ph ph-truck"></i><span>Expedição</span></a>
+  </div>
+</div>
+<div class="main-content">
+  <div class="tab-content" id="tab-dashboard">
+    <div class="section">
+      <div class="section-header"><div class="section-title"><i class="ph ph-gauge"></i> Visão geral — Logística</div></div>
+      <div class="kpi-grid"><div class="kpi-card"><div class="kpi-value" id="kpi-pedidos-abertos">0</div><div class="kpi-label">Pedidos de compra em aberto</div></div><div class="kpi-card"><div class="kpi-value" id="kpi-recebimentos">0</div><div class="kpi-label">Recebimentos registrados</div></div><div class="kpi-card"><div class="kpi-value" id="kpi-expedicoes-programadas">0</div><div class="kpi-label">Expedições programadas</div></div><div class="kpi-card"><div class="kpi-value" id="kpi-expedicoes-total">0</div><div class="kpi-label">Expedições no total</div></div></div>
+    </div>
+  </div>
+  <div class="tab-content hidden" id="tab-pedidosCompra">
+<div class="section">
+  <div class="section-header"><div class="section-title"><i class="ph ph-plus-circle"></i> Pedido de Compra — novo / editar</div></div>
+  <form id="form-pedidosCompra">
+    <input type="hidden" id="id_pedidosCompra">
+    <div class="form-grid"><div class="form-group"><label class="form-label" for="f_pedidosCompra_numero">Número</label><input type="text" id="f_pedidosCompra_numero" class="form-input" required></div><div class="form-group"><label class="form-label" for="f_pedidosCompra_fornecedor">Fornecedor</label><input type="text" id="f_pedidosCompra_fornecedor" class="form-input"></div><div class="form-group"><label class="form-label" for="f_pedidosCompra_item">Item / Descrição</label><input type="text" id="f_pedidosCompra_item" class="form-input"></div><div class="form-group"><label class="form-label" for="f_pedidosCompra_quantidade">Quantidade</label><input type="number" step="any" id="f_pedidosCompra_quantidade" class="form-input"></div><div class="form-group"><label class="form-label" for="f_pedidosCompra_status">Status</label><select id="f_pedidosCompra_status" class="form-select"><option value="">Selecione</option><option value="Aberto">Aberto</option><option value="Aprovado">Aprovado</option><option value="Em Trânsito">Em Trânsito</option><option value="Recebido">Recebido</option><option value="Cancelado">Cancelado</option></select></div><div class="form-group"><label class="form-label" for="f_pedidosCompra_dataPrevista">Data Prevista</label><input type="date" id="f_pedidosCompra_dataPrevista" class="form-input"></div></div>
+    <div style="display:flex;gap:10px;">
+      <button type="submit" class="btn btn-primary"><i class="ph ph-check"></i> Salvar</button>
+      <button type="button" class="btn btn-secondary" id="btn-clear-pedidosCompra"><i class="ph ph-x"></i> Limpar</button>
+    </div>
+  </form>
+</div>
+<div class="section">
+  <div class="section-header"><div class="section-title"><i class="ph ph-table"></i> Pedidos de Compra cadastrados</div></div>
+  <div class="table-container">
+    <table class="table">
+      <thead><tr><th>Número</th><th>Fornecedor</th><th>Item / Descrição</th><th>Quantidade</th><th>Status</th><th>Data Prevista</th><th>Ações</th></tr></thead>
+      <tbody id="tbody-pedidosCompra"></tbody>
+    </table>
+  </div>
+</div></div><div class="tab-content hidden" id="tab-recebimentos">
+<div class="section">
+  <div class="section-header"><div class="section-title"><i class="ph ph-plus-circle"></i> Recebimento — novo / editar</div></div>
+  <form id="form-recebimentos">
+    <input type="hidden" id="id_recebimentos">
+    <div class="form-grid"><div class="form-group"><label class="form-label" for="f_recebimentos_pedido">Pedido de Compra</label><input type="text" id="f_recebimentos_pedido" class="form-input" required></div><div class="form-group"><label class="form-label" for="f_recebimentos_dataRecebimento">Data Recebimento</label><input type="date" id="f_recebimentos_dataRecebimento" class="form-input"></div><div class="form-group"><label class="form-label" for="f_recebimentos_quantidadeRecebida">Quantidade Recebida</label><input type="number" step="any" id="f_recebimentos_quantidadeRecebida" class="form-input"></div><div class="form-group"><label class="form-label" for="f_recebimentos_conferidoPor">Conferido por</label><input type="text" id="f_recebimentos_conferidoPor" class="form-input"></div></div>
+    <div style="display:flex;gap:10px;">
+      <button type="submit" class="btn btn-primary"><i class="ph ph-check"></i> Salvar</button>
+      <button type="button" class="btn btn-secondary" id="btn-clear-recebimentos"><i class="ph ph-x"></i> Limpar</button>
+    </div>
+  </form>
+</div>
+<div class="section">
+  <div class="section-header"><div class="section-title"><i class="ph ph-table"></i> Recebimentos cadastrados</div></div>
+  <div class="table-container">
+    <table class="table">
+      <thead><tr><th>Pedido de Compra</th><th>Data Recebimento</th><th>Quantidade Recebida</th><th>Conferido por</th><th>Ações</th></tr></thead>
+      <tbody id="tbody-recebimentos"></tbody>
+    </table>
+  </div>
+</div></div><div class="tab-content hidden" id="tab-expedicoes">
+<div class="section">
+  <div class="section-header"><div class="section-title"><i class="ph ph-plus-circle"></i> Expedição — novo / editar</div></div>
+  <form id="form-expedicoes">
+    <input type="hidden" id="id_expedicoes">
+    <div class="form-grid"><div class="form-group"><label class="form-label" for="f_expedicoes_pedidoVenda">Pedido de Venda</label><input type="text" id="f_expedicoes_pedidoVenda" class="form-input" required></div><div class="form-group"><label class="form-label" for="f_expedicoes_cliente">Cliente</label><input type="text" id="f_expedicoes_cliente" class="form-input"></div><div class="form-group"><label class="form-label" for="f_expedicoes_data">Data</label><input type="date" id="f_expedicoes_data" class="form-input"></div><div class="form-group"><label class="form-label" for="f_expedicoes_status">Status</label><select id="f_expedicoes_status" class="form-select"><option value="">Selecione</option><option value="Programada">Programada</option><option value="Em Rota">Em Rota</option><option value="Entregue">Entregue</option></select></div></div>
+    <div style="display:flex;gap:10px;">
+      <button type="submit" class="btn btn-primary"><i class="ph ph-check"></i> Salvar</button>
+      <button type="button" class="btn btn-secondary" id="btn-clear-expedicoes"><i class="ph ph-x"></i> Limpar</button>
+    </div>
+  </form>
+</div>
+<div class="section">
+  <div class="section-header"><div class="section-title"><i class="ph ph-table"></i> Expedição cadastrados</div></div>
+  <div class="table-container">
+    <table class="table">
+      <thead><tr><th>Pedido de Venda</th><th>Cliente</th><th>Data</th><th>Status</th><th>Ações</th></tr></thead>
+      <tbody id="tbody-expedicoes"></tbody>
+    </table>
+  </div>
+</div></div>
+</div>
+<script>
+class EPQSModule {
+  constructor() {
+    this.storageKey = "epqs_logistica_v1";
+    this.state = { pedidosCompra: [], recebimentos: [], expedicoes: [] };
+    this.load();
+    this.setupEvents();
+    this.renderAll();
+  }
+  load() {
+    try { const raw = localStorage.getItem(this.storageKey); if (raw) this.state = Object.assign(this.state, JSON.parse(raw)); } catch (e) {}
+  }
+  save() {
+    try { localStorage.setItem(this.storageKey, JSON.stringify(this.state)); } catch (e) { this.notify("Erro ao salvar.", "error"); }
+  }
+  showTab(t) {
+    document.querySelectorAll(".tab-content").forEach(x => x.classList.add("hidden"));
+    document.getElementById(`tab-${t}`)?.classList.remove("hidden");
+    document.querySelectorAll(".menu-item").forEach(x => x.classList.remove("active"));
+    document.querySelector(`[data-tab="${t}"]`)?.classList.add("active");
+    this.renderAll();
+  }
+  notify(m, t = "info") {
+    const n = document.createElement("div");
+    n.className = `notification ${t}`;
+    n.textContent = m;
+    document.body.appendChild(n);
+    setTimeout(() => n.classList.add("show"), 100);
+    setTimeout(() => { n.classList.remove("show"); setTimeout(() => n.remove(), 300); }, 4000);
+  }
+  setupEvents() {
+    document.querySelectorAll(".menu-item").forEach(i => i.addEventListener("click", e => { e.preventDefault(); this.showTab(i.dataset.tab); }));
+    document.getElementById("form-pedidosCompra").addEventListener("submit", ev => this.save_pedidosCompra(ev));
+    document.getElementById("btn-clear-pedidosCompra").addEventListener("click", () => { document.getElementById("form-pedidosCompra").reset(); document.getElementById("id_pedidosCompra").value=""; });
+    document.getElementById("form-recebimentos").addEventListener("submit", ev => this.save_recebimentos(ev));
+    document.getElementById("btn-clear-recebimentos").addEventListener("click", () => { document.getElementById("form-recebimentos").reset(); document.getElementById("id_recebimentos").value=""; });
+    document.getElementById("form-expedicoes").addEventListener("submit", ev => this.save_expedicoes(ev));
+    document.getElementById("btn-clear-expedicoes").addEventListener("click", () => { document.getElementById("form-expedicoes").reset(); document.getElementById("id_expedicoes").value=""; });
+    document.getElementById("btn-download-backup").addEventListener("click", () => {
+      const b = new Blob([JSON.stringify(this.state, null, 2)], { type: "application/json" });
+      const l = document.createElement("a"); l.href = URL.createObjectURL(b);
+      l.download = `epqs_logistica_v1_${new Date().toISOString().slice(0,10)}.json`; l.click();
+      this.notify("Backup baixado!", "success");
+    });
+    document.getElementById("btn-restore-backup").addEventListener("click", () => {
+      const i = document.createElement("input"); i.type = "file"; i.accept = ".json";
+      i.onchange = e => {
+        const r = new FileReader();
+        r.onload = ev => { if (!confirm("Substituir todos os dados deste módulo?")) return;
+          try { this.state = JSON.parse(ev.target.result); this.save(); this.renderAll(); this.notify("Restaurado!", "success"); }
+          catch (err) { this.notify("Arquivo inválido.", "error"); } };
+        r.readAsText(e.target.files[0]);
+      };
+      i.click();
+    });
+    document.getElementById("btn-export-pdf").addEventListener("click", () => window.print());
+  }
+  renderAll() {
+    this.render_pedidosCompra();
+    this.render_recebimentos();
+    this.render_expedicoes();
+    document.getElementById("kpi-pedidos-abertos").textContent = this.state.pedidosCompra.filter(p=>p.status==='Aberto'||p.status==='Aprovado'||p.status==='Em Trânsito').length;
+    document.getElementById("kpi-recebimentos").textContent = this.state.recebimentos.length;
+    document.getElementById("kpi-expedicoes-programadas").textContent = this.state.expedicoes.filter(e=>e.status==='Programada').length;
+    document.getElementById("kpi-expedicoes-total").textContent = this.state.expedicoes.length;
+  }
+  
+  save_pedidosCompra(e){
+    e.preventDefault();
+    const id = document.getElementById("id_pedidosCompra").value;
+    const it = {
+      id: id ? Number(id) : Date.now(),
+      numero: document.getElementById("f_pedidosCompra_numero").value,
+      fornecedor: document.getElementById("f_pedidosCompra_fornecedor").value,
+      item: document.getElementById("f_pedidosCompra_item").value,
+      quantidade: document.getElementById("f_pedidosCompra_quantidade").value,
+      status: document.getElementById("f_pedidosCompra_status").value,
+      dataPrevista: document.getElementById("f_pedidosCompra_dataPrevista").value,
+    };
+    const idx = this.state.pedidosCompra.findIndex(x => x.id == id);
+    if (idx !== -1) this.state.pedidosCompra[idx] = it; else this.state.pedidosCompra.push(it);
+    this.save(); this.renderAll();
+    document.getElementById("form-pedidosCompra").reset();
+    document.getElementById("id_pedidosCompra").value = "";
+    this.notify("Salvo!", "success");
+  }
+  edit_pedidosCompra(id){
+    const it = this.state.pedidosCompra.find(x => x.id == id);
+    if (!it) return;
+    document.getElementById("id_pedidosCompra").value = it.id;
+    document.getElementById("f_pedidosCompra_numero").value = it.numero || "";
+      document.getElementById("f_pedidosCompra_fornecedor").value = it.fornecedor || "";
+      document.getElementById("f_pedidosCompra_item").value = it.item || "";
+      document.getElementById("f_pedidosCompra_quantidade").value = it.quantidade || "";
+      document.getElementById("f_pedidosCompra_status").value = it.status || "";
+      document.getElementById("f_pedidosCompra_dataPrevista").value = it.dataPrevista || "";
+    this.showTab("pedidosCompra");
+  }
+  del_pedidosCompra(id){
+    if (!confirm("Excluir este registro?")) return;
+    this.state.pedidosCompra = this.state.pedidosCompra.filter(x => x.id != id);
+    this.save(); this.renderAll();
+  }
+  render_pedidosCompra(){
+    const tb = document.getElementById("tbody-pedidosCompra");
+    tb.innerHTML = "";
+    this.state.pedidosCompra.forEach(it => {
+      const r = tb.insertRow();
+      r.innerHTML = `<td>${it.numero ?? "-"}</td><td>${it.fornecedor ?? "-"}</td><td>${it.item ?? "-"}</td><td>${it.quantidade ?? "-"}</td><td>${it.status ?? "-"}</td><td>${it.dataPrevista ?? "-"}</td><td>
+        <button class="btn btn-secondary btn-small" onclick="mod.edit_pedidosCompra(${it.id})"><i class="ph ph-pencil"></i></button>
+        <button class="btn btn-danger btn-small" onclick="mod.del_pedidosCompra(${it.id})"><i class="ph ph-trash"></i></button>
+      </td>`;
+    });
+  }
+  save_recebimentos(e){
+    e.preventDefault();
+    const id = document.getElementById("id_recebimentos").value;
+    const it = {
+      id: id ? Number(id) : Date.now(),
+      pedido: document.getElementById("f_recebimentos_pedido").value,
+      dataRecebimento: document.getElementById("f_recebimentos_dataRecebimento").value,
+      quantidadeRecebida: document.getElementById("f_recebimentos_quantidadeRecebida").value,
+      conferidoPor: document.getElementById("f_recebimentos_conferidoPor").value,
+    };
+    const idx = this.state.recebimentos.findIndex(x => x.id == id);
+    if (idx !== -1) this.state.recebimentos[idx] = it; else this.state.recebimentos.push(it);
+    this.save(); this.renderAll();
+    document.getElementById("form-recebimentos").reset();
+    document.getElementById("id_recebimentos").value = "";
+    this.notify("Salvo!", "success");
+  }
+  edit_recebimentos(id){
+    const it = this.state.recebimentos.find(x => x.id == id);
+    if (!it) return;
+    document.getElementById("id_recebimentos").value = it.id;
+    document.getElementById("f_recebimentos_pedido").value = it.pedido || "";
+      document.getElementById("f_recebimentos_dataRecebimento").value = it.dataRecebimento || "";
+      document.getElementById("f_recebimentos_quantidadeRecebida").value = it.quantidadeRecebida || "";
+      document.getElementById("f_recebimentos_conferidoPor").value = it.conferidoPor || "";
+    this.showTab("recebimentos");
+  }
+  del_recebimentos(id){
+    if (!confirm("Excluir este registro?")) return;
+    this.state.recebimentos = this.state.recebimentos.filter(x => x.id != id);
+    this.save(); this.renderAll();
+  }
+  render_recebimentos(){
+    const tb = document.getElementById("tbody-recebimentos");
+    tb.innerHTML = "";
+    this.state.recebimentos.forEach(it => {
+      const r = tb.insertRow();
+      r.innerHTML = `<td>${it.pedido ?? "-"}</td><td>${it.dataRecebimento ?? "-"}</td><td>${it.quantidadeRecebida ?? "-"}</td><td>${it.conferidoPor ?? "-"}</td><td>
+        <button class="btn btn-secondary btn-small" onclick="mod.edit_recebimentos(${it.id})"><i class="ph ph-pencil"></i></button>
+        <button class="btn btn-danger btn-small" onclick="mod.del_recebimentos(${it.id})"><i class="ph ph-trash"></i></button>
+      </td>`;
+    });
+  }
+  save_expedicoes(e){
+    e.preventDefault();
+    const id = document.getElementById("id_expedicoes").value;
+    const it = {
+      id: id ? Number(id) : Date.now(),
+      pedidoVenda: document.getElementById("f_expedicoes_pedidoVenda").value,
+      cliente: document.getElementById("f_expedicoes_cliente").value,
+      data: document.getElementById("f_expedicoes_data").value,
+      status: document.getElementById("f_expedicoes_status").value,
+    };
+    const idx = this.state.expedicoes.findIndex(x => x.id == id);
+    if (idx !== -1) this.state.expedicoes[idx] = it; else this.state.expedicoes.push(it);
+    this.save(); this.renderAll();
+    document.getElementById("form-expedicoes").reset();
+    document.getElementById("id_expedicoes").value = "";
+    this.notify("Salvo!", "success");
+  }
+  edit_expedicoes(id){
+    const it = this.state.expedicoes.find(x => x.id == id);
+    if (!it) return;
+    document.getElementById("id_expedicoes").value = it.id;
+    document.getElementById("f_expedicoes_pedidoVenda").value = it.pedidoVenda || "";
+      document.getElementById("f_expedicoes_cliente").value = it.cliente || "";
+      document.getElementById("f_expedicoes_data").value = it.data || "";
+      document.getElementById("f_expedicoes_status").value = it.status || "";
+    this.showTab("expedicoes");
+  }
+  del_expedicoes(id){
+    if (!confirm("Excluir este registro?")) return;
+    this.state.expedicoes = this.state.expedicoes.filter(x => x.id != id);
+    this.save(); this.renderAll();
+  }
+  render_expedicoes(){
+    const tb = document.getElementById("tbody-expedicoes");
+    tb.innerHTML = "";
+    this.state.expedicoes.forEach(it => {
+      const r = tb.insertRow();
+      r.innerHTML = `<td>${it.pedidoVenda ?? "-"}</td><td>${it.cliente ?? "-"}</td><td>${it.data ?? "-"}</td><td>${it.status ?? "-"}</td><td>
+        <button class="btn btn-secondary btn-small" onclick="mod.edit_expedicoes(${it.id})"><i class="ph ph-pencil"></i></button>
+        <button class="btn btn-danger btn-small" onclick="mod.del_expedicoes(${it.id})"><i class="ph ph-trash"></i></button>
+      </td>`;
+    });
+  }
+}
+const mod = new EPQSModule();
+</script>
+</body>
+</html>

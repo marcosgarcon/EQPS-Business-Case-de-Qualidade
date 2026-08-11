@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>EQPS - Relatórios A3</title>
+<title>EPQS SYSTEM - Relatórios A3</title>
 <script src="https://unpkg.com/@phosphor-icons/web"></script>
 <style>
 :root{--bg:#0a1628;--panel:#0f1e36;--muted:#1a2942;--card:#0d1a2e;--text:#e5e7eb;--accent:#ff7a1a;--accent2:#ffa552;--ok:#22c55e;--warn:#f59e0b;--bad:#ef4444;--shadow:0 10px 30px rgba(0,0,0,.45);--radius:16px;}
@@ -43,7 +43,7 @@ table{width:100%;border-collapse:collapse;}th,td{padding:10px 12px;border-bottom
 <body>
 <div id="toast-container" class="toast-container"></div>
 <header>
-  <div class="header-title"><h1>🛡️ EQPS</h1><p class="subtitle">Gerenciador de Relatórios A3</p><p class="dev-credit">Desenvolvido por Marcos Garçon</p></div>
+  <div class="header-title"><h1>🛡️ EPQS SYSTEM</h1><p class="subtitle">Gerenciador de Relatórios A3</p><p class="dev-credit">Desenvolvido por Marcos Garçon</p></div>
   <div style="display:flex;gap:8px;flex-wrap:wrap;">
     <button class="btn ghost" id="btn-restore-backup">Restaurar</button>
     <button class="btn ghost" id="btn-download-backup">Backup</button>
@@ -127,7 +127,7 @@ document.addEventListener('DOMContentLoaded',()=>{
   document.getElementById('btn-restore-backup').addEventListener('click',()=>{const i=document.createElement('input');i.type='file';i.accept='.json';i.onchange=e=>{const r=new FileReader();r.onload=ev=>{if(!confirm('Substituir?'))return;try{const d=JSON.parse(ev.target.result);if(Array.isArray(d)){reports=d;save();renderList();showToast('Restaurado!');}}catch(err){showToast('Inválido.','error');}};r.readAsText(e.target.files[0]);};i.click();});
   document.getElementById('btn-archive-and-clear').addEventListener('click',()=>{if(confirm("Apagar?")){document.getElementById('btn-download-backup').click();localStorage.removeItem(DB_KEY);setTimeout(()=>window.location.reload(),2000);}});
   const SEED_A3=[{
-    id:Date.now(), title:'Business Case EQPS — Plano Estratégico de Qualidade', lead:'Marcos Garçon', date:new Date().toISOString().slice(0,10), status:'Em Andamento',
+    id:Date.now(), title:'Business Case EPQS SYSTEM — Plano Estratégico de Qualidade', lead:'Marcos Garçon', date:new Date().toISOString().slice(0,10), status:'Em Andamento',
     sections:{
       background:{text:'Analista de Qualidade Sênior recém-designado em operação fabril com duas células: peças técnicas injetadas (conectores, insertos, clips e canaletas) para os mercados automotivo, eletrodomésticos e construção civil. Empresa cresceu rápido demais e ainda não tem processo de qualidade formalizado.',attachments:[]},
       current:{text:'Últimas 3 semanas: reclamações de clientes por variação dimensional em conectores injetados + aumento de 9% no refugo interno por rebarba/porosidade. Zero fluxos formalizados, POPs falhos, inspeção "no olho", sem controle de documentos.',attachments:[]},

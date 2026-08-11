@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>EQPS - Mapeamento de Processos</title>
+<title>EPQS SYSTEM - Mapeamento de Processos</title>
 <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.0.3/src/regular/style.css">
 <style>
   :root{--bg:#0a1628;--panel:#0f1e36;--muted:#1a2942;--card:#0d1a2e;--text:#e5e7eb;--accent:#ff7a1a;--accent2:#ffa552;--ok:#22c55e;--warn:#f59e0b;--bad:#ef4444;--shadow:0 10px 30px rgba(0,0,0,.45);--radius:16px;}
@@ -58,7 +58,7 @@
 <body>
 <div class="container">
   <div class="header">
-    <h1>🛡️ EQPS</h1>
+    <h1>🛡️ EPQS SYSTEM</h1>
     <p>Mapeamento de Processos — Desenvolvido por Marcos Garçon</p>
   </div>
   <div class="controls">
@@ -217,7 +217,7 @@ function addListItem(cId,ph){const c=document.getElementById(cId),i=document.cre
 function removeListItem(b){b.parentElement.remove();}
 function generateSummary(){const c=document.getElementById('summary-content');const gl=(d)=>!d?'<li>-</li>':Array.isArray(d)?d.map(i=>`<li>${i}</li>`).join(''):`<li>${d}</li>`;const gv=(s,f,dv='-')=>processData[s]&&processData[s][f]?processData[s][f]:dv;c.innerHTML=`<div class="summary-section"><h4>1. Objetivo</h4><ul>${gl(processData[1]?.objetivos_lista)}</ul><p>${gv(1,'objetivoFinal')}</p></div><div class="summary-section"><h4>2. Processo</h4><p><b>Nome:</b> ${gv(2,'nomeProcesso')}</p><p><b>Escopo:</b> ${gv(2,'escopo')}</p></div><div class="summary-section"><h4>3. Pessoas</h4><p><b>Executores:</b> ${gv(3,'executores')}</p></div><div class="summary-section"><h4>4. Etapas</h4><p><b>Início:</b> ${gv(4,'etapaInicio')}</p><ol>${(processData[4]?.passos||[]).map(p=>`<li>${p}</li>`).join('')||'<li>-</li>'}</ol><p><b>Fim:</b> ${gv(4,'etapaFim')}</p></div><div class="summary-section"><h4>5. Fluxograma</h4><p>${gv(5,'atividades')}</p></div><div class="summary-section"><h4>6. Validação</h4><ul>${gl(processData[6]?.validacao)}</ul></div><div class="summary-section"><h4>7. Documentação</h4><p><b>Responsável:</b> ${gv(7,'responsavel')}</p></div><div class="summary-section"><h4>8. Plano</h4><p>${gv(8,'planoAcao')}</p></div>`;document.getElementById('summaryModal').style.display='block';}
 function closeSummaryModal(){document.getElementById('summaryModal').style.display='none';}
-function exportSummary(){const c=document.getElementById('summary-content').innerHTML;const h=`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Resumo ITP Systems</title><style>body{font-family:Arial;margin:40px;}h4{color:#ff7a1a;}</style></head><body><h1>🛡️ EQPS - Mapeamento</h1>${c}</body></html>`;const b=new Blob([h],{type:'text/html'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=`itp_mapeamento_${new Date().toISOString().slice(0,10)}.html`;a.click();showNotification('Exportado!','success');}
+function exportSummary(){const c=document.getElementById('summary-content').innerHTML;const h=`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Resumo ITP Systems</title><style>body{font-family:Arial;margin:40px;}h4{color:#ff7a1a;}</style></head><body><h1>🛡️ EPQS SYSTEM - Mapeamento</h1>${c}</body></html>`;const b=new Blob([h],{type:'text/html'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=`itp_mapeamento_${new Date().toISOString().slice(0,10)}.html`;a.click();showNotification('Exportado!','success');}
 function saveData(){localStorage.setItem('itp_mapping_v1',JSON.stringify(processData));showNotification('Salvo!','success');}
 function loadSavedData(){try{const s=localStorage.getItem('itp_mapping_v1');if(s){processData=JSON.parse(s);populateForms();updateProgress();}}catch(e){}}
 function loadData(){loadSavedData();showNotification('Carregado!','info');}

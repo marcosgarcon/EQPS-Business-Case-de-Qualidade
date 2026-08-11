@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EPQS SYSTEM - RH</title>
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.0.3/src/regular/style.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+
+  :root{--bg:#0a1628;--panel:#0f1e36;--muted:#1a2942;--card:#0d1a2e;--text:#e5e7eb;--accent:#1565c0;--accent2:#4a90d9;--ok:#22c55e;--warn:#f59e0b;--bad:#ef4444;--shadow:0 10px 30px rgba(0,0,0,.45);--radius:16px;}
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:system-ui,Inter,Arial;background:var(--bg);color:var(--text);line-height:1.6;display:grid;grid-template-columns:280px 1fr;grid-template-rows:auto 1fr;height:100vh;}
+  .header{grid-column:1/3;display:flex;align-items:center;justify-content:space-between;padding:16px 20px;background:linear-gradient(135deg,#1565c0,#0d47a1);color:#0a1628;border-bottom:1px solid #2a3a55;position:sticky;top:0;z-index:100;}
+  .header-title h1{font-size:1.5rem;font-weight:700;margin-bottom:4px;}
+  .header-title .subtitle{font-size:.9rem;opacity:.85;}.header-title .dev-credit{font-size:.75rem;opacity:.7;}
+  .header-actions{display:flex;gap:12px;flex-wrap:wrap;}
+  .btn{padding:10px 16px;border:none;border-radius:8px;font-weight:600;cursor:pointer;transition:.2s;display:inline-flex;align-items:center;gap:8px;font-size:14px;min-height:40px;}
+  .btn-primary{background:var(--accent);color:#0a1628;}.btn-primary:hover{background:#0d47a1;transform:translateY(-1px);}
+  .btn-secondary{background:var(--muted);color:var(--text);border:1px solid #2a3a55;}.btn-secondary:hover{background:#3d4f6f;}
+  .btn-success{background:var(--ok);color:#fff;}.btn-danger{background:var(--bad);color:#fff;}.btn-warning{background:var(--warn);color:#0a1628;}
+  .btn-small{padding:6px 12px;font-size:12px;min-height:32px;}
+  .sidebar{background:var(--panel);border-right:1px solid #2a3a55;padding:20px;display:flex;flex-direction:column;gap:24px;overflow-y:auto;}
+  .menu{display:flex;flex-direction:column;gap:8px}
+  .menu-item{display:flex;align-items:center;gap:12px;padding:12px 16px;border-radius:8px;background:var(--muted);color:var(--text);cursor:pointer;transition:.2s;border:1px solid #2a3a55;text-decoration:none;}
+  .menu-item:hover{background:#3d4f6f;border-color:#3d4f6f;}
+  .menu-item.active{background:var(--accent);color:#0a1628;border-color:var(--accent);}
+  .menu-item i{font-size:18px;}
+  .main-content{padding:20px;overflow-y:auto;background:var(--bg);}
+  .section{background:var(--panel);border-radius:12px;padding:24px;margin-bottom:24px;border:1px solid #2a3a55;}
+  .section-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:10px;}
+  .section-title{font-size:1.5rem;font-weight:700;color:var(--accent);display:flex;align-items:center;gap:12px;}
+  .section-subtitle{font-size:1.2rem;font-weight:600;color:var(--accent2);margin-bottom:16px;display:flex;align-items:center;gap:8px;}
+  .form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:16px;margin-bottom:20px;}
+  .form-group{display:flex;flex-direction:column;gap:6px;}
+  .form-label{font-size:14px;font-weight:600;color:#4a90d9;}
+  .form-input,.form-select,.form-textarea{padding:12px;border:1px solid #2a3a55;border-radius:8px;background:var(--muted);color:var(--text);font-size:14px;min-height:44px;}
+  .form-input:focus,.form-select:focus,.form-textarea:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(21,101,192,.1);}
+  .form-textarea{resize:vertical;min-height:100px;}
+  .table-container{max-height:500px;overflow:auto;border-radius:8px;border:1px solid #2a3a55;}
+  .table{width:100%;border-collapse:collapse;}
+  .table th,.table td{padding:12px;text-align:left;border-bottom:1px solid #2a3a55;font-size:14px;}
+  .table th{background:var(--muted);font-weight:600;color:#4a90d9;position:sticky;top:0;z-index:10;}
+  .table tbody tr:hover{background:var(--muted);}
+  .kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:20px;margin-bottom:24px;}
+  .kpi-card{background:var(--muted);border-radius:12px;padding:20px;text-align:center;border:1px solid #2a3a55;}
+  .kpi-card h3{font-size:.9rem;color:var(--accent2);margin-bottom:12px;text-transform:uppercase;}
+  .kpi-value{font-size:2.5rem;font-weight:700;color:var(--accent);margin-bottom:8px;}
+  .kpi-label{font-size:.8rem;color:#94a3b8;}
+  .status-pill{padding:4px 12px;border-radius:20px;font-weight:600;font-size:12px;color:#fff;display:inline-block;}
+  .status-aberta{background:var(--bad);}.status-andamento{background:var(--warn);color:#0a1628;}.status-concluida{background:var(--ok);}.status-cancelada{background:#6b7280;}
+  .modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:1000;backdrop-filter:blur(4px);}
+  .modal.active{display:flex;justify-content:center;align-items:center;padding:20px;}
+  .modal-content{background:var(--panel);border-radius:12px;padding:30px;width:90%;max-width:800px;max-height:90vh;overflow-y:auto;border:1px solid #2a3a55;}
+  .modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;padding-bottom:16px;border-bottom:1px solid #2a3a55;}
+  .modal-title{font-size:1.5rem;font-weight:700;color:var(--accent);}
+  .close-btn{background:none;border:none;color:#94a3b8;font-size:24px;cursor:pointer;padding:8px;border-radius:4px;}
+  .close-btn:hover{color:var(--text);background:var(--muted);}
+  .notification{position:fixed;top:20px;right:20px;padding:16px 20px;border-radius:8px;color:#fff;font-weight:600;z-index:1001;transform:translateX(400px);transition:.3s;min-width:300px;}
+  .notification.show{transform:translateX(0);}
+  .notification.success{background:var(--ok);}.notification.error{background:var(--bad);}.notification.info{background:var(--accent);color:#0a1628;}
+  .hidden{display:none !important;}
+  .stats-container{background:var(--muted);border-radius:8px;padding:16px;margin-bottom:20px;border:1px solid #2a3a55;}
+  .stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:16px;}
+  .stat-item{text-align:center;}.stat-value{font-size:1.5rem;font-weight:700;color:var(--accent);}.stat-label{font-size:.8rem;color:#94a3b8;}
+  .chart-container{background:var(--muted);border-radius:8px;padding:20px;border:1px solid #2a3a55;}
+  @media(max-width:768px){body{grid-template-columns:1fr;grid-template-rows:auto auto 1fr;}.sidebar{grid-row:2;}}
+
+</style>
+</head>
+<body>
+<div class="header">
+  <div class="header-title">
+    <h1>👥 EPQS SYSTEM · RH</h1>
+    <p class="subtitle">Colaboradores, Departamentos e Avaliações</p>
+    <p class="dev-credit">Desenvolvido por Marcos Garçon</p>
+  </div>
+  <div class="header-actions">
+    <a class="btn btn-secondary" href="index.html"><i class="ph ph-house"></i> Painel</a>
+    <button class="btn btn-secondary" id="btn-restore-backup"><i class="ph ph-upload"></i> Restaurar</button>
+    <button class="btn btn-secondary" id="btn-download-backup"><i class="ph ph-download"></i> Backup</button>
+    <button class="btn btn-primary" id="btn-export-pdf"><i class="ph ph-file-pdf"></i> PDF</button>
+  </div>
+</div>
+<div class="sidebar">
+  <div class="menu">
+    <a href="#" class="menu-item active" data-tab="dashboard"><i class="ph ph-gauge"></i><span>Dashboard</span></a>
+    <a href="#" class="menu-item" data-tab="colaboradores"><i class="ph ph-user"></i><span>Colaboradores</span></a><a href="#" class="menu-item" data-tab="departamentos"><i class="ph ph-buildings"></i><span>Departamentos</span></a><a href="#" class="menu-item" data-tab="avaliacoes"><i class="ph ph-star"></i><span>Avaliações</span></a>
+  </div>
+</div>
+<div class="main-content">
+  <div class="tab-content" id="tab-dashboard">
+    <div class="section">
+      <div class="section-header"><div class="section-title"><i class="ph ph-gauge"></i> Visão geral — RH</div></div>
+      <div class="kpi-grid"><div class="kpi-card"><div class="kpi-value" id="kpi-total-colab">0</div><div class="kpi-label">Colaboradores cadastrados</div></div><div class="kpi-card"><div class="kpi-value" id="kpi-ativos">0</div><div class="kpi-label">Ativos</div></div><div class="kpi-card"><div class="kpi-value" id="kpi-departamentos">0</div><div class="kpi-label">Departamentos</div></div><div class="kpi-card"><div class="kpi-value" id="kpi-avaliacoes">0</div><div class="kpi-label">Avaliações registradas</div></div></div>
+    </div>
+  </div>
+  <div class="tab-content hidden" id="tab-colaboradores">
+<div class="section">
+  <div class="section-header"><div class="section-title"><i class="ph ph-plus-circle"></i> Colaborador — novo / editar</div></div>
+  <form id="form-colaboradores">
+    <input type="hidden" id="id_colaboradores">
+    <div class="form-grid"><div class="form-group"><label class="form-label" for="f_colaboradores_nome">Nome</label><input type="text" id="f_colaboradores_nome" class="form-input" required></div><div class="form-group"><label class="form-label" for="f_colaboradores_cargo">Cargo</label><input type="text" id="f_colaboradores_cargo" class="form-input"></div><div class="form-group"><label class="form-label" for="f_colaboradores_departamento">Departamento</label><input type="text" id="f_colaboradores_departamento" class="form-input"></div><div class="form-group"><label class="form-label" for="f_colaboradores_admissao">Data de Admissão</label><input type="date" id="f_colaboradores_admissao" class="form-input"></div><div class="form-group"><label class="form-label" for="f_colaboradores_status">Status</label><select id="f_colaboradores_status" class="form-select"><option value="">Selecione</option><option value="Ativo">Ativo</option><option value="Inativo">Inativo</option></select></div></div>
+    <div style="display:flex;gap:10px;">
+      <button type="submit" class="btn btn-primary"><i class="ph ph-check"></i> Salvar</button>
+      <button type="button" class="btn btn-secondary" id="btn-clear-colaboradores"><i class="ph ph-x"></i> Limpar</button>
+    </div>
+  </form>
+</div>
+<div class="section">
+  <div class="section-header"><div class="section-title"><i class="ph ph-table"></i> Colaboradores cadastrados</div></div>
+  <div class="table-container">
+    <table class="table">
+      <thead><tr><th>Nome</th><th>Cargo</th><th>Departamento</th><th>Data de Admissão</th><th>Status</th><th>Ações</th></tr></thead>
+      <tbody id="tbody-colaboradores"></tbody>
+    </table>
+  </div>
+</div></div><div class="tab-content hidden" id="tab-departamentos">
+<div class="section">
+  <div class="section-header"><div class="section-title"><i class="ph ph-plus-circle"></i> Departamento — novo / editar</div></div>
+  <form id="form-departamentos">
+    <input type="hidden" id="id_departamentos">
+    <div class="form-grid"><div class="form-group"><label class="form-label" for="f_departamentos_nome">Nome</label><input type="text" id="f_departamentos_nome" class="form-input" required></div><div class="form-group"><label class="form-label" for="f_departamentos_responsavel">Responsável</label><input type="text" id="f_departamentos_responsavel" class="form-input"></div></div>
+    <div style="display:flex;gap:10px;">
+      <button type="submit" class="btn btn-primary"><i class="ph ph-check"></i> Salvar</button>
+      <button type="button" class="btn btn-secondary" id="btn-clear-departamentos"><i class="ph ph-x"></i> Limpar</button>
+    </div>
+  </form>
+</div>
+<div class="section">
+  <div class="section-header"><div class="section-title"><i class="ph ph-table"></i> Departamentos cadastrados</div></div>
+  <div class="table-container">
+    <table class="table">
+      <thead><tr><th>Nome</th><th>Responsável</th><th>Ações</th></tr></thead>
+      <tbody id="tbody-departamentos"></tbody>
+    </table>
+  </div>
+</div></div><div class="tab-content hidden" id="tab-avaliacoes">
+<div class="section">
+  <div class="section-header"><div class="section-title"><i class="ph ph-plus-circle"></i> Avaliação — novo / editar</div></div>
+  <form id="form-avaliacoes">
+    <input type="hidden" id="id_avaliacoes">
+    <div class="form-grid"><div class="form-group"><label class="form-label" for="f_avaliacoes_colaborador">Colaborador</label><input type="text" id="f_avaliacoes_colaborador" class="form-input" required></div><div class="form-group"><label class="form-label" for="f_avaliacoes_data">Data</label><input type="date" id="f_avaliacoes_data" class="form-input"></div><div class="form-group"><label class="form-label" for="f_avaliacoes_nota">Nota (0-10)</label><input type="number" step="any" id="f_avaliacoes_nota" class="form-input"></div><div class="form-group"><label class="form-label" for="f_avaliacoes_observacao">Observação</label><textarea id="f_avaliacoes_observacao" class="form-textarea"></textarea></div></div>
+    <div style="display:flex;gap:10px;">
+      <button type="submit" class="btn btn-primary"><i class="ph ph-check"></i> Salvar</button>
+      <button type="button" class="btn btn-secondary" id="btn-clear-avaliacoes"><i class="ph ph-x"></i> Limpar</button>
+    </div>
+  </form>
+</div>
+<div class="section">
+  <div class="section-header"><div class="section-title"><i class="ph ph-table"></i> Avaliações cadastrados</div></div>
+  <div class="table-container">
+    <table class="table">
+      <thead><tr><th>Colaborador</th><th>Data</th><th>Nota (0-10)</th><th>Ações</th></tr></thead>
+      <tbody id="tbody-avaliacoes"></tbody>
+    </table>
+  </div>
+</div></div>
+</div>
+<script>
+class EPQSModule {
+  constructor() {
+    this.storageKey = "epqs_rh_v1";
+    this.state = { colaboradores: [], departamentos: [], avaliacoes: [] };
+    this.load();
+    this.setupEvents();
+    this.renderAll();
+  }
+  load() {
+    try { const raw = localStorage.getItem(this.storageKey); if (raw) this.state = Object.assign(this.state, JSON.parse(raw)); } catch (e) {}
+  }
+  save() {
+    try { localStorage.setItem(this.storageKey, JSON.stringify(this.state)); } catch (e) { this.notify("Erro ao salvar.", "error"); }
+  }
+  showTab(t) {
+    document.querySelectorAll(".tab-content").forEach(x => x.classList.add("hidden"));
+    document.getElementById(`tab-${t}`)?.classList.remove("hidden");
+    document.querySelectorAll(".menu-item").forEach(x => x.classList.remove("active"));
+    document.querySelector(`[data-tab="${t}"]`)?.classList.add("active");
+    this.renderAll();
+  }
+  notify(m, t = "info") {
+    const n = document.createElement("div");
+    n.className = `notification ${t}`;
+    n.textContent = m;
+    document.body.appendChild(n);
+    setTimeout(() => n.classList.add("show"), 100);
+    setTimeout(() => { n.classList.remove("show"); setTimeout(() => n.remove(), 300); }, 4000);
+  }
+  setupEvents() {
+    document.querySelectorAll(".menu-item").forEach(i => i.addEventListener("click", e => { e.preventDefault(); this.showTab(i.dataset.tab); }));
+    document.getElementById("form-colaboradores").addEventListener("submit", ev => this.save_colaboradores(ev));
+    document.getElementById("btn-clear-colaboradores").addEventListener("click", () => { document.getElementById("form-colaboradores").reset(); document.getElementById("id_colaboradores").value=""; });
+    document.getElementById("form-departamentos").addEventListener("submit", ev => this.save_departamentos(ev));
+    document.getElementById("btn-clear-departamentos").addEventListener("click", () => { document.getElementById("form-departamentos").reset(); document.getElementById("id_departamentos").value=""; });
+    document.getElementById("form-avaliacoes").addEventListener("submit", ev => this.save_avaliacoes(ev));
+    document.getElementById("btn-clear-avaliacoes").addEventListener("click", () => { document.getElementById("form-avaliacoes").reset(); document.getElementById("id_avaliacoes").value=""; });
+    document.getElementById("btn-download-backup").addEventListener("click", () => {
+      const b = new Blob([JSON.stringify(this.state, null, 2)], { type: "application/json" });
+      const l = document.createElement("a"); l.href = URL.createObjectURL(b);
+      l.download = `epqs_rh_v1_${new Date().toISOString().slice(0,10)}.json`; l.click();
+      this.notify("Backup baixado!", "success");
+    });
+    document.getElementById("btn-restore-backup").addEventListener("click", () => {
+      const i = document.createElement("input"); i.type = "file"; i.accept = ".json";
+      i.onchange = e => {
+        const r = new FileReader();
+        r.onload = ev => { if (!confirm("Substituir todos os dados deste módulo?")) return;
+          try { this.state = JSON.parse(ev.target.result); this.save(); this.renderAll(); this.notify("Restaurado!", "success"); }
+          catch (err) { this.notify("Arquivo inválido.", "error"); } };
+        r.readAsText(e.target.files[0]);
+      };
+      i.click();
+    });
+    document.getElementById("btn-export-pdf").addEventListener("click", () => window.print());
+  }
+  renderAll() {
+    this.render_colaboradores();
+    this.render_departamentos();
+    this.render_avaliacoes();
+    document.getElementById("kpi-total-colab").textContent = this.state.colaboradores.length;
+    document.getElementById("kpi-ativos").textContent = this.state.colaboradores.filter(c=>c.status==='Ativo').length;
+    document.getElementById("kpi-departamentos").textContent = this.state.departamentos.length;
+    document.getElementById("kpi-avaliacoes").textContent = this.state.avaliacoes.length;
+  }
+  
+  save_colaboradores(e){
+    e.preventDefault();
+    const id = document.getElementById("id_colaboradores").value;
+    const it = {
+      id: id ? Number(id) : Date.now(),
+      nome: document.getElementById("f_colaboradores_nome").value,
+      cargo: document.getElementById("f_colaboradores_cargo").value,
+      departamento: document.getElementById("f_colaboradores_departamento").value,
+      admissao: document.getElementById("f_colaboradores_admissao").value,
+      status: document.getElementById("f_colaboradores_status").value,
+    };
+    const idx = this.state.colaboradores.findIndex(x => x.id == id);
+    if (idx !== -1) this.state.colaboradores[idx] = it; else this.state.colaboradores.push(it);
+    this.save(); this.renderAll();
+    document.getElementById("form-colaboradores").reset();
+    document.getElementById("id_colaboradores").value = "";
+    this.notify("Salvo!", "success");
+  }
+  edit_colaboradores(id){
+    const it = this.state.colaboradores.find(x => x.id == id);
+    if (!it) return;
+    document.getElementById("id_colaboradores").value = it.id;
+    document.getElementById("f_colaboradores_nome").value = it.nome || "";
+      document.getElementById("f_colaboradores_cargo").value = it.cargo || "";
+      document.getElementById("f_colaboradores_departamento").value = it.departamento || "";
+      document.getElementById("f_colaboradores_admissao").value = it.admissao || "";
+      document.getElementById("f_colaboradores_status").value = it.status || "";
+    this.showTab("colaboradores");
+  }
+  del_colaboradores(id){
+    if (!confirm("Excluir este registro?")) return;
+    this.state.colaboradores = this.state.colaboradores.filter(x => x.id != id);
+    this.save(); this.renderAll();
+  }
+  render_colaboradores(){
+    const tb = document.getElementById("tbody-colaboradores");
+    tb.innerHTML = "";
+    this.state.colaboradores.forEach(it => {
+      const r = tb.insertRow();
+      r.innerHTML = `<td>${it.nome ?? "-"}</td><td>${it.cargo ?? "-"}</td><td>${it.departamento ?? "-"}</td><td>${it.admissao ?? "-"}</td><td>${it.status ?? "-"}</td><td>
+        <button class="btn btn-secondary btn-small" onclick="mod.edit_colaboradores(${it.id})"><i class="ph ph-pencil"></i></button>
+        <button class="btn btn-danger btn-small" onclick="mod.del_colaboradores(${it.id})"><i class="ph ph-trash"></i></button>
+      </td>`;
+    });
+  }
+  save_departamentos(e){
+    e.preventDefault();
+    const id = document.getElementById("id_departamentos").value;
+    const it = {
+      id: id ? Number(id) : Date.now(),
+      nome: document.getElementById("f_departamentos_nome").value,
+      responsavel: document.getElementById("f_departamentos_responsavel").value,
+    };
+    const idx = this.state.departamentos.findIndex(x => x.id == id);
+    if (idx !== -1) this.state.departamentos[idx] = it; else this.state.departamentos.push(it);
+    this.save(); this.renderAll();
+    document.getElementById("form-departamentos").reset();
+    document.getElementById("id_departamentos").value = "";
+    this.notify("Salvo!", "success");
+  }
+  edit_departamentos(id){
+    const it = this.state.departamentos.find(x => x.id == id);
+    if (!it) return;
+    document.getElementById("id_departamentos").value = it.id;
+    document.getElementById("f_departamentos_nome").value = it.nome || "";
+      document.getElementById("f_departamentos_responsavel").value = it.responsavel || "";
+    this.showTab("departamentos");
+  }
+  del_departamentos(id){
+    if (!confirm("Excluir este registro?")) return;
+    this.state.departamentos = this.state.departamentos.filter(x => x.id != id);
+    this.save(); this.renderAll();
+  }
+  render_departamentos(){
+    const tb = document.getElementById("tbody-departamentos");
+    tb.innerHTML = "";
+    this.state.departamentos.forEach(it => {
+      const r = tb.insertRow();
+      r.innerHTML = `<td>${it.nome ?? "-"}</td><td>${it.responsavel ?? "-"}</td><td>
+        <button class="btn btn-secondary btn-small" onclick="mod.edit_departamentos(${it.id})"><i class="ph ph-pencil"></i></button>
+        <button class="btn btn-danger btn-small" onclick="mod.del_departamentos(${it.id})"><i class="ph ph-trash"></i></button>
+      </td>`;
+    });
+  }
+  save_avaliacoes(e){
+    e.preventDefault();
+    const id = document.getElementById("id_avaliacoes").value;
+    const it = {
+      id: id ? Number(id) : Date.now(),
+      colaborador: document.getElementById("f_avaliacoes_colaborador").value,
+      data: document.getElementById("f_avaliacoes_data").value,
+      nota: document.getElementById("f_avaliacoes_nota").value,
+      observacao: document.getElementById("f_avaliacoes_observacao").value,
+    };
+    const idx = this.state.avaliacoes.findIndex(x => x.id == id);
+    if (idx !== -1) this.state.avaliacoes[idx] = it; else this.state.avaliacoes.push(it);
+    this.save(); this.renderAll();
+    document.getElementById("form-avaliacoes").reset();
+    document.getElementById("id_avaliacoes").value = "";
+    this.notify("Salvo!", "success");
+  }
+  edit_avaliacoes(id){
+    const it = this.state.avaliacoes.find(x => x.id == id);
+    if (!it) return;
+    document.getElementById("id_avaliacoes").value = it.id;
+    document.getElementById("f_avaliacoes_colaborador").value = it.colaborador || "";
+      document.getElementById("f_avaliacoes_data").value = it.data || "";
+      document.getElementById("f_avaliacoes_nota").value = it.nota || "";
+      document.getElementById("f_avaliacoes_observacao").value = it.observacao || "";
+    this.showTab("avaliacoes");
+  }
+  del_avaliacoes(id){
+    if (!confirm("Excluir este registro?")) return;
+    this.state.avaliacoes = this.state.avaliacoes.filter(x => x.id != id);
+    this.save(); this.renderAll();
+  }
+  render_avaliacoes(){
+    const tb = document.getElementById("tbody-avaliacoes");
+    tb.innerHTML = "";
+    this.state.avaliacoes.forEach(it => {
+      const r = tb.insertRow();
+      r.innerHTML = `<td>${it.colaborador ?? "-"}</td><td>${it.data ?? "-"}</td><td>${it.nota ?? "-"}</td><td>
+        <button class="btn btn-secondary btn-small" onclick="mod.edit_avaliacoes(${it.id})"><i class="ph ph-pencil"></i></button>
+        <button class="btn btn-danger btn-small" onclick="mod.del_avaliacoes(${it.id})"><i class="ph ph-trash"></i></button>
+      </td>`;
+    });
+  }
+}
+const mod = new EPQSModule();
+</script>
+</body>
+</html>

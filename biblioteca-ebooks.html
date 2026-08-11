@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>EQPS — Biblioteca de E-books | Marcos Garçon</title>
+<title>EPQS SYSTEM — Biblioteca de E-books | Marcos Garçon</title>
 <style>
   :root{
     --bg:#081225; --bg2:#0a1a35; --panel:#0d1a2e; --panel2:#0f2140;
@@ -58,6 +58,20 @@
   .c-saudemental{background:linear-gradient(135deg,#be185d,#831843)}
 
   .bonus-section{margin-top:56px}
+
+  /* ---- Caminho do Saber (trilhas de conhecimento) ---- */
+  .trilhas-section{margin-top:56px}
+  .trilha-card{background:linear-gradient(165deg,var(--panel),var(--panel2));border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);padding:24px 26px;margin-bottom:22px}
+  .trilha-head{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:8px}
+  .trilha-icon{font-size:32px}
+  .trilha-title{font-size:19px;font-weight:800}
+  .trilha-badge{background:linear-gradient(135deg,var(--orange),var(--orange-dark));color:#fff;font-size:11px;font-weight:800;padding:4px 12px;border-radius:999px;letter-spacing:.3px}
+  .trilha-desc{color:var(--muted);font-size:13.5px;margin:10px 0 16px;max-width:820px}
+  .trilha-files{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px}
+  .trilha-file{display:flex;align-items:center;gap:10px;background:var(--panel2);border:1px solid var(--border);border-radius:12px;padding:10px 12px;text-decoration:none;color:var(--text);font-size:13px;transition:.2s}
+  .trilha-file:hover{border-color:var(--orange);color:var(--orange-light)}
+  .trilha-file .ficon{font-size:18px;flex-shrink:0}
+  .trilha-file .fname{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .bonus-card{display:grid;grid-template-columns:220px 1fr;gap:0;background:linear-gradient(120deg,var(--panel),var(--panel2));border:2px solid var(--green);border-radius:var(--radius);overflow:hidden;box-shadow:0 14px 36px rgba(74,222,128,.15)}
   .bonus-cover{background:linear-gradient(160deg,var(--green),#166534);display:flex;align-items:center;justify-content:center;font-size:64px}
   .bonus-body{padding:26px 28px}
@@ -89,14 +103,14 @@
       <polygon points="256,20 452,138 452,374 256,492 60,374 60,138" fill="url(#bgG)" stroke="url(#rG)" stroke-width="16"/>
       <polyline points="128,300 190,255 240,290 300,210 372,168" fill="none" stroke="url(#gG)" stroke-width="14" stroke-linecap="round" stroke-linejoin="round"/>
       <circle cx="372" cy="168" r="14" fill="#86efac"/><circle cx="300" cy="210" r="10" fill="#86efac" opacity=".85"/><circle cx="240" cy="290" r="10" fill="#86efac" opacity=".85"/><circle cx="190" cy="255" r="10" fill="#86efac" opacity=".85"/><circle cx="128" cy="300" r="10" fill="#86efac" opacity=".85"/>
-      <text x="256" y="345" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-weight="800" font-size="100" fill="#ffffff" letter-spacing="2">EQPS</text>
+      <text x="256" y="345" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-weight="800" font-size="100" fill="#ffffff" letter-spacing="2">EPQS</text>
     </svg>
     <div class="brand-text">
-      <div class="name">EQPS — Biblioteca de E-books</div>
+      <div class="name">EPQS SYSTEM — Biblioteca de E-books</div>
       <div class="tag">Engenharia · Processos · Qualidade e Estatística</div>
     </div>
   </div>
-  <a class="back-link" href="index.html">← Voltar ao Painel EQPS</a>
+  <a class="back-link" href="index.html">← Voltar ao Painel EPQS SYSTEM</a>
 </header>
 
 <div class="wrap">
@@ -214,6 +228,10 @@
 
   </div>
 
+  <h2 class="section-title">🧭 Caminho do Saber</h2>
+  <p class="section-sub">Trilhas de estudo por tema — cada trilha reúne PDFs, planilhas, vídeos e áudios sobre um assunto específico, além dos e-books.</p>
+  <div class="trilhas-section" id="trilhas"></div>
+
   <div class="bonus-section">
     <h2 class="section-title">📖 Bônus — Livro de Autoria de Marcos Garçon</h2>
     <p class="section-sub">Fora do universo técnico-corporativo: uma obra pessoal sobre luto, perda e transição.</p>
@@ -232,10 +250,67 @@
   </div>
 
   <footer>
-    Sistema EQPS — Engenharia, Processos, Qualidade e Estatística · Desenvolvido por Marcos Garçon<br>
+    EPQS SYSTEM — Engenharia, Processos, Qualidade e Estatística · Desenvolvido por Marcos Garçon<br>
     <a href="https://github.com/eqps-system/Eng-Process-Quality-and-Statistics" target="_blank" rel="noopener">github.com/eqps-system/Eng-Process-Quality-and-Statistics</a>
   </footer>
 </div>
+
+<script>
+// ============================================================================
+// 🧭 CAMINHO DO SABER — trilhas de conhecimento (pastas de material por tema)
+// ----------------------------------------------------------------------------
+// Para adicionar uma nova trilha (uma nova pasta de material no mesmo estilo
+// da IATF), basta acrescentar um novo objeto neste array TRILHAS. Cada
+// arquivo listado aponta para dentro da pasta correspondente no repositório.
+// ============================================================================
+const TRILHAS = [
+  {
+    icone: "🏭",
+    titulo: "IATF 16949 — Sistema de Gestão da Qualidade Automotiva",
+    badge: "Automotivo",
+    descricao: "Material de estudo sobre a norma IATF 16949: e-books, planilhas de requisitos, guia de certificação, mapa da norma e conteúdo em áudio/vídeo.",
+    pasta: "IATF/",
+    arquivos: [
+      { nome: "Business Case IATF 16949 (apresentação)", tipo: "html", icone: "📊", arquivo: "../Business-case-IATF.html", externo: true },
+      { nome: "Automotive Zero Risk Blueprint", tipo: "pdf", icone: "📕", arquivo: "Automotive_Zero_Risk_Blueprint.pdf" },
+      { nome: "Automotive Excellence Architecture", tipo: "pdf", icone: "📕", arquivo: "Automotive_Excellence_Architecture.pdf" },
+      { nome: "Automotive Precision Architecture", tipo: "pdf", icone: "📕", arquivo: "Automotive_Precision_Architecture.pdf" },
+      { nome: "Especificações e Requisitos do SGQ Automotivo IATF 16949", tipo: "xlsx", icone: "📗", arquivo: "Especificacoes_e_Requisitos_SGQ_Automotiva_IATF_16949.xlsx" },
+      { nome: "Manual Estratégico de Gestão da Qualidade Automotiva", tipo: "xlsx", icone: "📗", arquivo: "Manual_Estrategico_Gestao_Qualidade_Automotiva.xlsx" },
+      { nome: "Plano de Evolução da Qualidade — Estamparia de Terminais e Conectores", tipo: "xlsx", icone: "📗", arquivo: "Plano_Evolucao_Qualidade_Estamparia_Terminais_Conectores.xlsx" },
+      { nome: "Guia de Certificação IATF 16949", tipo: "png", icone: "🖼️", arquivo: "Guia_de_Certificacao_IATF_16949.png" },
+      { nome: "Mapa da IATF 16949", tipo: "png", icone: "🖼️", arquivo: "IATF_MAPA.png" },
+      { nome: "A nova IATF 16949 e o FMEA (áudio)", tipo: "m4a", icone: "🎧", arquivo: "A_nova_IATF_16949_e_o_FMEA.m4a" },
+      { nome: "Garantindo Risco Zero (vídeo)", tipo: "mp4", icone: "🎬", arquivo: "Garantindo_Risco_Zero.mp4" },
+      { nome: "Padrões Automotivos (vídeo)", tipo: "mp4", icone: "🎬", arquivo: "Padroes_Automotivos.mp4" },
+    ],
+  },
+  // 👉 próxima trilha entra aqui, seguindo o mesmo formato acima.
+];
+
+function renderTrilhas() {
+  const wrap = document.getElementById('trilhas');
+  wrap.innerHTML = TRILHAS.map(t => `
+    <div class="trilha-card">
+      <div class="trilha-head">
+        <span class="trilha-icon">${t.icone}</span>
+        <span class="trilha-title">${t.titulo}</span>
+        <span class="trilha-badge">${t.badge}</span>
+      </div>
+      <p class="trilha-desc">${t.descricao}</p>
+      <div class="trilha-files">
+        ${t.arquivos.map(a => `
+          <a class="trilha-file" href="${a.externo ? a.arquivo : t.pasta + encodeURIComponent(a.arquivo)}" target="_blank" rel="noopener" ${a.externo ? '' : 'download'}>
+            <span class="ficon">${a.icone}</span>
+            <span class="fname">${a.nome}</span>
+          </a>
+        `).join('')}
+      </div>
+    </div>
+  `).join('');
+}
+renderTrilhas();
+</script>
 
 <script>
 document.getElementById('tabs').addEventListener('click', e=>{
